@@ -1,0 +1,84 @@
+<!doctype html><html lang="ko"><head><meta charset="UTF-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>트리샘 스마트 입목죽 관리 시스템</title><link rel="preconnect" href="https://fonts.googleapis.com"><style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f5f3f0;color:#252b28;font-family:'Noto Sans KR',Arial,sans-serif}a{text-decoration:none;color:inherit}.hero{position:relative;min-height:100vh;display:flex;align-items:center;background:url('https://d2xsxph8kpxj0f.cloudfront.net/310519663622509132/mCBAxxxLuUCiihESSrasvg/treesam-hero-background-a8Jp3Jy9tE88cgKXYMvBrH.webp') center/cover}.hero:after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,rgba(7,25,18,.42),rgba(7,24,17,.12),transparent)}.wrap{width:min(1248px,92%);margin:auto}.hero .wrap{position:relative;z-index:1;color:#fff}.hero h1{font-size:clamp(42px,4.25vw,62px);line-height:1.38;letter-spacing:-.045em;margin:0}.hero h1 span{display:block}.hero p{font-size:clamp(17px,1.5vw,22px);line-height:1.75}.actions{display:flex;gap:16px;flex-wrap:wrap}.btn{display:inline-flex;min-height:48px;align-items:center;justify-content:center;padding:0 26px;border-radius:6px;background:#174739;color:#fff;font-weight:600}.btn.green{background:#80b641}.features{background:#fff;padding:74px 5vw 88px;text-align:center}h2{color:#1b4d3e;font-size:32px}.lead{color:#777}.grid{width:min(1150px,100%);margin:46px auto 0;display:grid;grid-template-columns:repeat(4,1fr);gap:22px}.card{padding:30px 20px;border:1px solid #e8ebe7;border-radius:9px;box-shadow:0 10px 26px rgba(27,77,62,.055)}.icon{width:54px;height:54px;margin:auto;display:grid;place-items:center;border-radius:50%;background:#ecf3e9;color:#1b4d3e;font-size:24px}.card h3{font-size:17px}.card p{font-size:13px;color:#858a87}.overview{min-height:608px;display:grid;grid-template-columns:1.05fr .95fr;align-items:center;gap:70px}.overview p{line-height:1.9;color:#5d6460}.overview img{width:min(390px,100%);mix-blend-mode:multiply}.outline{margin-top:12px;color:#1b4d3e;background:transparent;border:1px solid #85a699}.future{min-height:361px;background:#1b4d3e;color:#fff;display:flex;align-items:center;justify-content:center;gap:20vw;padding:60px 8vw}.future h2{color:#fff}.future p{line-height:1.8;color:#dbe6e0}footer{background:#2c2c2c;color:#bbb;padding:55px 7vw 24px}.foot{display:grid;grid-template-columns:2fr 1fr 1fr 1.4fr;gap:50px}.foot h3{color:#8cc04d}.foot h4{color:#fff}.foot a,.foot p{display:block;font-size:12px;line-height:1.8}.copy{margin-top:35px;padding-top:20px;border-top:1px solid #474747;text-align:center;font-size:11px}@media(max-width:800px){.grid{grid-template-columns:1fr 1fr}.overview{grid-template-columns:1fr;padding:60px 0}.future{flex-direction:column;align-items:flex-start;gap:30px}.foot{grid-template-columns:1fr 1fr}}@media(max-width:520px){.grid{grid-template-columns:1fr}.hero .wrap{width:calc(100% - 44px)}.actions{flex-direction:column}.btn{width:100%}.foot{grid-template-columns:1fr}}
+.btn{border:0;cursor:pointer;font:inherit}.qr-modal{position:fixed;inset:0;z-index:9999;display:none;align-items:center;justify-content:center;padding:20px;background:rgba(6,22,16,.82)}.qr-modal.open{display:flex}.qr-panel{position:relative;width:min(440px,100%);padding:22px;border-radius:16px;background:#fff;color:#252b28;box-shadow:0 24px 70px rgba(0,0,0,.35)}.qr-panel h2{margin:0 40px 8px 0;font-size:23px}.qr-panel p{margin:0 0 16px;color:#5d6460;font-size:14px;line-height:1.6}.qr-close{position:absolute;top:14px;right:14px;width:38px;height:38px;border:0;border-radius:50%;background:#edf2ef;color:#174739;font-size:24px;line-height:1;cursor:pointer}.qr-reader{overflow:hidden;width:100%;min-height:280px;border-radius:10px;background:#101714}.qr-status{min-height:24px;margin-top:12px!important;text-align:center;color:#174739!important;font-weight:600}.qr-result{overflow-wrap:anywhere}
+</style></head><body><section class="hero"><div class="wrap"><h1><span>트리샘</span><span>스마트 입목죽</span><span>관리시스템</span></h1><p>QR코드와 모바일 미디어를 활용한<br>학교 수목 자산의 지능형 관리 솔루션</p><div class="actions"><button class="btn" id="qrScanButton" type="button">QR 코드 스캔</button><a class="btn green" href="dashboard/">입목죽 관리 시스템 로그인</a></div></div></section><section class="features" id="features"><h2>핵심 기능</h2><p class="lead">트리샘은 학교의 수목 자산을 효율적으로 관리하기 위한 통합 솔루션을 제공합니다.</p><div class="grid"><article class="card"><div class="icon">▦</div><h3>QR 코드 연동</h3><p>각 수목에 QR 코드를 부착하여 즉시 정보 접근</p></article><article class="card"><div class="icon">♫</div><h3>스토리텔링</h3><p>AI TTS 음성으로 수목의 이야기를 생생하게 전달</p></article><article class="card"><div class="icon">▥</div><h3>데이터 대시보드</h3><p>수목 상태를 실시간으로 모니터링하고 분석</p></article><article class="card"><div class="icon">✓</div><h3>업무 자동화</h3><p>현장 조사부터 보고까지 전 과정 디지털화</p></article></div></section><section class="overview wrap" id="overview"><div><h2>연구 개요</h2><p>2026년 전북특별자치도교육청 지방공무원 행정연구회 ‘트리샘’은 학교의 입목죽(수목) 관리 고도화를 위해 QR코드와 모바일 미디어 기술을 활용한 스마트 관리 시스템을 개발했습니다.</p><p>기존의 수기 대장과 담당자의 기억에 의존하던 관리 방식을 디지털 전환하여, 자산 관리의 정확도를 높이고 업무 효율성을 극대화합니다.</p><a class="btn outline" href="dashboard/">수목 데이터 확인하기 →</a></div><img src="https://d2xsxph8kpxj0f.cloudfront.net/310519663622509132/mCBAxxxLuUCiihESSrasvg/treesam-tree-illustration-7nCGzhiS8U4TV4LSiSWsNH.webp" alt="트리샘 수목 일러스트"></section><section class="future" id="future"><div><h2>스마트 수목 관리의 미래</h2><p>트리샘과 함께 학교의 수목 자산을 효율적으로 관리하고,<br>학생들에게 생태 교육의 새로운 경험을 제공하세요.</p></div><a class="btn green" href="dashboard/">지금 시작하기 →</a></section><footer><div class="foot"><div><h3>트리샘</h3><p>QR코드와 모바일 미디어를 활용한<br>스마트 입목죽 관리 시스템</p></div><div><h4>주요 기능</h4><a href="#features">QR 코드 연동</a><a href="#features">데이터 대시보드</a><a href="#features">스토리텔링</a></div><div><h4>정보</h4><a href="#overview">사용 가이드</a><a href="#overview">FAQ</a></div><div><h4>문의</h4><p>전북특별자치도교육청<br>행정연구회 ‘트리샘’</p></div></div><div class="copy">© 2026 TreeSam Smart Management System. All rights reserved.</div></footer><div class="qr-modal" id="qrModal" role="dialog" aria-modal="true" aria-labelledby="qrTitle"><div class="qr-panel"><button class="qr-close" id="qrCloseButton" type="button" aria-label="QR 스캐너 닫기">×</button><h2 id="qrTitle">QR 코드 스캔</h2><p>카메라를 수목의 QR 코드에 맞춰 주세요.</p><div class="qr-reader" id="qrReader"></div><p class="qr-status" id="qrStatus">카메라를 준비하고 있습니다.</p><p class="qr-result" id="qrResult" hidden></p></div></div><script src="https://unpkg.com/html5-qrcode@2.3.8/html5-qrcode.min.js"></script><script>
+(function(){
+  const button=document.getElementById('qrScanButton');
+  const modal=document.getElementById('qrModal');
+  const closeButton=document.getElementById('qrCloseButton');
+  const status=document.getElementById('qrStatus');
+  const result=document.getElementById('qrResult');
+  const isSmartphone=/Android.*Mobile|iPhone|iPod|Windows Phone/i.test(navigator.userAgent);
+  let scanner=null;
+  let active=false;
+  let opening=false;
+
+  async function stopScanner(){
+    active=false;
+    if(scanner){
+      try{if(scanner.isScanning){await scanner.stop();}}catch(e){}
+      try{scanner.clear();}catch(e){}
+      scanner=null;
+    }
+    document.getElementById('qrReader').innerHTML='';
+  }
+
+  async function closeScanner(){
+    modal.classList.remove('open');
+    document.body.style.overflow='';
+    await stopScanner();
+  }
+
+  async function openScanner(){
+    modal.classList.add('open');
+    document.body.style.overflow='hidden';
+    result.hidden=true;
+    result.textContent='';
+    status.textContent='카메라를 준비하고 있습니다.';
+    if(typeof Html5Qrcode==='undefined'){
+      status.textContent='스캐너를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.';
+      return;
+    }
+    opening=true;
+    scanner=new Html5Qrcode('qrReader');
+    try{
+      await scanner.start(
+        {facingMode:'environment'},
+        {fps:10,qrbox:function(w,h){const size=Math.max(180,Math.min(280,Math.floor(Math.min(w,h)*0.72)));return {width:size,height:size};}},
+        async function(decodedText){
+          if(!active)return;
+          active=false;
+          status.textContent='QR 코드를 인식했습니다.';
+          try{await scanner.stop();}catch(e){}
+          if(/^https?:\/\//i.test(decodedText)){
+            window.location.href=decodedText;
+          }else{
+            result.textContent=decodedText;
+            result.hidden=false;
+          }
+        },
+        function(){}
+      );
+      opening=false;
+      if(!modal.classList.contains('open')){
+        await stopScanner();
+        return;
+      }
+      active=true;
+      status.textContent='QR 코드를 화면 중앙에 맞춰 주세요.';
+    }catch(e){
+      opening=false;
+      active=false;
+      status.textContent='카메라를 열 수 없습니다. 브라우저의 카메라 권한을 허용해 주세요.';
+    }
+  }
+
+  button.addEventListener('click',function(){
+    if(!isSmartphone)return;
+    openScanner();
+  });
+  closeButton.addEventListener('click',closeScanner);
+  modal.addEventListener('click',function(e){if(e.target===modal)closeScanner();});
+  document.addEventListener('keydown',function(e){if(e.key==='Escape'&&modal.classList.contains('open'))closeScanner();});
+})();
+</script></body></html>
