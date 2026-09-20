@@ -51,8 +51,51 @@
     const money=value=>value==null||value===''?'-':Number(value).toLocaleString('ko-KR')+'원';
     function show(message,type='error'){const el=$('status');el.textContent=message;el.className='status show '+type;setTimeout(()=>el.className='status',6000)}
     function latestLog(treeId){return logs.filter(l=>l.tree_id===treeId).sort((a,b)=>String(b.inspection_date).localeCompare(String(a.inspection_date))||String(b.created_at).localeCompare(String(a.created_at)))[0]||null}
-    async function init(){$('currentLocationButton').addEventListener('click',registerCurrentLocation);$('locationCameraInput').addEventListener('change',e=>selectLocationPhoto(e.target));$('locationGalleryInput').addEventListener('change',e=>selectLocationPhoto(e.target));$('logPhotoCameraInput').addEventListener('change',e=>selectLogPhoto(e.target));$('logPhotoGalleryInput').addEventListener('change',e=>selectLogPhoto(e.target));$('logInspectionDate').value=today();await loadData();const publicTreeId=new URLSearchParams(location.search).get('tree');if(publicTreeId)showPublicTree(publicTreeId)}
-    async function loadData(){const [treeResult,logResult]=await Promise.all([client.from('demo_trees_public').select('*').order('asset_no'),client.from('demo_tree_management_logs_public').select('*').order('inspection_date',{ascending:false})]);if(treeResult.error){show('수목 데이터를 불러오지 못했습니다: '+treeResult.error.message);$('treeGrid').innerHTML='<div class="card empty">데이터를 불러오지 못했습니다.</div>';return}if(logResult.error)show('점검일지를 불러오지 못했습니다: '+logResult.error.message);trees=treeResult.data||[];logs=logResult.data||[];updateStats();renderUrgent();renderTrees()}
+    async function init(){$('currentLocationButton').addEventListener('click',registerCurrentLocation);$('locationCameraInput').addEventListener('change',e=>selectLocationPhoto(e.target));$('locationGalleryInput').addEventListener('change',e=>selectLocationPhoto(e.target));$('logPhotoCameraInput').addEventListener('change',e=>selectLogPhoto(e.target));$('logPhotoGalleryInput').addEventListener('change',e=>selectLogPhoto(e.target));$('logInspectionDate').value=today();const loaded=await loadData();const publicTreeId=new URLSearchParams(location.search).get('tree');if(loaded&&publicTreeId)showPublicTree(publicTreeId)}
+    let dataLoading=false;
+    function describeLoadError(error){
+      const message=String(error?.message||error||'');
+      if(/failed to fetch|network|load failed|abort|timeout/i.test(message)){
+        return '데이터 서버에 연결할 수 없습니다. 인터넷 연결 또는 데이터 서버의 운영 상태와 연결 주소를 확인해 주세요.';
+      }
+      return '데이터를 불러오지 못했습니다: '+(message||'알 수 없는 오류');
+    }
+    async function loadData(){
+      if(dataLoading)return false;
+      dataLoading=true;
+      const controller=new AbortController();
+      const timeout=setTimeout(()=>controller.abort(),15000);
+      $('treeGrid').innerHTML='<div class="card loading" role="status">데이터를 불러오는 중입니다.</div>';
+      $('urgentList').textContent='데이터를 확인하는 중입니다.';
+      $('addButton').disabled=true;
+      $('downloadRegisterButton').disabled=true;
+      try{
+        if(!client)throw new Error('데이터 연결 프로그램을 불러오지 못했습니다. 페이지를 새로고침해 주세요.');
+        const [treeResult,logResult]=await Promise.all([
+          client.from('demo_trees_public').select('*').order('asset_no').abortSignal(controller.signal),
+          client.from('demo_tree_management_logs_public').select('*').order('inspection_date',{ascending:false}).abortSignal(controller.signal)
+        ]);
+        if(treeResult.error)throw treeResult.error;
+        if(logResult.error)throw logResult.error;
+        trees=treeResult.data||[];
+        logs=logResult.data||[];
+        updateStats();renderUrgent();renderTrees();
+        $('addButton').disabled=false;
+        $('downloadRegisterButton').disabled=false;
+        return true;
+      }catch(error){
+        console.error('[TreeSam] 대시보드 데이터 로딩 실패:',error);
+        trees=[];logs=[];
+        $('stats').querySelectorAll('b').forEach(el=>el.textContent='—');
+        $('urgentList').textContent='데이터 연결 후 긴급관리 수목을 확인할 수 있습니다.';
+        $('treeGrid').innerHTML='<div class="card empty" role="alert"><p>'+esc(describeLoadError(error))+'</p><button type="button" class="secondary" id="retryLoadButton">다시 불러오기</button></div>';
+        $('retryLoadButton').addEventListener('click',()=>loadData());
+        return false;
+      }finally{
+        clearTimeout(timeout);
+        dataLoading=false;
+      }
+    }
     function treeStatus(tree){const l=latestLog(tree.id);return l?l.inspection_status:'미점검'}
     function needsInspection(tree){return ['주의','위험','미점검'].includes(treeStatus(tree))}
     function updateStats(){const counts={양호:0,보통:0,주의:0,위험:0,미점검:0};trees.forEach(t=>{const status=treeStatus(t);counts[status]=(counts[status]||0)+1});$('total').textContent=trees.length;$('good').textContent=counts.양호;$('normal').textContent=counts.보통;$('warning').textContent=counts.주의;$('danger').textContent=counts.위험;$('uninspected').textContent=counts.미점검;$('needInspection').textContent=trees.filter(needsInspection).length}
