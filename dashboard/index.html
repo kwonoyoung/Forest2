@@ -4,136 +4,320 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
   <title>트리샘 수목 관리 대시보드</title>
+  <meta name="description" content="트리샘 스마트 입목죽 관리 시스템 — 학교 수목의 재산정보, 위치, 점검일지, 나무이야기를 관리합니다.">
+  <meta name="theme-color" content="#174b3b">
+  <meta property="og:type" content="website">
+  <meta property="og:site_name" content="트리샘">
+  <meta property="og:title" content="트리샘 수목 관리">
+  <meta property="og:description" content="QR코드로 만나는 학교 수목 이야기와 재산정보 관리">
+  <meta property="og:image" content="https://kwonoyoung.github.io/Forest2/assets/og-image.jpg">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <link rel="icon" href="../assets/favicon.svg" type="image/svg+xml">
+  <link rel="apple-touch-icon" href="../assets/apple-touch-icon.png">
   <style>
-    *{box-sizing:border-box}body{margin:0;background:#f6f5f2;color:#303431;font-family:Arial,'Noto Sans KR',sans-serif}button,input,select,textarea{font:inherit}button{cursor:pointer}header{min-height:68px;padding:10px 4%;display:flex;align-items:center;justify-content:space-between;background:#fff;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:5}.logo{color:#195441;font-size:24px;font-weight:700;text-decoration:none}.actions{display:flex;align-items:center;gap:9px}.user{font-size:12px;color:#66736d}.actions button,.primary{min-height:38px;padding:0 16px;border:0;border-radius:8px;background:#18533f;color:#fff}.secondary{min-height:38px;padding:0 14px;border:1px solid #ccd5d0;border-radius:8px;background:#fff;color:#28443a}.danger-button{color:#bc2e2e!important}.content{width:min(1236px,93%);margin:32px auto 70px}.status{display:none;padding:13px 15px;margin-bottom:18px;border-radius:9px}.status.show{display:block}.status.error{background:#fff0f0;color:#af2424}.status.ok{background:#eaf8ef;color:#116f3a}.stats{display:grid;grid-template-columns:repeat(5,1fr);gap:16px}.card{background:#fff;border:1px solid #ddd;border-radius:14px;box-shadow:0 2px 5px #18372b14}.stat{height:130px;padding:23px 21px;display:flex;flex-direction:column;justify-content:space-between}.stat span{font-size:14px;color:#68706b}.stat b{font-size:31px;color:#194d3d}.good b{color:#14a94c}.normal b{color:#1977ee}.warn b{color:#d99a00}.danger b{color:#df2020}.trees{margin-top:30px}.tree-head{display:flex;justify-content:space-between;align-items:end;margin-bottom:18px}.tree-head h2{font-size:19px;margin:0 0 6px;color:#174b3b}.tree-head p{margin:0;color:#6e7772;font-size:13px}.search{width:390px;height:42px;border:1px solid #d4d6d2;border-radius:8px;padding:0 12px}.tree-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}.tree{padding:22px}.tree-photo{width:100%;height:210px;object-fit:cover;border-radius:10px;margin-bottom:16px;background:#e8eeea}.tree-photo.placeholder{display:grid;place-items:center;color:#7a8b82;font-size:44px}.tree-top{display:flex;justify-content:space-between;gap:12px}.tree h3{margin:0}.tree-top p{margin:8px 0 0;color:#777}.badge{height:28px;padding:5px 12px;border-radius:20px;font-size:13px;white-space:nowrap}.badge.양호{background:#e6f8ed;color:#0a9943}.badge.보통{background:#edf5ff;color:#2675d8}.badge.주의{background:#fff7df;color:#b87800}.badge.위험{background:#fff0f0;color:#d62626}.badge.미점검{background:#f0f1f0;color:#6d746f}.data{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin:16px 0;padding:14px 0;border-block:1px solid #eee}.data span{display:block;font-size:12px;color:#888;margin-bottom:4px}.data b{font-size:14px}.tree audio{width:100%;height:38px;margin:0 0 8px}.audio-url{margin:7px 0 14px}.audio-url label{display:block;margin-bottom:5px;color:#65716b;font-size:12px;font-weight:700}.audio-url-row{display:flex;gap:6px}.audio-url-row input{min-width:0;flex:1;height:36px;padding:0 9px;border:1px solid #d4d8d5;border-radius:7px;background:#f8faf9;color:#53605a;font-size:11px}.audio-url-row button{flex:0 0 auto;height:36px;padding:0 11px;border:1px solid #aec2b8;border-radius:7px;background:#eaf3ee;color:#18533f}.tree-buttons{display:flex;gap:8px;flex-wrap:wrap}.tree-buttons button{height:36px;border:1px solid #d4d8d5;border-radius:7px;background:#fff;padding:0 12px}.tree-buttons .primary{flex:1;background:#18533f}.empty{grid-column:1/-1;padding:45px;text-align:center;color:#777}.modal-bg{display:none;position:fixed;inset:0;background:#1238;z-index:20;place-items:center;padding:16px}.modal-bg.open{display:grid}.modal{width:min(820px,100%);max-height:92vh;overflow:auto;background:#fff;padding:28px;border-radius:14px}.modal.detail-modal{width:min(900px,100%)}.modal h2{margin-top:0;color:#174b3b}.section-title{grid-column:1/-1;margin:20px 0 2px;padding:12px 0 8px;border-bottom:2px solid #e4ebe7;color:#174b3b;font-size:16px}.fields{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}.modal label{display:block;font-size:13px;font-weight:700;margin:12px 0}.modal input,.modal select,.modal textarea{width:100%;margin-top:6px;border:1px solid #d6dcd8;border-radius:7px;padding:10px}.modal input,.modal select{height:42px}.modal textarea{min-height:78px;resize:vertical}.wide{grid-column:1/-1}.upload-box{margin-top:7px;padding:14px;border:1px dashed #aebdb5;border-radius:10px;background:#f7faf8}.upload-actions{display:flex;gap:8px;flex-wrap:wrap}.upload-actions label{margin:0;padding:10px 14px;border-radius:8px;background:#e9f3ed;color:#18533f;cursor:pointer}.upload-actions input{display:none}.photo-preview{display:none;width:100%;max-height:270px;object-fit:contain;margin-top:12px;border-radius:8px;background:#edf1ee}.photo-preview.show{display:block}.media-preview{display:none;width:100%;margin-top:12px;border-radius:8px;background:#edf1ee;overflow:hidden}.media-preview.show{display:block}.media-preview img,.media-preview video{display:block;width:100%;max-height:270px;object-fit:contain;background:#edf1ee}.tree-photo-video{width:100%;height:210px;object-fit:cover;background:#edf1ee}.detail-media video{width:100%;height:250px;object-fit:contain;border-radius:10px;background:#eef2ef}.public-tree video{max-width:100%;max-height:420px}.audio-preview{display:none;width:100%;margin-top:12px}.audio-preview.show{display:block}.upload-help{display:block;margin-top:9px;color:#77817c;font-size:12px;font-weight:400}.log-fields{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:0 16px;padding:0 14px 12px;margin-top:8px;border-radius:10px;background:#f7faf8}.log-fields .wide{grid-column:1/-1}.modal-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}.loading{padding:60px;text-align:center;color:#65716b}.detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 20px}.detail-item{padding:12px;border-bottom:1px solid #edf0ee}.detail-item span{display:block;color:#78817c;font-size:12px;margin-bottom:5px}.detail-media{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:20px 0}.detail-media img{width:100%;height:250px;object-fit:contain;border-radius:10px;background:#eef2ef}.detail-media audio{width:100%;margin-top:10px}.journal{margin-top:24px}.journal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:2px solid #e4ebe7}.journal-head h3{color:#174b3b}.log-list{display:grid;gap:10px;margin-top:13px}.log{padding:14px;border:1px solid #e2e8e4;border-radius:9px;background:#fafcfb}.log-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px}.log p{margin:4px 0;color:#58635d;font-size:13px;line-height:1.6}.money{text-align:right;font-variant-numeric:tabular-nums}@media(max-width:900px){.stats{grid-template-columns:repeat(3,1fr)}.tree-grid{grid-template-columns:1fr}}@media(max-width:650px){header{align-items:flex-start}.actions{flex-wrap:wrap;justify-content:flex-end}.user{width:100%;text-align:right}.logo{font-size:19px}.stats{grid-template-columns:1fr 1fr}.stat{height:108px;padding:17px}.tree-head{align-items:stretch;flex-direction:column;gap:12px}.search{width:100%}.content{width:calc(100% - 28px)}.fields,.log-fields,.detail-grid,.detail-media{grid-template-columns:1fr}.wide,.log-fields .wide{grid-column:auto}.modal{padding:21px}.tree-buttons button{flex:1}.tree-buttons .primary{flex-basis:100%}}
-    .stat[data-filter]{cursor:pointer;transition:transform .16s ease,border-color .16s ease,box-shadow .16s ease}.stat[data-filter]:hover{transform:translateY(-2px);box-shadow:0 7px 18px #18372b20}.stat[data-filter]:focus-visible{outline:3px solid #8ac2ae;outline-offset:3px}.stat.active{border:2px solid #18533f;box-shadow:0 7px 20px #18533f25}.uninspected b{color:#747b77}.need b{color:#c65f16}.operations{margin-top:24px;padding:22px}.operations-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}.operations-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}.operations h2{margin:0 0 5px;color:#174b3b;font-size:18px}.operations p{margin:0;color:#6e7772;font-size:13px}.urgent-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:17px}.urgent-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px;border:1px solid #e1e6e3;border-radius:10px;background:#fafcfb}.urgent-item button{border:0;background:none;color:#18533f;font-weight:700;text-align:left}.urgent-item small{display:block;margin-top:4px;color:#727b76}.urgent-empty{grid-column:1/-1;padding:18px;text-align:center;color:#727b76;background:#f7faf8;border-radius:10px}.qr-modal{width:min(620px,100%);text-align:center}.qr-box{width:220px;height:220px;margin:18px auto;padding:10px;display:grid;place-items:center;border:1px solid #dfe6e2;border-radius:12px;background:#fff}.qr-box img,.qr-box canvas{max-width:100%;height:auto}.qr-url{display:flex;gap:7px;margin:14px 0}.qr-url input{min-width:0;flex:1;margin:0}.public-hero{text-align:center}.public-hero img{width:100%;max-height:330px;object-fit:cover;border-radius:12px;background:#eef2ef}.public-hero .tree-photo.placeholder{height:250px}.public-hero h2{margin:18px 0 6px}.public-hero p{color:#6d7772}.public-story{margin-top:20px;padding:18px;text-align:left;border-radius:12px;background:#f4f8f5}.public-story h3{margin:0 0 10px;color:#174b3b}.public-story audio{width:100%}.public-note{margin-top:15px;color:#748079;font-size:12px}
-    @media(max-width:900px){.urgent-list{grid-template-columns:1fr 1fr}}
-    .gps-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end}.gps-button{height:42px;white-space:nowrap}.location-photo-preview{display:none;width:100%;max-height:270px;object-fit:contain;margin-top:12px;border-radius:8px;background:#edf1ee}.location-photo-preview.show{display:block}.map-link{color:#146c4b;font-weight:700}.log-state-photo{margin-top:12px}.log-state-photo b{display:block;margin-bottom:7px;color:#174b3b}.log-state-photo img{width:100%;max-height:360px;object-fit:contain;border-radius:9px;background:#edf1ee}.log-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:12px;padding-top:10px;border-top:1px solid #e5ebe7}.log-actions button{height:34px;padding:0 12px;border:1px solid #cad5cf;border-radius:7px;background:#fff;color:#18533f}.log-actions .delete-log{color:#b52b2b;border-color:#e5c4c4}
-    @media(max-width:650px){.urgent-list{grid-template-columns:1fr}.operations-head{display:block}.operations-actions{margin-top:12px;justify-content:stretch}.operations-actions button{flex:1}.qr-url{flex-direction:column}.qr-url button{height:38px}.gps-row{grid-template-columns:1fr}.gps-button{width:100%}}
+    *{box-sizing:border-box}
+    body{margin:0;background:#f6f5f2;color:#303431;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Arial,sans-serif}
+    button,input,select,textarea{font:inherit}button{cursor:pointer}button:disabled{cursor:not-allowed;opacity:.6}
+    :focus-visible{outline:3px solid #2f8a66;outline-offset:2px}
+    .sr-only{position:absolute!important;width:1px;height:1px;padding:0;margin:-1px;overflow:hidden;clip:rect(0,0,0,0);white-space:nowrap;border:0}
+    header{min-height:68px;padding:10px 4%;display:flex;align-items:center;justify-content:space-between;gap:10px;background:#fff;border-bottom:1px solid #ddd;position:sticky;top:0;z-index:5}
+    .logo{color:#195441;font-size:24px;font-weight:700;text-decoration:none}
+    .actions{display:flex;align-items:center;gap:9px;flex-wrap:wrap;justify-content:flex-end}
+    .user{font-size:12px;color:#5d6964;overflow-wrap:anywhere}
+    .actions button,.primary{min-height:40px;padding:0 16px;border:0;border-radius:8px;background:#18533f;color:#fff}
+    .secondary{min-height:40px;padding:0 14px;border:1px solid #b9c7c0;border-radius:8px;background:#fff;color:#28443a}
+    .actions .secondary{background:#fff;color:#28443a;border:1px solid #b9c7c0}
+    .danger-button{color:#b02525!important}
+    /* 화면 모드(auth/app/public)에 맞지 않는 영역은 숨깁니다 */
+    body:not([data-mode="app"]) .app-only,
+    body:not([data-mode="auth"]) .auth-only,
+    body:not([data-mode="public"]) .public-only{display:none!important}
+    .actions .app-only{display:inline-flex;align-items:center}
+    .content{width:min(1236px,93%);margin:32px auto 70px}
+    .status{position:fixed;left:50%;top:78px;z-index:60;transform:translateX(-50%);width:min(560px,calc(100% - 24px));display:none;padding:13px 15px;border-radius:10px;box-shadow:0 10px 30px #0003;cursor:pointer}
+    .status.show{display:block}.status.error{background:#fff0f0;color:#9f1f1f;border:1px solid #f0c4c4}.status.ok{background:#eaf8ef;color:#0f6534;border:1px solid #bfe6cd}
+    .stats{display:grid;grid-template-columns:repeat(7,1fr);gap:14px}
+    .card{background:#fff;border:1px solid #ddd;border-radius:14px;box-shadow:0 2px 5px #18372b14}
+    .stat{height:120px;padding:20px 18px;display:flex;flex-direction:column;justify-content:space-between;align-items:flex-start;text-align:left;width:100%;color:inherit;cursor:pointer;transition:transform .16s ease,box-shadow .16s ease}
+    .stat:hover{transform:translateY(-2px);box-shadow:0 7px 18px #18372b20}
+    .stat.active{border:2px solid #18533f;box-shadow:0 7px 20px #18533f25}
+    .stat span{font-size:14px;color:#5b635e}.stat b{font-size:30px;color:#194d3d}
+    .good b{color:#0b7a37}.normal b{color:#1764c8}.warn b{color:#946200}.danger b{color:#c41a1a}.uninspected b{color:#5f6662}.need b{color:#a94e10}
+    .operations{margin-top:24px;padding:22px}.operations-head{display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+    .operations-actions{display:flex;align-items:center;justify-content:flex-end;gap:8px;flex-wrap:wrap}
+    .operations h2{margin:0 0 5px;color:#174b3b;font-size:18px}.operations p{margin:0;color:#5f6662;font-size:13px}
+    .urgent-list{display:grid;grid-template-columns:repeat(3,1fr);gap:12px;margin-top:17px}
+    .urgent-item{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:13px;border:1px solid #e1e6e3;border-radius:10px;background:#fafcfb}
+    .urgent-item button{border:0;background:none;color:#18533f;font-weight:700;text-align:left;min-height:40px}
+    .urgent-item small{display:block;margin-top:4px;color:#5f6662;font-weight:400}
+    .urgent-empty{grid-column:1/-1;padding:18px;text-align:center;color:#5f6662;background:#f7faf8;border-radius:10px}
+    .trees{margin-top:30px}.tree-head{display:flex;justify-content:space-between;align-items:end;gap:12px;margin-bottom:18px}
+    .tree-head h2{font-size:19px;margin:0 0 6px;color:#174b3b}.tree-head p{margin:0;color:#5f6662;font-size:13px}
+    .search{width:390px;height:44px;border:1px solid #c9cdc8;border-radius:8px;padding:0 12px}
+    .tree-grid{display:grid;grid-template-columns:1fr 1fr;gap:20px}
+    .tree{padding:22px}
+    .tree-photo,.tree-photo-video{width:100%;height:210px;object-fit:cover;border-radius:10px;margin-bottom:16px;background:#e8eeea;display:block}
+    .tree-photo.placeholder{display:grid;place-items:center;color:#6f8077;font-size:44px}
+    .tree-top{display:flex;justify-content:space-between;gap:12px}.tree h3{margin:0}.tree-top p{margin:8px 0 0;color:#666}
+    .badge{display:inline-block;height:28px;padding:5px 12px;border-radius:20px;font-size:13px;white-space:nowrap}
+    .badge.양호{background:#e6f8ed;color:#0a7a37}.badge.보통{background:#edf5ff;color:#1f62b8}.badge.주의{background:#fff4d6;color:#7d5200}.badge.위험{background:#fff0f0;color:#b81f1f}.badge.미점검{background:#eef0ee;color:#545b57}
+    .data{display:grid;grid-template-columns:repeat(2,1fr);gap:11px;margin:16px 0;padding:14px 0;border-block:1px solid #eee}
+    .data span{display:block;font-size:12px;color:#6b6f6c;margin-bottom:4px}.data b{font-size:14px}
+    .tree audio{width:100%;height:40px;margin:0 0 8px}
+    .audio-url{margin:7px 0 14px}.audio-url label{display:block;margin-bottom:5px;color:#55605a;font-size:12px;font-weight:700}
+    .audio-url-row{display:flex;gap:6px}.audio-url-row input{min-width:0;flex:1;height:38px;padding:0 9px;border:1px solid #d4d8d5;border-radius:7px;background:#f8faf9;color:#46524c;font-size:12px}
+    .audio-url-row button{flex:0 0 auto;height:38px;padding:0 11px;border:1px solid #aec2b8;border-radius:7px;background:#eaf3ee;color:#18533f}
+    .tree-buttons{display:flex;gap:8px;flex-wrap:wrap}.tree-buttons button{min-height:40px;border:1px solid #c9d0cc;border-radius:7px;background:#fff;padding:0 12px}
+    .tree-buttons .primary{flex:1;background:#18533f;border-color:#18533f}
+    .empty{grid-column:1/-1;padding:45px;text-align:center;color:#5f6662}
+    .more{grid-column:1/-1;text-align:center}.more button{min-width:200px}
+    .modal-bg{display:none;position:fixed;inset:0;background:#11223388;z-index:20;place-items:center;padding:16px}.modal-bg.open{display:grid}
+    body.modal-open{overflow:hidden}
+    .modal{width:min(820px,100%);max-height:92vh;overflow:auto;background:#fff;padding:28px;border-radius:14px}
+    .modal.detail-modal{width:min(900px,100%)}.modal h2{margin-top:0;color:#174b3b}
+    .section-title{grid-column:1/-1;margin:20px 0 2px;padding:12px 0 8px;border-bottom:2px solid #e4ebe7;color:#174b3b;font-size:16px}
+    .fields{display:grid;grid-template-columns:1fr 1fr;gap:0 16px}
+    .modal label,.auth-card label{display:block;font-size:13px;font-weight:700;margin:12px 0}
+    .modal input,.modal select,.modal textarea,.auth-card input{width:100%;margin-top:6px;border:1px solid #c9d0cc;border-radius:7px;padding:10px}
+    .modal input,.modal select,.auth-card input{height:44px}.modal textarea{min-height:78px;resize:vertical}
+    .wide{grid-column:1/-1}
+    .upload-box{margin-top:7px;padding:14px;border:1px dashed #aebdb5;border-radius:10px;background:#f7faf8}
+    .upload-actions{display:flex;gap:8px;flex-wrap:wrap}
+    .upload-actions label{position:relative;margin:0;padding:11px 14px;border-radius:8px;background:#e9f3ed;color:#18533f;cursor:pointer}
+    .upload-actions label:focus-within{outline:3px solid #2f8a66;outline-offset:2px}
+    .upload-actions input{position:absolute;inset:0;width:1px;height:1px;opacity:0}
+    .photo-preview,.location-photo-preview{display:none;width:100%;max-height:270px;object-fit:contain;margin-top:12px;border-radius:8px;background:#edf1ee}
+    .photo-preview.show,.location-photo-preview.show{display:block}
+    .media-preview{display:none;width:100%;margin-top:12px;border-radius:8px;background:#edf1ee;overflow:hidden}.media-preview.show{display:block}
+    .media-preview img,.media-preview video{display:block;width:100%;max-height:270px;object-fit:contain;background:#edf1ee}
+    .audio-preview{display:none;width:100%;margin-top:12px}.audio-preview.show{display:block}
+    .upload-help{display:block;margin-top:9px;color:#5f6965;font-size:12px;font-weight:400}
+    .modal-foot{display:flex;justify-content:flex-end;gap:8px;margin-top:18px}
+    .loading{padding:60px;text-align:center;color:#5f6662}
+    .detail-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px 20px}
+    .detail-item{padding:12px;border-bottom:1px solid #edf0ee}.detail-item span{display:block;color:#666e69;font-size:12px;margin-bottom:5px}
+    .detail-media{display:grid;grid-template-columns:1fr 1fr;gap:18px;margin:20px 0}
+    .detail-media img,.detail-media video{width:100%;height:250px;object-fit:contain;border-radius:10px;background:#eef2ef}
+    .detail-media audio{width:100%;margin-top:10px}
+    .journal{margin-top:24px}.journal-head{display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:2px solid #e4ebe7}.journal-head h3{color:#174b3b}
+    .log-list{display:grid;gap:10px;margin-top:13px}.log{padding:14px;border:1px solid #e2e8e4;border-radius:9px;background:#fafcfb}
+    .log-top{display:flex;justify-content:space-between;gap:10px;margin-bottom:8px}.log p{margin:4px 0;color:#4f5a54;font-size:13px;line-height:1.6}
+    .log-state-photo{margin-top:12px}.log-state-photo b{display:block;margin-bottom:7px;color:#174b3b}
+    .log-state-photo img{width:100%;max-height:360px;object-fit:contain;border-radius:9px;background:#edf1ee}
+    .log-actions{display:flex;justify-content:flex-end;gap:7px;margin-top:12px;padding-top:10px;border-top:1px solid #e5ebe7}
+    .log-actions button{min-height:38px;padding:0 12px;border:1px solid #cad5cf;border-radius:7px;background:#fff;color:#18533f}
+    .log-actions .delete-log{color:#a82424;border-color:#e5c4c4}
+    .gps-row{display:grid;grid-template-columns:1fr 1fr auto;gap:8px;align-items:end}.gps-button{height:44px;white-space:nowrap;margin-bottom:12px}
+    .map-link{color:#146c4b;font-weight:700}
+    .qr-modal{width:min(620px,100%);text-align:center}
+    .qr-box{width:220px;height:220px;margin:18px auto;padding:10px;display:grid;place-items:center;border:1px solid #dfe6e2;border-radius:12px;background:#fff}
+    .qr-box img,.qr-box canvas{max-width:100%;height:auto}
+    .qr-url{display:flex;gap:7px;margin:14px 0}.qr-url input{min-width:0;flex:1;margin:0}
+    /* 로그인 화면 */
+    .auth-wrap{min-height:calc(100vh - 68px);display:grid;place-items:center;padding:24px 16px}
+    .auth-card{width:min(420px,100%);padding:28px;background:#fff;border:1px solid #ddd;border-radius:16px;box-shadow:0 10px 30px #18372b14}
+    .auth-card h1{margin:0 0 6px;color:#174b3b;font-size:24px}.auth-card>p{margin:0 0 8px;color:#5f6662;font-size:14px;line-height:1.6}
+    .auth-card .primary{width:100%;min-height:46px;margin-top:8px}
+    .auth-switch{display:flex;justify-content:space-between;gap:8px;margin-top:16px;flex-wrap:wrap}
+    .link-button{border:0;background:none;color:#18533f;text-decoration:underline;padding:6px 0;min-height:36px}
+    .auth-message{min-height:20px;margin:12px 0 0;font-size:13px;line-height:1.6}
+    .auth-message.error{color:#a31f1f}.auth-message.ok{color:#0f6534}
+    /* QR 공개 화면 */
+    .public-wrap{width:min(720px,93%);margin:28px auto 60px}
+    .public-card{padding:24px;text-align:center}
+    .public-card img,.public-card video{width:100%;max-height:380px;object-fit:cover;border-radius:12px;background:#eef2ef;display:block}
+    .public-card .tree-photo.placeholder{height:250px;margin:0}
+    .public-card h1{margin:18px 0 6px;color:#174b3b;font-size:26px}.public-card p{color:#5f6662}
+    .public-story{margin-top:20px;padding:18px;text-align:left;border-radius:12px;background:#f4f8f5}
+    .public-story h2{margin:0 0 10px;color:#174b3b;font-size:18px}.public-story audio{width:100%}
+    .public-note{margin-top:15px;color:#5f6662;font-size:12px}
+    .public-actions{margin-top:18px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
+    .public-actions a{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:8px;text-decoration:none}
+    .public-actions .primary{color:#fff}.public-actions .secondary{color:#28443a}
+    @media(max-width:1100px){.stats{grid-template-columns:repeat(4,1fr)}}
+    @media(max-width:900px){.tree-grid{grid-template-columns:1fr}.urgent-list{grid-template-columns:1fr 1fr}}
+    @media(max-width:650px){
+      header{align-items:flex-start}.logo{font-size:19px}.user{width:100%;text-align:right}
+      .stats{grid-template-columns:1fr 1fr}.stat{height:100px;padding:15px}
+      .tree-head{align-items:stretch;flex-direction:column}.search{width:100%}.content{width:calc(100% - 28px)}
+      .fields,.detail-grid,.detail-media{grid-template-columns:1fr}.wide{grid-column:auto}.modal{padding:21px}
+      .tree-buttons button{flex:1;min-height:44px}.tree-buttons .primary{flex-basis:100%}
+      .urgent-list{grid-template-columns:1fr}.operations-head{display:block}.operations-actions{margin-top:12px;justify-content:stretch}.operations-actions button{flex:1}
+      .qr-url{flex-direction:column}.qr-url button{height:40px}.gps-row{grid-template-columns:1fr}.gps-button{width:100%}
+    }
   </style>
 </head>
-<body>
-  <header><a class="logo" href="../">◒ 트리샘</a><div class="actions"><button id="addButton" type="button">＋ 새 수목 추가</button><button class="secondary" type="button" onclick="location.href='../'">첫 화면</button></div></header>
-  <main class="content"><div id="status" class="status" role="status"></div><section class="stats" id="stats"><article class="card stat active" data-filter="all" role="button" tabindex="0" aria-pressed="true"><span>전체 수목</span><b id="total">0</b></article><article class="card stat good" data-filter="양호" role="button" tabindex="0" aria-pressed="false"><span>양호</span><b id="good">0</b></article><article class="card stat normal" data-filter="보통" role="button" tabindex="0" aria-pressed="false"><span>보통</span><b id="normal">0</b></article><article class="card stat warn" data-filter="주의" role="button" tabindex="0" aria-pressed="false"><span>주의</span><b id="warning">0</b></article><article class="card stat danger" data-filter="위험" role="button" tabindex="0" aria-pressed="false"><span>위험</span><b id="danger">0</b></article><article class="card stat uninspected" data-filter="미점검" role="button" tabindex="0" aria-pressed="false"><span>미점검</span><b id="uninspected">0</b></article><article class="card stat need" data-filter="점검필요" role="button" tabindex="0" aria-pressed="false"><span>점검 필요</span><b id="needInspection">0</b></article></section><section class="card operations" aria-labelledby="urgentTitle"><div class="operations-head"><div><h2 id="urgentTitle">긴급관리</h2><p>주의·위험·미점검 수목을 먼저 확인하세요.</p></div><div class="operations-actions"><button class="secondary" type="button" id="showNeedsButton">점검 필요 수목 보기</button><button class="primary" type="button" id="downloadRegisterButton">수목관리대장 다운로드</button></div></div><div class="urgent-list" id="urgentList"><div class="urgent-empty">데이터를 확인하는 중입니다.</div></div></section><section class="trees"><div class="tree-head"><div><h2>수목 재산정보</h2><p>대장번호, 명칭, 재산종류, 재산종목으로 검색하세요.</p></div><input class="search" id="search" placeholder="대장번호 또는 명칭 검색"></div><div class="tree-grid" id="treeGrid"><div class="card loading">데이터를 불러오는 중입니다.</div></div></section></main>
+<body data-mode="loading">
+  <header>
+    <a class="logo" href="../"><span aria-hidden="true">◒</span> 트리샘</a>
+    <div class="actions">
+      <span class="user app-only" id="userEmail"></span>
+      <button id="addButton" class="app-only" type="button">＋ 새 수목 추가</button>
+      <button id="logoutButton" class="secondary app-only" type="button">로그아웃</button>
+      <a class="secondary" href="../" style="display:inline-flex;align-items:center;text-decoration:none">첫 화면</a>
+    </div>
+  </header>
+  <div id="status" class="status" aria-live="polite"></div>
 
-  <div class="modal-bg" id="treeModal"><form class="modal" id="treeForm"><h2 id="modalTitle">새 수목 추가</h2><input id="treeId" type="hidden"><div class="fields">
-    <h3 class="section-title">기본 재산정보</h3>
-    <label>대장번호 *<input id="assetNo" required placeholder="예: K-125"></label><label>명칭 *<input id="treeName" required placeholder="예: 은행나무"></label>
-    <label>재산종류<input id="propertyType" placeholder="예: 행정재산"></label><label>재산종목<input id="propertyItem" placeholder="예: 입목죽"></label>
-    <label>재산구분<input id="propertyClassification" placeholder="예: 교육용"></label><label>취득일자<input id="acquisitionDate" type="date"></label>
-    <label>취득금액(원)<input id="acquisitionAmount" type="number" min="0" step="1" inputmode="numeric"></label><label>현재금액(원)<input id="currentAmount" type="number" min="0" step="1" inputmode="numeric"></label>
-    <h3 class="section-title">위치정보</h3>
-    <label class="wide">학교·기관명<input id="organizationName" placeholder="예: 전주○○초등학교"></label>
-    <label class="wide">상세 위치<textarea id="detailedLocation" placeholder="예: 본관 정문 오른쪽 첫 번째 화단"></textarea></label>
-    <div class="wide gps-row"><label>GPS 위도<input id="latitude" type="number" min="-90" max="90" step="any" inputmode="decimal"></label><label>GPS 경도<input id="longitude" type="number" min="-180" max="180" step="any" inputmode="decimal"></label><button id="currentLocationButton" class="secondary gps-button" type="button">📍 현재 위치 등록</button></div>
-    <label class="wide">학교 배치도상의 위치<input id="schoolMapLocation" placeholder="예: 배치도 A-3 구역"></label>
-    <div class="wide"><div class="upload-box"><div class="upload-actions"><label>📷 위치 사진 촬영<input id="locationCameraInput" type="file" accept="image/*" capture="environment"></label><label>🖼 위치 사진 선택<input id="locationGalleryInput" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif"></label></div><img id="locationPhotoPreview" class="location-photo-preview" alt="선택한 위치 사진 미리보기"><span id="locationPhotoHelp" class="upload-help">수목 주변이 식별되는 위치 사진 · 최대 8MB</span></div></div>
-    <h3 class="section-title">수목 사진 및 영상</h3>
-    <div class="wide"><div class="upload-box"><div class="upload-actions"><label>📷 사진&영상촬영<input id="cameraInput" type="file" accept="image/*,video/*" capture="environment"></label><label>🖼 사진&영상선택<input id="galleryInput" type="file" accept="image/*,video/*"></label></div><div id="photoPreview" class="media-preview" aria-label="선택한 수목 사진 및 영상 미리보기"></div><span id="photoHelp" class="upload-help">사진·이미지 최대 8MB · 영상 최대 10초 이내</span></div></div>
-    <h3 class="section-title">나무이야기</h3>
-    <div class="wide"><div class="upload-box"><div class="upload-actions"><label>🎵 음성파일 선택<input id="audioInput" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.webm"></label></div><audio id="audioPreview" class="audio-preview" controls preload="metadata"></audio><span id="audioHelp" class="upload-help">MP3, WAV, M4A, AAC, OGG, WEBM · 최대 20MB · 공개 체험 음원은 누구나 재생할 수 있습니다.</span></div></div>
-  </div><div class="modal-foot"><button type="button" class="secondary" id="treeCancel">취소</button><button id="saveButton" class="primary">저장하기</button></div></form></div>
+  <!-- 로그인 / 회원가입 -->
+  <section class="auth-wrap auth-only" aria-labelledby="authTitle">
+    <form class="auth-card" id="authForm" novalidate>
+      <h1 id="authTitle">관리자 로그인</h1>
+      <p id="authLead">수목 정보를 등록·수정하려면 로그인해 주세요.</p>
+      <label>이메일<input id="authEmail" type="email" autocomplete="email" required inputmode="email"></label>
+      <label id="authPasswordLabel">비밀번호<input id="authPassword" type="password" autocomplete="current-password" minlength="6" required></label>
+      <button class="primary" id="authSubmit" type="submit">로그인</button>
+      <p class="auth-message" id="authMessage" role="status"></p>
+      <div class="auth-switch">
+        <button class="link-button" type="button" id="authModeToggle">처음이신가요? 회원가입</button>
+        <button class="link-button" type="button" id="authResetToggle">비밀번호를 잊으셨나요?</button>
+      </div>
+    </form>
+  </section>
 
-  <div class="modal-bg" id="detailModal"><div class="modal detail-modal"><h2 id="detailTitle">수목 상세정보</h2><div id="detailContent"></div><div class="modal-foot"><button type="button" class="secondary" id="detailClose">닫기</button></div></div></div>
+  <!-- QR 방문자용 공개 화면 -->
+  <main class="public-wrap public-only" id="publicView" aria-live="polite">
+    <div class="card loading">수목 정보를 불러오는 중입니다.</div>
+  </main>
 
-  <div class="modal-bg" id="logModal"><form class="modal" id="logForm"><h2 id="logModalTitle">점검일지 추가</h2><input id="logTreeId" type="hidden"><input id="logId" type="hidden"><div class="fields"><label>점검일자 *<input id="logInspectionDate" type="date" required></label><label>점검자 *<input id="logInspector" required placeholder="예: 홍길동"></label><label>점검상태 *<select id="logInspectionStatus"><option>양호</option><option>보통</option><option>주의</option><option>위험</option></select></label><label>점검조치<input id="logInspectionAction" placeholder="예: 전정 및 지주목 보강"></label><label class="wide">특이사항<textarea id="logInspectionNotes" placeholder="점검 중 확인한 내용을 입력하세요."></textarea></label><h3 class="section-title">나무상태사진</h3><div class="wide"><div class="upload-box"><div class="upload-actions"><label>📷 상태사진 촬영<input id="logPhotoCameraInput" type="file" accept="image/*" capture="environment"></label><label>🖼 상태사진 선택<input id="logPhotoGalleryInput" type="file" accept="image/jpeg,image/png,image/webp,image/heic,image/heif"></label></div><img id="logPhotoPreview" class="photo-preview" alt="선택한 나무상태사진 미리보기"><span id="logPhotoHelp" class="upload-help">점검 당시 나무 상태를 촬영하거나 선택하세요 · 최대 8MB</span></div></div></div><div class="modal-foot"><button type="button" class="secondary" id="logCancel">취소</button><button id="logSaveButton" class="primary">점검일지 저장</button></div></form></div>
+  <!-- 관리 화면 -->
+  <main class="content app-only" id="appView">
+    <section class="stats" id="stats" aria-label="수목 상태별 현황 (누르면 목록이 걸러집니다)">
+      <button class="card stat active" type="button" data-filter="all" aria-pressed="true"><span>전체 수목</span><b id="total">0</b></button>
+      <button class="card stat good" type="button" data-filter="양호" aria-pressed="false"><span>양호</span><b id="good">0</b></button>
+      <button class="card stat normal" type="button" data-filter="보통" aria-pressed="false"><span>보통</span><b id="normal">0</b></button>
+      <button class="card stat warn" type="button" data-filter="주의" aria-pressed="false"><span>주의</span><b id="warning">0</b></button>
+      <button class="card stat danger" type="button" data-filter="위험" aria-pressed="false"><span>위험</span><b id="danger">0</b></button>
+      <button class="card stat uninspected" type="button" data-filter="미점검" aria-pressed="false"><span>미점검</span><b id="uninspected">0</b></button>
+      <button class="card stat need" type="button" data-filter="점검필요" aria-pressed="false"><span>점검 필요</span><b id="needInspection">0</b></button>
+    </section>
+    <section class="card operations" aria-labelledby="urgentTitle">
+      <div class="operations-head">
+        <div><h2 id="urgentTitle">긴급관리</h2><p>주의·위험·미점검 수목을 먼저 확인하세요.</p></div>
+        <div class="operations-actions">
+          <button class="secondary" type="button" id="showNeedsButton">점검 필요 수목 보기</button>
+          <button class="primary" type="button" id="downloadRegisterButton">수목관리대장 다운로드</button>
+        </div>
+      </div>
+      <div class="urgent-list" id="urgentList"><div class="urgent-empty">데이터를 확인하는 중입니다.</div></div>
+    </section>
+    <section class="trees">
+      <div class="tree-head">
+        <div><h2>수목 재산정보</h2><p>대장번호, 명칭, 재산종류, 재산종목으로 검색하세요.</p></div>
+        <input class="search" id="search" type="search" placeholder="대장번호 또는 명칭 검색" aria-label="수목 검색">
+      </div>
+      <div class="tree-grid" id="treeGrid"><div class="card loading">데이터를 불러오는 중입니다.</div></div>
+    </section>
+  </main>
 
-  <div class="modal-bg" id="qrModal"><div class="modal qr-modal"><h2 id="qrTitle">수목 QR코드</h2><p>QR코드를 스캔하면 금액과 점검일지를 제외한 공개용 수목정보가 표시됩니다.</p><div class="qr-box" id="qrCode"></div><div class="qr-url"><input id="qrUrl" readonly aria-label="공개용 수목 주소"><button type="button" class="secondary" id="copyQrUrl">주소 복사</button></div><div class="modal-foot"><button type="button" class="secondary" id="qrClose">닫기</button><button type="button" class="primary" id="downloadQr">QR코드 저장</button></div></div></div>
-  <div class="modal-bg" id="publicModal"><div class="modal detail-modal"><div id="publicContent"></div><p class="public-note">이 화면은 QR코드 방문자를 위한 공개용 정보입니다. 재산 금액과 내부 점검일지는 표시되지 않습니다.</p><div class="modal-foot"><button type="button" class="secondary" id="publicClose">닫기</button><button type="button" class="primary" id="publicAdminView">관리용 상세정보</button></div></div></div>
+  <!-- 수목 등록·수정 -->
+  <div class="modal-bg" id="treeModal">
+    <form class="modal" id="treeForm" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+      <h2 id="modalTitle">새 수목 추가</h2>
+      <input id="treeId" type="hidden">
+      <div class="fields">
+        <h3 class="section-title">기본 재산정보</h3>
+        <label>대장번호 *<input id="assetNo" required placeholder="예: K-125"></label>
+        <label>명칭 *<input id="treeName" required placeholder="예: 은행나무"></label>
+        <label>재산종류<input id="propertyType" placeholder="예: 행정재산"></label>
+        <label>재산종목<input id="propertyItem" placeholder="예: 입목죽"></label>
+        <label>재산구분<input id="propertyClassification" placeholder="예: 교육용"></label>
+        <label>취득일자<input id="acquisitionDate" type="date"></label>
+        <label>취득금액(원)<input id="acquisitionAmount" type="number" min="0" step="1" inputmode="numeric"></label>
+        <label>현재금액(원)<input id="currentAmount" type="number" min="0" step="1" inputmode="numeric"></label>
+        <h3 class="section-title">위치정보</h3>
+        <label class="wide">학교·기관명<input id="organizationName" placeholder="예: 전주○○초등학교"></label>
+        <label class="wide">상세 위치<textarea id="detailedLocation" placeholder="예: 본관 정문 오른쪽 첫 번째 화단"></textarea></label>
+        <div class="wide gps-row">
+          <label>GPS 위도<input id="latitude" type="number" min="-90" max="90" step="any" inputmode="decimal"></label>
+          <label>GPS 경도<input id="longitude" type="number" min="-180" max="180" step="any" inputmode="decimal"></label>
+          <button id="currentLocationButton" class="secondary gps-button" type="button"><span aria-hidden="true">📍</span> 현재 위치 등록</button>
+        </div>
+        <label class="wide">학교 배치도상의 위치<input id="schoolMapLocation" placeholder="예: 배치도 A-3 구역"></label>
+        <div class="wide"><div class="upload-box">
+          <div class="upload-actions">
+            <label><span aria-hidden="true">📷</span> 위치 사진 촬영<input id="locationCameraInput" type="file" accept="image/*" capture="environment"></label>
+            <label><span aria-hidden="true">🖼</span> 위치 사진 선택<input id="locationGalleryInput" type="file" accept="image/jpeg,image/png,image/webp"></label>
+          </div>
+          <img id="locationPhotoPreview" class="location-photo-preview" alt="선택한 위치 사진 미리보기">
+          <span id="locationPhotoHelp" class="upload-help">수목 주변이 식별되는 위치 사진 · 최대 8MB</span>
+        </div></div>
+        <h3 class="section-title">수목 사진 및 영상</h3>
+        <div class="wide"><div class="upload-box">
+          <div class="upload-actions">
+            <label><span aria-hidden="true">📷</span> 사진·영상 촬영<input id="cameraInput" type="file" accept="image/*,video/*" capture="environment"></label>
+            <label><span aria-hidden="true">🖼</span> 사진·영상 선택<input id="galleryInput" type="file" accept="image/jpeg,image/png,image/webp,video/mp4,video/webm,video/quicktime,video/x-m4v"></label>
+          </div>
+          <div id="photoPreview" class="media-preview" aria-label="선택한 수목 사진 및 영상 미리보기"></div>
+          <span id="photoHelp" class="upload-help">사진 최대 8MB · 영상 10초 이내, 최대 10MB</span>
+        </div></div>
+        <h3 class="section-title">나무이야기</h3>
+        <div class="wide"><div class="upload-box">
+          <div class="upload-actions">
+            <label><span aria-hidden="true">🎵</span> 음성파일 선택<input id="audioInput" type="file" accept="audio/*,.mp3,.wav,.m4a,.aac,.ogg,.webm"></label>
+          </div>
+          <audio id="audioPreview" class="audio-preview" controls preload="none"></audio>
+          <span id="audioHelp" class="upload-help">MP3, WAV, M4A, AAC, OGG, WEBM · 최대 20MB · QR코드 방문자도 들을 수 있습니다.</span>
+        </div></div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="secondary" id="treeCancel">취소</button>
+        <button id="saveButton" class="primary" type="submit">저장하기</button>
+      </div>
+    </form>
+  </div>
 
-  <script src="https://cdn.jsdelivr.net/npm/xlsx@0.18.5/dist/xlsx.full.min.js"></script><script src="https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js"></script><script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.0/dist/umd/supabase.min.js"></script><script src="../js/supabase-config.js?v=20260805-3"></script>
-  <script>
-    const client=window.forestSupabase,activeDemoVisitor=window.forestDemoVisitor;
-    let trees=[],logs=[],selectedPhotoFile=null,selectedLocationPhotoFile=null,selectedAudioFile=null,selectedLogPhotoFile=null,photoObjectUrl='',locationPhotoObjectUrl='',audioObjectUrl='',logPhotoObjectUrl='',activeDetailTreeId='',activePublicTreeId='',activeStatusFilter='all';
-    const $=id=>document.getElementById(id);
-    const esc=value=>String(value??'').replace(/[&<>'"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;',"'":'&#39;','"':'&quot;'}[c]));
-    const today=()=>new Date().toISOString().slice(0,10);
-    const money=value=>value==null||value===''?'-':Number(value).toLocaleString('ko-KR')+'원';
-    function show(message,type='error'){const el=$('status');el.textContent=message;el.className='status show '+type;setTimeout(()=>el.className='status',6000)}
-    function latestLog(treeId){return logs.filter(l=>l.tree_id===treeId).sort((a,b)=>String(b.inspection_date).localeCompare(String(a.inspection_date))||String(b.created_at).localeCompare(String(a.created_at)))[0]||null}
-    async function init(){$('currentLocationButton').addEventListener('click',registerCurrentLocation);$('locationCameraInput').addEventListener('change',e=>selectLocationPhoto(e.target));$('locationGalleryInput').addEventListener('change',e=>selectLocationPhoto(e.target));$('logPhotoCameraInput').addEventListener('change',e=>selectLogPhoto(e.target));$('logPhotoGalleryInput').addEventListener('change',e=>selectLogPhoto(e.target));$('logInspectionDate').value=today();const loaded=await loadData();const publicTreeId=new URLSearchParams(location.search).get('tree');if(loaded&&publicTreeId)showPublicTree(publicTreeId)}
-    let dataLoading=false;
-    function describeLoadError(error){
-      const message=String(error?.message||error||'');
-      if(/failed to fetch|network|load failed|abort|timeout/i.test(message)){
-        return '데이터 서버에 연결할 수 없습니다. 인터넷 연결 또는 데이터 서버의 운영 상태와 연결 주소를 확인해 주세요.';
-      }
-      return '데이터를 불러오지 못했습니다: '+(message||'알 수 없는 오류');
-    }
-    async function loadData(){
-      if(dataLoading)return false;
-      dataLoading=true;
-      const controller=new AbortController();
-      const timeout=setTimeout(()=>controller.abort(),15000);
-      $('treeGrid').innerHTML='<div class="card loading" role="status">데이터를 불러오는 중입니다.</div>';
-      $('urgentList').textContent='데이터를 확인하는 중입니다.';
-      $('addButton').disabled=true;
-      $('downloadRegisterButton').disabled=true;
-      try{
-        if(!client)throw new Error('데이터 연결 프로그램을 불러오지 못했습니다. 페이지를 새로고침해 주세요.');
-        const [treeResult,logResult]=await Promise.all([
-          client.from('demo_trees_public').select('*').order('asset_no').abortSignal(controller.signal),
-          client.from('demo_tree_management_logs_public').select('*').order('inspection_date',{ascending:false}).abortSignal(controller.signal)
-        ]);
-        if(treeResult.error)throw treeResult.error;
-        if(logResult.error)throw logResult.error;
-        trees=treeResult.data||[];
-        logs=logResult.data||[];
-        updateStats();renderUrgent();renderTrees();
-        $('addButton').disabled=false;
-        $('downloadRegisterButton').disabled=false;
-        return true;
-      }catch(error){
-        console.error('[TreeSam] 대시보드 데이터 로딩 실패:',error);
-        trees=[];logs=[];
-        $('stats').querySelectorAll('b').forEach(el=>el.textContent='—');
-        $('urgentList').textContent='데이터 연결 후 긴급관리 수목을 확인할 수 있습니다.';
-        $('treeGrid').innerHTML='<div class="card empty" role="alert"><p>'+esc(describeLoadError(error))+'</p><button type="button" class="secondary" id="retryLoadButton">다시 불러오기</button></div>';
-        $('retryLoadButton').addEventListener('click',()=>loadData());
-        return false;
-      }finally{
-        clearTimeout(timeout);
-        dataLoading=false;
-      }
-    }
-    function treeStatus(tree){const l=latestLog(tree.id);return l?l.inspection_status:'미점검'}
-    function needsInspection(tree){return ['주의','위험','미점검'].includes(treeStatus(tree))}
-    function updateStats(){const counts={양호:0,보통:0,주의:0,위험:0,미점검:0};trees.forEach(t=>{const status=treeStatus(t);counts[status]=(counts[status]||0)+1});$('total').textContent=trees.length;$('good').textContent=counts.양호;$('normal').textContent=counts.보통;$('warning').textContent=counts.주의;$('danger').textContent=counts.위험;$('uninspected').textContent=counts.미점검;$('needInspection').textContent=trees.filter(needsInspection).length}
-    function renderUrgent(){const priority={위험:0,주의:1,미점검:2};const list=trees.filter(needsInspection).sort((a,b)=>priority[treeStatus(a)]-priority[treeStatus(b)]||String(a.asset_no).localeCompare(String(b.asset_no))).slice(0,6);$('urgentList').innerHTML=list.length?list.map(t=>'<article class="urgent-item"><button type="button" data-urgent-id="'+t.id+'">'+esc(t.name)+'<small>대장번호 '+esc(t.asset_no)+'</small></button><span class="badge '+esc(treeStatus(t))+'">'+esc(treeStatus(t))+'</span></article>').join(''):'<div class="urgent-empty">현재 주의·위험·미점검 수목이 없습니다.</div>'}
-    function setStatusFilter(filter){activeStatusFilter=filter;document.querySelectorAll('.stat[data-filter]').forEach(card=>{const selected=card.dataset.filter===filter;card.classList.toggle('active',selected);card.setAttribute('aria-pressed',String(selected))});renderTrees()}
-    function renderTrees(){const q=$('search').value.trim().toLowerCase();const list=trees.filter(t=>{const status=treeStatus(t),matchesStatus=activeStatusFilter==='all'||(activeStatusFilter==='점검필요'?needsInspection(t):status===activeStatusFilter),matchesSearch=([t.asset_no,t.name,t.property_type,t.property_item,t.property_classification].join(' ')).toLowerCase().includes(q);return matchesStatus&&matchesSearch});$('treeGrid').innerHTML=list.length?list.map(t=>{const status=treeStatus(t),audio=t.audio_url?'<audio controls preload="metadata" src="'+esc(t.audio_url)+'"></audio><div class="audio-url"><label>나무이야기 MP3파일 URL 주소</label><div class="audio-url-row"><input value="'+esc(t.audio_url)+'" readonly aria-label="나무이야기 MP3파일 URL 주소"><button type="button" data-action="copy-audio" data-url="'+esc(t.audio_url)+'">복사</button></div></div>':'';return '<article class="card tree">'+(t.photo_url?mediaHtml(t.photo_url,t.name,'card'):'<div class="tree-photo placeholder" aria-label="등록된 사진 및 영상 없음">🌳</div>')+'<div class="tree-top"><div><h3>'+esc(t.name)+'</h3><p>대장번호 '+esc(t.asset_no)+'</p></div><span class="badge '+esc(status)+'">'+esc(status)+'</span></div><div class="data"><div><span>재산종류</span><b>'+esc(t.property_type||'-')+'</b></div><div><span>재산종목</span><b>'+esc(t.property_item||'-')+'</b></div><div><span>취득금액</span><b>'+esc(money(t.acquisition_amount))+'</b></div><div><span>현재금액</span><b>'+esc(money(t.current_amount))+'</b></div></div>'+audio+'<div class="tree-buttons"><button class="primary" type="button" data-action="detail" data-id="'+t.id+'">관리용 상세정보</button><button type="button" data-action="qr" data-id="'+t.id+'">QR코드</button><button type="button" data-action="log" data-id="'+t.id+'">＋ 점검일지</button><button type="button" data-action="edit" data-id="'+t.id+'">수정</button><button class="danger-button" type="button" data-action="delete" data-id="'+t.id+'">삭제</button></div></article>'}).join(''):'<div class="card empty">해당 조건의 수목이 없습니다.</div>'}
-    function isVideoUrl(url){return /\.(mp4|webm|mov|m4v|ogv)(?:$|[?#])/i.test(String(url||''))}
-    function mediaHtml(url,alt,context){if(!url)return '';return isVideoUrl(url)?'<video class="'+(context==='card'?'tree-photo-video':'')+'" src="'+esc(url)+'" controls playsinline preload="metadata" aria-label="'+esc(alt)+' 영상"></video>':'<img class="'+(context==='card'?'tree-photo':'')+'" src="'+esc(url)+'" alt="'+esc(alt)+' 사진" loading="lazy">'}
-    function setMediaPreview(url,isVideo){const box=$('photoPreview');box.innerHTML=isVideo?'<video src="'+esc(url)+'" controls playsinline preload="metadata"></video>':'<img src="'+esc(url)+'" alt="선택한 수목 사진 미리보기">';box.classList.add('show')}
-    function resetUploads(t={}){selectedPhotoFile=null;selectedLocationPhotoFile=null;selectedAudioFile=null;if(photoObjectUrl){URL.revokeObjectURL(photoObjectUrl);photoObjectUrl=''}if(locationPhotoObjectUrl){URL.revokeObjectURL(locationPhotoObjectUrl);locationPhotoObjectUrl=''}if(audioObjectUrl){URL.revokeObjectURL(audioObjectUrl);audioObjectUrl=''}$('cameraInput').value='';$('galleryInput').value='';$('locationCameraInput').value='';$('locationGalleryInput').value='';$('audioInput').value='';if(t.photo_url){setMediaPreview(t.photo_url,isVideoUrl(t.photo_url));$('photoHelp').textContent='현재 사진&영상 · 새 사진&영상을 선택하면 교체됩니다.'}else{$('photoPreview').innerHTML='';$('photoPreview').classList.remove('show');$('photoHelp').textContent='사진·이미지 최대 8MB · 영상 최대 10초 이내'}if(t.location_photo_url){$('locationPhotoPreview').src=t.location_photo_url;$('locationPhotoPreview').classList.add('show');$('locationPhotoHelp').textContent='현재 위치 사진 · 새 사진을 선택하면 교체됩니다.'}else{$('locationPhotoPreview').removeAttribute('src');$('locationPhotoPreview').classList.remove('show');$('locationPhotoHelp').textContent='수목 주변이 식별되는 위치 사진 · 최대 8MB'}if(t.audio_url){$('audioPreview').src=t.audio_url;$('audioPreview').classList.add('show');$('audioHelp').textContent='현재 음원: '+(t.audio_name||'등록 음원')+' · 새 파일을 선택하면 교체됩니다.'}else{$('audioPreview').removeAttribute('src');$('audioPreview').classList.remove('show');$('audioHelp').textContent='MP3, WAV, M4A, AAC, OGG, WEBM · 최대 20MB · 공개 체험 음원은 누구나 재생할 수 있습니다.'}}
-    function fillForm(t={}){$('treeId').value=t.id||'';$('assetNo').value=t.asset_no||'';$('treeName').value=t.name||'';$('propertyType').value=t.property_type||'';$('propertyItem').value=t.property_item||'';$('propertyClassification').value=t.property_classification||'';$('acquisitionDate').value=t.acquisition_date||'';$('acquisitionAmount').value=t.acquisition_amount??'';$('currentAmount').value=t.current_amount??'';$('organizationName').value=t.organization_name||'';$('detailedLocation').value=t.detailed_location||'';$('latitude').value=t.latitude??'';$('longitude').value=t.longitude??'';$('schoolMapLocation').value=t.school_map_location||'';resetUploads(t)}
-    function openTreeModal(id=''){const t=trees.find(x=>x.id===id);fillForm(t);$('modalTitle').textContent=t?'수목 정보 수정':'새 수목 추가';$('treeModal').classList.add('open')}
-    function closeTreeModal(){$('treeModal').classList.remove('open');$('treeForm').reset();fillForm()}
-    async function selectPhoto(input){const file=input.files&&input.files[0];if(!file)return;const ext=(file.name.split('.').pop()||'').toLowerCase(),isImage=file.type.startsWith('image/')||['jpg','jpeg','png','webp','heic','heif'].includes(ext),isVideo=file.type.startsWith('video/')||['mp4','webm','mov','m4v','ogv'].includes(ext);if(!isImage&&!isVideo){show('사진 또는 영상 파일만 등록할 수 있습니다.');input.value='';return}if(isImage&&file.size>8*1024*1024){show('사진·이미지는 8MB 이하만 등록할 수 있습니다.');input.value='';return}if(photoObjectUrl)URL.revokeObjectURL(photoObjectUrl);photoObjectUrl=URL.createObjectURL(file);if(isVideo){try{const duration=await new Promise((resolve,reject)=>{const v=document.createElement('video');v.preload='metadata';v.onloadedmetadata=()=>resolve(v.duration);v.onerror=reject;v.src=photoObjectUrl});if(!Number.isFinite(duration)||duration>10.05){show('영상은 10초 이내만 등록할 수 있습니다.');URL.revokeObjectURL(photoObjectUrl);photoObjectUrl='';input.value='';return}}catch(e){show('영상 재생시간을 확인할 수 없습니다. 다른 영상 파일을 선택해 주세요.');URL.revokeObjectURL(photoObjectUrl);photoObjectUrl='';input.value='';return}}selectedPhotoFile=file;setMediaPreview(photoObjectUrl,isVideo);$('photoHelp').textContent='선택됨: '+file.name+' · '+(file.size/1024/1024).toFixed(2)+'MB'+(isVideo?' · 10초 이내 영상':'')}
-    function selectLocationPhoto(input){const file=input.files&&input.files[0];if(!file)return;const ext=(file.name.split('.').pop()||'').toLowerCase();if(!file.type.startsWith('image/')&&!['jpg','jpeg','png','webp','heic','heif'].includes(ext)){show('위치 사진은 이미지 파일만 등록할 수 있습니다.');return}if(file.size>8*1024*1024){show('위치 사진은 8MB 이하만 등록할 수 있습니다.');return}selectedLocationPhotoFile=file;if(locationPhotoObjectUrl)URL.revokeObjectURL(locationPhotoObjectUrl);locationPhotoObjectUrl=URL.createObjectURL(file);$('locationPhotoPreview').src=locationPhotoObjectUrl;$('locationPhotoPreview').classList.add('show');$('locationPhotoHelp').textContent='선택됨: '+file.name}
-    function registerCurrentLocation(){if(!navigator.geolocation){show('이 기기에서는 위치정보 기능을 지원하지 않습니다.');return}const button=$('currentLocationButton');button.disabled=true;button.textContent='위치 확인 중...';navigator.geolocation.getCurrentPosition(p=>{$('latitude').value=p.coords.latitude.toFixed(7);$('longitude').value=p.coords.longitude.toFixed(7);show('현재 위치가 입력되었습니다. 저장하기를 누르면 함께 저장됩니다.','ok');button.disabled=false;button.textContent='📍 현재 위치 등록'},e=>{show(e.code===1?'브라우저 설정에서 위치 권한을 허용해 주세요.':'현재 위치를 확인하지 못했습니다. GPS 상태를 확인해 주세요.');button.disabled=false;button.textContent='📍 현재 위치 등록'},{enableHighAccuracy:true,timeout:15000,maximumAge:0})}
-    function selectAudio(input){const file=input.files&&input.files[0];if(!file)return;const ext=(file.name.split('.').pop()||'').toLowerCase();if(!file.type.startsWith('audio/')&&!['mp3','wav','m4a','aac','ogg','webm'].includes(ext)){show('MP3, WAV 등 음성 파일만 등록할 수 있습니다.');input.value='';return}if(file.size>20*1024*1024){show('음성 파일은 20MB 이하만 등록할 수 있습니다.');input.value='';return}selectedAudioFile=file;if(audioObjectUrl)URL.revokeObjectURL(audioObjectUrl);audioObjectUrl=URL.createObjectURL(file);$('audioPreview').src=audioObjectUrl;$('audioPreview').classList.add('show');$('audioHelp').textContent='선택됨: '+file.name+' · '+(file.size/1024/1024).toFixed(2)+'MB'}
-    function extension(file,fallback){return (file.name.split('.').pop()||fallback).toLowerCase().replace(/[^a-z0-9]/g,'')||fallback}
-    async function upload(bucket,file,fallback){const path=activeDemoVisitor+'/'+crypto.randomUUID()+'.'+extension(file,fallback);const result=await client.storage.from(bucket).upload(path,file,{contentType:file.type||undefined,upsert:false});if(result.error)throw result.error;const pub=client.storage.from(bucket).getPublicUrl(path);return {path:path,url:pub.data.publicUrl}}
-    $('treeForm').addEventListener('submit',async event=>{event.preventDefault();const id=$('treeId').value,current=trees.find(t=>t.id===id),payload={asset_no:$('assetNo').value.trim(),name:$('treeName').value.trim(),property_type:$('propertyType').value.trim()||null,property_item:$('propertyItem').value.trim()||null,property_classification:$('propertyClassification').value.trim()||null,acquisition_date:$('acquisitionDate').value||null,acquisition_amount:$('acquisitionAmount').value===''?null:Number($('acquisitionAmount').value),current_amount:$('currentAmount').value===''?null:Number($('currentAmount').value),organization_name:$('organizationName').value.trim()||null,detailed_location:$('detailedLocation').value.trim()||null,latitude:$('latitude').value===''?null:Number($('latitude').value),longitude:$('longitude').value===''?null:Number($('longitude').value),school_map_location:$('schoolMapLocation').value.trim()||null};let photoUpload=null,locationPhotoUpload=null,audioUpload=null;$('saveButton').disabled=true;$('saveButton').textContent='저장 중...';try{if(selectedPhotoFile){photoUpload=await upload('demo-tree-photos',selectedPhotoFile,selectedPhotoFile.type.startsWith('video/')?'mp4':'jpg');payload.photo_url=photoUpload.url;payload.photo_path=photoUpload.path}if(selectedLocationPhotoFile){locationPhotoUpload=await upload('demo-tree-photos',selectedLocationPhotoFile,'jpg');payload.location_photo_url=locationPhotoUpload.url;payload.location_photo_path=locationPhotoUpload.path}if(selectedAudioFile){audioUpload=await upload('demo-tree-audio',selectedAudioFile,'mp3');payload.audio_url=audioUpload.url;payload.audio_path=audioUpload.path;payload.audio_name=selectedAudioFile.name}let result;if(id){result=await client.from('demo_trees').update(payload).eq('id',id).select('id').single()}else{result=await client.from('demo_trees').insert(Object.assign({},payload,{visitor_token:activeDemoVisitor})).select('id').single()}if(result.error)throw result.error;if(photoUpload&&current&&current.photo_path)await client.storage.from('demo-tree-photos').remove([current.photo_path]);if(locationPhotoUpload&&current&&current.location_photo_path)await client.storage.from('demo-tree-photos').remove([current.location_photo_path]);if(audioUpload&&current&&current.audio_path)await client.storage.from('demo-tree-audio').remove([current.audio_path]);closeTreeModal();show('수목 정보와 위치정보가 저장되었습니다.','ok');await loadData()}catch(error){if(photoUpload)await client.storage.from('demo-tree-photos').remove([photoUpload.path]);if(locationPhotoUpload)await client.storage.from('demo-tree-photos').remove([locationPhotoUpload.path]);if(audioUpload)await client.storage.from('demo-tree-audio').remove([audioUpload.path]);show('저장하지 못했습니다: '+(error.message||error))}finally{$('saveButton').disabled=false;$('saveButton').textContent='저장하기'}});
-    function showDetails(id){const t=trees.find(x=>x.id===id);if(!t)return;activeDetailTreeId=id;const treeLogs=logs.filter(l=>l.tree_id===id).sort((a,b)=>String(b.inspection_date).localeCompare(String(a.inspection_date))||String(b.created_at).localeCompare(String(a.created_at)));$('detailTitle').textContent=t.name+' 관리용 상세정보';const items=[['대장번호',t.asset_no],['명칭',t.name],['재산종류',t.property_type],['재산종목',t.property_item],['재산구분',t.property_classification],['취득일자',t.acquisition_date],['취득금액',money(t.acquisition_amount)],['현재금액',money(t.current_amount)]];const media=(t.photo_url||t.audio_url)?'<div class="detail-media">'+(t.photo_url?'<div><strong>수목 사진 및 영상</strong>'+mediaHtml(t.photo_url,t.name,'detail')+'</div>':'<div></div>')+(t.audio_url?'<div><strong>나무이야기</strong><p>'+esc(t.audio_name||'등록 음원')+'</p><audio controls preload="metadata" src="'+esc(t.audio_url)+'"></audio><div class="audio-url"><label>나무이야기 MP3파일 URL 주소</label><div class="audio-url-row"><input value="'+esc(t.audio_url)+'" readonly><button type="button" data-detail-action="copy-audio" data-url="'+esc(t.audio_url)+'">복사</button></div></div></div>':'')+'</div>':'';const journal=treeLogs.length?treeLogs.map((l,index)=>'<article class="log"><div class="log-top"><b>'+(treeLogs.length-index)+'차 점검 · '+esc(l.inspection_date)+'</b><span class="badge '+esc(l.inspection_status)+'">'+esc(l.inspection_status)+'</span></div><p><b>점검자:</b> '+esc(l.inspector)+'</p><p><b>점검조치:</b> '+esc(l.inspection_action||'-')+'</p><p><b>특이사항:</b> '+esc(l.notes||'-')+'</p></article>').join(''):'<div class="empty">등록된 점검일지가 없습니다.</div>';const addButton='<button type="button" class="primary" data-detail-action="add-log" data-id="'+t.id+'">＋ 점검일지 추가</button>';$('detailContent').innerHTML='<div class="detail-grid">'+items.map(x=>'<div class="detail-item"><span>'+x[0]+'</span><b>'+esc(x[1]||'-')+'</b></div>').join('')+'</div>'+media+'<section class="journal"><div class="journal-head"><h3>점검일지 · 총 '+treeLogs.length+'건</h3>'+addButton+'</div><div class="log-list">'+journal+'</div></section>';$('detailModal').classList.add('open')}
-    const showDetailsBase=showDetails;showDetails=function(id){showDetailsBase(id);const t=trees.find(x=>x.id===id);if(!t)return;const gps=t.latitude!=null&&t.longitude!=null?esc(t.latitude+', '+t.longitude):'-',map=t.latitude!=null&&t.longitude!=null?'<a class="map-link" href="https://www.google.com/maps?q='+encodeURIComponent(t.latitude+','+t.longitude)+'" target="_blank" rel="noopener">지도에서 위치 열기 ↗</a>':'-',locationPhoto=t.location_photo_url?'<div class="detail-media"><div><strong>위치사진</strong><img src="'+esc(t.location_photo_url)+'" alt="'+esc(t.name)+' 위치 사진"></div></div>':'';const block='<h3 class="section-title">위치정보</h3><div class="detail-grid">'+[['학교·기관명',t.organization_name],['상세 위치',t.detailed_location],['GPS 위도·경도',gps],['학교 배치도상의 위치',t.school_map_location],['지도',map]].map(x=>'<div class="detail-item"><span>'+x[0]+'</span><b>'+(x[0]==='지도'?x[1]:esc(x[1]||'-'))+'</b></div>').join('')+'</div>'+locationPhoto;$('detailContent').insertAdjacentHTML('afterbegin',block)}
-    const showDetailsWithLocation=showDetails;showDetails=function(id){showDetailsWithLocation(id);const treeLogs=logs.filter(l=>l.tree_id===id).sort((a,b)=>String(b.inspection_date).localeCompare(String(a.inspection_date))||String(b.created_at).localeCompare(String(a.created_at)));$('detailContent').querySelectorAll('.log').forEach((el,index)=>{const log=treeLogs[index];if(!log)return;if(log.state_photo_url)el.insertAdjacentHTML('beforeend','<div class="log-state-photo"><b>나무상태사진</b><img src="'+esc(log.state_photo_url)+'" alt="'+esc(log.inspection_date)+' 나무상태사진" loading="lazy"></div>');el.insertAdjacentHTML('beforeend','<div class="log-actions"><button type="button" data-detail-action="edit-log" data-tree-id="'+esc(id)+'" data-log-id="'+esc(log.id)+'">수정</button><button type="button" class="delete-log" data-detail-action="delete-log" data-tree-id="'+esc(id)+'" data-log-id="'+esc(log.id)+'">삭제</button></div>')})}
-    function resetLogPhoto(){selectedLogPhotoFile=null;if(logPhotoObjectUrl){URL.revokeObjectURL(logPhotoObjectUrl);logPhotoObjectUrl=''}$('logPhotoCameraInput').value='';$('logPhotoGalleryInput').value='';$('logPhotoPreview').removeAttribute('src');$('logPhotoPreview').classList.remove('show');$('logPhotoHelp').textContent='점검 당시 나무 상태를 촬영하거나 선택하세요 · 최대 8MB'}
-    function selectLogPhoto(input){const file=input.files&&input.files[0];if(!file)return;const ext=(file.name.split('.').pop()||'').toLowerCase();if(!file.type.startsWith('image/')&&!['jpg','jpeg','png','webp','heic','heif'].includes(ext)){show('나무상태사진은 이미지 파일만 등록할 수 있습니다.');input.value='';return}if(file.size>8*1024*1024){show('나무상태사진은 8MB 이하만 등록할 수 있습니다.');input.value='';return}selectedLogPhotoFile=file;if(logPhotoObjectUrl)URL.revokeObjectURL(logPhotoObjectUrl);logPhotoObjectUrl=URL.createObjectURL(file);$('logPhotoPreview').src=logPhotoObjectUrl;$('logPhotoPreview').classList.add('show');$('logPhotoHelp').textContent='선택됨: '+file.name+' · '+(file.size/1024/1024).toFixed(2)+'MB'}
-    function openLogModal(treeId,logId=''){const t=trees.find(x=>x.id===treeId),log=logId?logs.find(x=>x.id===logId&&x.tree_id===treeId):null;if(!t||logId&&!log)return;resetLogPhoto();$('logTreeId').value=treeId;$('logId').value=log?.id||'';$('logModalTitle').textContent=t.name+(log?' 점검일지 수정':' 점검일지 추가');$('logInspectionDate').value=log?.inspection_date||today();$('logInspector').value=log?.inspector||'';$('logInspectionStatus').value=log?.inspection_status||'양호';$('logInspectionAction').value=log?.inspection_action||'';$('logInspectionNotes').value=log?.notes||'';if(log?.state_photo_url){$('logPhotoPreview').src=log.state_photo_url;$('logPhotoPreview').classList.add('show');$('logPhotoHelp').textContent='새 사진을 선택하면 기존 나무상태사진이 교체됩니다.'}$('logSaveButton').textContent=log?'수정사항 저장':'점검일지 저장';$('logModal').classList.add('open')}
-    function publicTreeUrl(id){const url=new URL(location.href);url.search='';url.hash='';url.searchParams.set('tree',id);return url.toString()}
-    function showQr(id){const t=trees.find(x=>x.id===id);if(!t)return;const url=publicTreeUrl(id);$('qrTitle').textContent=t.name+' QR코드';$('qrUrl').value=url;$('qrCode').innerHTML='';new QRCode($('qrCode'),{text:url,width:200,height:200,colorDark:'#174b3b',colorLight:'#ffffff',correctLevel:QRCode.CorrectLevel.H});$('qrModal').classList.add('open')}
-    function showPublicTree(id){const t=trees.find(x=>x.id===id);if(!t){show('QR코드에 연결된 수목을 찾을 수 없습니다.');return}activePublicTreeId=id;const photo=t.photo_url?mediaHtml(t.photo_url,t.name,'public'):'<div class="tree-photo placeholder">🌳</div>';const story=t.audio_url?'<section class="public-story"><h3>나무이야기</h3><p>'+esc(t.audio_name||'등록된 나무이야기 음성')+'</p><audio controls preload="metadata" src="'+esc(t.audio_url)+'"></audio></section>':'<section class="public-story"><h3>나무이야기</h3><p>등록된 음성이 없습니다.</p></section>';$('publicContent').innerHTML='<div class="public-hero">'+photo+'<h2>'+esc(t.name)+'</h2><p>'+esc(t.property_item||t.property_type||'입목죽')+' · 대장번호 '+esc(t.asset_no)+'</p><span class="badge '+esc(treeStatus(t))+'">현재 상태 '+esc(treeStatus(t))+'</span></div>'+story;$('publicModal').classList.add('open')}
-    async function copyText(text,message){try{await navigator.clipboard.writeText(text);show(message,'ok')}catch(error){window.prompt('아래 주소를 복사하세요.',text)}}
-    function downloadTreeRegister(){if(!trees.length){show('다운로드할 수목 정보가 없습니다.');return}if(typeof XLSX==='undefined'){show('엑셀 기능을 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');return}const headers=['대장번호','명칭','재산종류','재산종목','재산구분','취득일자','취득금액','현재금액','최근점검상태','현재나무상태'];const rows=trees.map(t=>{const log=latestLog(t.id);return [String(t.asset_no||''),t.name||'',t.property_type||'',t.property_item||'',t.property_classification||'',t.acquisition_date?new Date(t.acquisition_date+'T00:00:00'):null,t.acquisition_amount==null?null:Number(t.acquisition_amount),t.current_amount==null?null:Number(t.current_amount),log?'점검':'미점검',log?log.inspection_status:'']});const sheet=XLSX.utils.aoa_to_sheet([headers,...rows],{cellDates:true});sheet['!cols']=[{wch:16},{wch:18},{wch:16},{wch:16},{wch:16},{wch:13},{wch:15},{wch:15},{wch:16},{wch:16}];sheet['!autofilter']={ref:'A1:J'+(rows.length+1)};for(let row=2;row<=rows.length+1;row++){if(sheet['F'+row])sheet['F'+row].z='yyyy-mm-dd';if(sheet['G'+row])sheet['G'+row].z='#,##0';if(sheet['H'+row])sheet['H'+row].z='#,##0'}const workbook=XLSX.utils.book_new();XLSX.utils.book_append_sheet(workbook,sheet,'수목관리대장');workbook.Props={Title:'수목관리대장',Subject:'입목죽 재산정보',Author:'트리샘'};XLSX.writeFile(workbook,'수목관리대장_'+today()+'.xlsx',{compression:true,cellDates:true});show('전체 수목 '+rows.length+'건을 엑셀 파일로 저장했습니다.','ok')}
-    async function copyAudioUrl(url){try{await navigator.clipboard.writeText(url);show('MP3파일 URL 주소를 복사했습니다.','ok')}catch(error){window.prompt('MP3파일 URL 주소를 복사하세요.',url)}}
-    function closeLogModal(){$('logModal').classList.remove('open');$('logForm').reset();resetLogPhoto();$('logInspectionDate').value=today()}
-    $('logForm').addEventListener('submit',async event=>{event.preventDefault();const treeId=$('logTreeId').value,logId=$('logId').value,current=logId?logs.find(l=>l.id===logId):null,payload={tree_id:treeId,inspection_date:$('logInspectionDate').value,inspector:$('logInspector').value.trim(),inspection_status:$('logInspectionStatus').value,inspection_action:$('logInspectionAction').value.trim()||null,notes:$('logInspectionNotes').value.trim()||null};if(!logId)payload.visitor_token=activeDemoVisitor;let logPhotoUpload=null;$('logSaveButton').disabled=true;$('logSaveButton').textContent='저장 중...';try{if(logId&&!current)throw new Error('수정할 점검일지를 찾지 못했습니다.');if(selectedLogPhotoFile){$('logSaveButton').textContent='상태사진 업로드 중...';logPhotoUpload=await upload('demo-tree-photos',selectedLogPhotoFile,'jpg');payload.state_photo_url=logPhotoUpload.url;payload.state_photo_path=logPhotoUpload.path}const result=logId?await client.from('demo_tree_management_logs').update(payload).eq('id',logId).select('id').single():await client.from('demo_tree_management_logs').insert(payload).select('id').single();if(result.error)throw result.error;if(logPhotoUpload&&current?.state_photo_path)await client.storage.from('demo-tree-photos').remove([current.state_photo_path]);closeLogModal();show(logId?'점검일지가 수정되었습니다.':'나무상태사진과 점검일지가 저장되었습니다.','ok');await loadData();showDetails(treeId)}catch(error){if(logPhotoUpload)await client.storage.from('demo-tree-photos').remove([logPhotoUpload.path]);show('점검일지를 저장하지 못했습니다: '+(error.message||error))}finally{$('logSaveButton').disabled=false;$('logSaveButton').textContent='점검일지 저장'}});
-    async function deleteLog(treeId,logId){const log=logs.find(l=>l.id===logId&&l.tree_id===treeId);if(!log||!confirm(log.inspection_date+' 점검일지를 삭제할까요? 삭제한 기록은 복구할 수 없습니다.'))return;const result=await client.from('demo_tree_management_logs').delete().eq('id',logId).select('id').single();if(result.error){show('점검일지를 삭제하지 못했습니다: '+result.error.message);return}if(log.state_photo_path)await client.storage.from('demo-tree-photos').remove([log.state_photo_path]);show('점검일지와 나무상태사진이 삭제되었습니다.','ok');await loadData();showDetails(treeId)}
-    async function deleteTree(id){const t=trees.find(x=>x.id===id);if(!t||!confirm(t.name+'('+t.asset_no+') 수목 정보와 점검일지를 삭제할까요?'))return;const statePhotoPaths=logs.filter(l=>l.tree_id===id&&l.state_photo_path).map(l=>l.state_photo_path);const result=await client.from('demo_trees').delete().eq('id',id);if(result.error){show('삭제하지 못했습니다: '+result.error.message);return}if(t.photo_path)await client.storage.from('demo-tree-photos').remove([t.photo_path]);if(t.location_photo_path)await client.storage.from('demo-tree-photos').remove([t.location_photo_path]);if(statePhotoPaths.length)await client.storage.from('demo-tree-photos').remove(statePhotoPaths);if(t.audio_path)await client.storage.from('demo-tree-audio').remove([t.audio_path]);show('수목 정보, 위치 사진, 나무상태사진, 음원 및 점검일지가 삭제되었습니다.','ok');await loadData()}
-    $('stats').addEventListener('click',e=>{const card=e.target.closest('.stat[data-filter]');if(card)setStatusFilter(card.dataset.filter)});$('stats').addEventListener('keydown',e=>{const card=e.target.closest('.stat[data-filter]');if(card&&(e.key==='Enter'||e.key===' ')){e.preventDefault();setStatusFilter(card.dataset.filter)}});
-    $('addButton').addEventListener('click',()=>openTreeModal());$('search').addEventListener('input',renderTrees);$('showNeedsButton').addEventListener('click',()=>setStatusFilter('점검필요'));$('downloadRegisterButton').addEventListener('click',downloadTreeRegister);$('urgentList').addEventListener('click',e=>{const b=e.target.closest('[data-urgent-id]');if(b)showDetails(b.dataset.urgentId)});$('treeCancel').addEventListener('click',closeTreeModal);$('logCancel').addEventListener('click',closeLogModal);$('detailClose').addEventListener('click',()=>$('detailModal').classList.remove('open'));$('qrClose').addEventListener('click',()=>$('qrModal').classList.remove('open'));$('publicClose').addEventListener('click',()=>$('publicModal').classList.remove('open'));$('publicAdminView').addEventListener('click',()=>{if(!activePublicTreeId)return;$('publicModal').classList.remove('open');showDetails(activePublicTreeId)});$('copyQrUrl').addEventListener('click',()=>copyText($('qrUrl').value,'공개용 수목 주소를 복사했습니다.'));$('downloadQr').addEventListener('click',()=>{const source=$('qrCode').querySelector('canvas')||$('qrCode').querySelector('img');if(!source)return;const link=document.createElement('a');link.download=($('qrTitle').textContent||'수목')+'.png';link.href=source.tagName==='CANVAS'?source.toDataURL('image/png'):source.src;link.click()});$('cameraInput').addEventListener('change',e=>selectPhoto(e.target));$('galleryInput').addEventListener('change',e=>selectPhoto(e.target));$('audioInput').addEventListener('change',e=>selectAudio(e.target));$('treeGrid').addEventListener('click',e=>{const b=e.target.closest('button[data-action]');if(!b)return;if(b.dataset.action==='detail')showDetails(b.dataset.id);if(b.dataset.action==='qr')showQr(b.dataset.id);if(b.dataset.action==='log')openLogModal(b.dataset.id);if(b.dataset.action==='edit')openTreeModal(b.dataset.id);if(b.dataset.action==='delete')deleteTree(b.dataset.id);if(b.dataset.action==='copy-audio')copyAudioUrl(b.dataset.url)});$('detailContent').addEventListener('click',e=>{const b=e.target.closest('button[data-detail-action]');if(!b)return;if(b.dataset.detailAction==='add-log')openLogModal(b.dataset.id);if(b.dataset.detailAction==='copy-audio')copyAudioUrl(b.dataset.url);if(b.dataset.detailAction==='edit-log')openLogModal(b.dataset.treeId,b.dataset.logId);if(b.dataset.detailAction==='delete-log')deleteLog(b.dataset.treeId,b.dataset.logId)});init();
-  </script>
+  <!-- 상세정보 -->
+  <div class="modal-bg" id="detailModal">
+    <div class="modal detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
+      <h2 id="detailTitle">수목 상세정보</h2>
+      <div id="detailContent"></div>
+      <div class="modal-foot"><button type="button" class="secondary" id="detailClose">닫기</button></div>
+    </div>
+  </div>
+
+  <!-- 점검일지 -->
+  <div class="modal-bg" id="logModal">
+    <form class="modal" id="logForm" role="dialog" aria-modal="true" aria-labelledby="logModalTitle">
+      <h2 id="logModalTitle">점검일지 추가</h2>
+      <input id="logTreeId" type="hidden"><input id="logId" type="hidden">
+      <div class="fields">
+        <label>점검일자 *<input id="logInspectionDate" type="date" required></label>
+        <label>점검자 *<input id="logInspector" required placeholder="예: 홍길동"></label>
+        <label>점검상태 *<select id="logInspectionStatus"><option>양호</option><option>보통</option><option>주의</option><option>위험</option></select></label>
+        <label>점검조치<input id="logInspectionAction" placeholder="예: 전정 및 지주목 보강"></label>
+        <label class="wide">특이사항<textarea id="logInspectionNotes" placeholder="점검 중 확인한 내용을 입력하세요."></textarea></label>
+        <h3 class="section-title">나무상태사진</h3>
+        <div class="wide"><div class="upload-box">
+          <div class="upload-actions">
+            <label><span aria-hidden="true">📷</span> 상태사진 촬영<input id="logPhotoCameraInput" type="file" accept="image/*" capture="environment"></label>
+            <label><span aria-hidden="true">🖼</span> 상태사진 선택<input id="logPhotoGalleryInput" type="file" accept="image/jpeg,image/png,image/webp"></label>
+          </div>
+          <img id="logPhotoPreview" class="photo-preview" alt="선택한 나무상태사진 미리보기">
+          <span id="logPhotoHelp" class="upload-help">점검 당시 나무 상태를 촬영하거나 선택하세요 · 최대 8MB</span>
+        </div></div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="secondary" id="logCancel">취소</button>
+        <button id="logSaveButton" class="primary" type="submit">점검일지 저장</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- QR코드 -->
+  <div class="modal-bg" id="qrModal">
+    <div class="modal qr-modal" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
+      <h2 id="qrTitle">수목 QR코드</h2>
+      <p>QR코드를 스캔하면 명칭·사진·나무이야기·현재 상태만 보이는 공개용 화면이 열립니다. 금액, 위치, 점검일지는 공개되지 않습니다.</p>
+      <div class="qr-box" id="qrCode"></div>
+      <div class="qr-url"><input id="qrUrl" readonly aria-label="공개용 수목 주소"><button type="button" class="secondary" id="copyQrUrl">주소 복사</button></div>
+      <div class="modal-foot"><button type="button" class="secondary" id="qrClose">닫기</button><button type="button" class="primary" id="downloadQr">QR코드 저장</button></div>
+    </div>
+  </div>
+
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.0/dist/umd/supabase.min.js"></script>
+  <script src="../js/supabase-config.js?v=20261004"></script>
+  <script src="../js/dashboard.js?v=20261004"></script>
 </body>
 </html>
