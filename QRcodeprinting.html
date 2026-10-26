@@ -1,0 +1,116 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<title>QR 코드 일괄 출력 | 트리샘</title>
+<meta name="description" content="등록된 수목 QR을 선택 또는 전체 선택하여 A4 라벨형으로 한 번에 출력합니다.">
+<meta name="theme-color" content="#174b3b">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box}html{scroll-behavior:smooth}body{margin:0;background:#f4f7f5;color:#25312c;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Arial,sans-serif}a{text-decoration:none;color:inherit}button,input{font:inherit}.topbar{background:#174b3b;color:#fff}.topbar .wrap{width:min(1180px,92%);margin:auto;min-height:72px;display:flex;align-items:center;justify-content:space-between;gap:16px}.brand{font-size:20px;font-weight:800}.nav{display:flex;gap:8px;flex-wrap:wrap}.nav a{padding:9px 13px;border:1px solid rgba(255,255,255,.28);border-radius:8px;font-size:13px}.page{width:min(1180px,92%);margin:36px auto 70px}.hero{padding:30px;border-radius:18px;background:linear-gradient(135deg,#eef6f1,#fff);border:1px solid #d9e5de}.hero h1{margin:0 0 8px;color:#174b3b;font-size:clamp(28px,4vw,42px)}.hero p{margin:0;color:#5e6a64;line-height:1.75}.panel{margin-top:22px;padding:22px;border:1px solid #dce5df;border-radius:16px;background:#fff;box-shadow:0 8px 28px rgba(23,75,59,.06)}.toolbar{display:flex;gap:9px;flex-wrap:wrap;align-items:center}.toolbar button{min-height:42px;padding:0 15px;border:1px solid #b9c8c0;border-radius:9px;background:#fff;color:#28473c;font-weight:800;cursor:pointer}.toolbar button.primary{background:#18533f;border-color:#18533f;color:#fff}.toolbar button:disabled{opacity:.45;cursor:not-allowed}.search{margin-left:auto;min-width:260px;max-width:360px;flex:1}.search input{width:100%;min-height:42px;padding:0 13px;border:1px solid #cbd6d0;border-radius:9px;background:#fff}.summary{margin-top:14px;padding:11px 13px;border-radius:9px;background:#eef4f0;color:#45564d;font-size:13px}.summary.error{background:#fff0f0;color:#9f1f1f}.summary.ok{background:#eaf8ef;color:#0f6534}.list{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:14px}.choice{display:flex;align-items:center;gap:10px;padding:12px;border:1px solid #e0e8e3;border-radius:10px;background:#fbfdfc;cursor:pointer}.choice:hover{border-color:#9fbaad}.choice input{width:19px;height:19px;flex:0 0 auto}.choice span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}.choice b{color:#174b3b}.choice small{color:#69746e}.empty{grid-column:1/-1;padding:28px;text-align:center;color:#6a746f;background:#f8faf9;border-radius:10px}.guide{margin-top:18px;padding:16px;border-radius:12px;background:#f7faf8;color:#59655f;font-size:13px;line-height:1.75}.guide b{color:#174b3b}.footer{padding:28px;text-align:center;color:#7a847f;font-size:12px}@media(max-width:900px){.list{grid-template-columns:repeat(2,minmax(0,1fr))}}@media(max-width:650px){.topbar .wrap{padding:12px 0;align-items:flex-start;flex-direction:column}.page{margin-top:22px}.hero,.panel{padding:18px}.toolbar>*{flex:1 1 calc(50% - 9px)}.toolbar .primary{flex-basis:100%}.search{order:-1;min-width:100%;max-width:none}.list{grid-template-columns:1fr}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+</head>
+<body>
+<header class="topbar"><div class="wrap"><a class="brand" href="./">🌳 트리샘</a><nav class="nav"><a href="./">첫 화면</a><a href="dashboard/">입목죽 관리대장</a></nav></div></header>
+<main class="page">
+  <section class="hero"><h1>QR 코드 일괄 출력</h1><p>등록된 수목 QR을 라벨형으로 한 번에 출력합니다.<br>필요한 수목만 선택하거나 전체 수목을 A4 라벨 레이아웃으로 출력할 수 있습니다.</p></section>
+  <section class="panel">
+    <div class="toolbar">
+      <button type="button" id="refreshButton">목록 새로고침</button>
+      <button type="button" id="selectAllButton">전체 선택</button>
+      <button type="button" id="selectNoneButton">선택 해제</button>
+      <button type="button" id="printSelectedButton" class="primary" disabled>선택 QR 출력</button>
+      <button type="button" id="printAllButton">전체 QR 출력</button>
+      <div class="search"><input id="searchInput" type="search" placeholder="수목명 또는 대장번호 검색" aria-label="수목 검색"></div>
+    </div>
+    <div id="status" class="summary">등록된 수목 목록을 불러오는 중입니다.</div>
+    <div id="treeList" class="list" aria-label="QR 출력 수목 선택 목록"></div>
+    <div class="guide"><b>A4 라벨 레이아웃</b><br>한 페이지에 3열 × 4행, 최대 12개의 QR 라벨을 배치합니다. 라벨에는 수목명, 대장번호, QR코드가 표시됩니다. 인쇄 시 A4 / 배율 100% / 머리글·바닥글 끄기를 권장합니다.</div>
+  </section>
+</main>
+<footer class="footer">© 2026 TreeSam Smart Management System.</footer>
+<script>
+(() => {
+  'use strict';
+  const $ = id => document.getElementById(id);
+  const client = window.forestSupabase;
+  const QR_SRC = 'https://cdn.jsdelivr.net/npm/qrcodejs@1.0.0/qrcode.min.js';
+  const state = { trees: [], selected: new Set(), loading: false };
+  const esc = v => String(v ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+
+  function setStatus(text, type='') { const el=$('status'); el.textContent=text; el.className='summary'+(type?' '+type:''); }
+  function publicUrl(id) { return new URL('dashboard/?tree=' + encodeURIComponent(id), location.href).href; }
+  function filteredTrees() { const q=$('searchInput').value.trim().toLowerCase(); return !q ? state.trees : state.trees.filter(t => [t.name,t.asset_no].join(' ').toLowerCase().includes(q)); }
+
+  function render() {
+    const list = filteredTrees();
+    $('treeList').innerHTML = list.length ? list.map(t => {
+      const id=String(t.id), checked=state.selected.has(id)?' checked':'';
+      return `<label class="choice"><input type="checkbox" data-tree-id="${esc(id)}"${checked}><span><b>${esc(t.name||'-')}</b> <small>· ${esc(t.asset_no||'-')}</small></span></label>`;
+    }).join('') : '<div class="empty">검색 조건에 해당하는 수목이 없습니다.</div>';
+    updateButtons();
+  }
+
+  function updateButtons() {
+    $('printSelectedButton').disabled = state.selected.size === 0;
+    $('printAllButton').disabled = state.trees.length === 0;
+    $('selectAllButton').disabled = state.trees.length === 0;
+    $('selectNoneButton').disabled = state.selected.size === 0;
+    if (!state.loading) setStatus(`등록 수목 ${state.trees.length}개 · 선택 ${state.selected.size}개`, 'ok');
+  }
+
+  async function loadTrees() {
+    if (state.loading) return;
+    state.loading=true; $('refreshButton').disabled=true; setStatus('등록된 수목 목록을 불러오는 중입니다.');
+    try {
+      if (!client) throw new Error('데이터베이스 연결이 준비되지 않았습니다.');
+      const { data, error } = await client.from('demo_trees').select('id,asset_no,name').order('asset_no');
+      if (error) throw error;
+      state.trees=data||[];
+      const valid=new Set(state.trees.map(t=>String(t.id)));
+      state.selected=new Set([...state.selected].filter(id=>valid.has(id)));
+      render();
+    } catch(e) {
+      state.trees=[]; state.selected.clear(); render(); setStatus('수목 목록을 불러오지 못했습니다: '+(e?.message||e),'error');
+    } finally { state.loading=false; $('refreshButton').disabled=false; updateButtons(); }
+  }
+
+  function loadQrLib() {
+    if (window.QRCode) return Promise.resolve();
+    return new Promise((resolve,reject)=>{ const s=document.createElement('script'); s.src=QR_SRC; s.onload=resolve; s.onerror=()=>reject(new Error('QR 생성 프로그램을 불러오지 못했습니다.')); document.head.appendChild(s); });
+  }
+  async function makeQr(text) {
+    await loadQrLib();
+    const holder=document.createElement('div'); holder.style.cssText='position:fixed;left:-9999px;top:-9999px;width:220px;height:220px;background:#fff'; document.body.appendChild(holder);
+    try { new QRCode(holder,{text,width:220,height:220,correctLevel:QRCode.CorrectLevel.M}); await new Promise(r=>setTimeout(r,40)); const canvas=holder.querySelector('canvas'); if(canvas) return canvas.toDataURL('image/png'); const img=holder.querySelector('img'); if(img?.src) return img.src; throw new Error('QR 이미지를 만들지 못했습니다.'); } finally { holder.remove(); }
+  }
+
+  async function printLabels(trees,title) {
+    if (!trees.length) return;
+    const w=window.open('','_blank');
+    if(!w){ setStatus('인쇄창이 차단되었습니다. 팝업을 허용해 주세요.','error'); return; }
+    w.document.write('<!doctype html><html lang="ko"><meta charset="utf-8"><title>QR 라벨 준비</title><body style="font-family:sans-serif;padding:24px">QR 라벨을 준비하는 중입니다…</body></html>'); w.document.close();
+    $('printSelectedButton').disabled=true; $('printAllButton').disabled=true; setStatus(`${title} ${trees.length}개 QR 라벨을 생성하는 중입니다.`);
+    try {
+      const labels=[];
+      for(const t of trees){ const qr=await makeQr(publicUrl(String(t.id))); labels.push(`<article class="label"><div class="name">${esc(t.name||'-')}</div><img src="${qr}" alt="QR"><div class="asset">대장번호 ${esc(t.asset_no||'-')}</div><div class="brand">트리샘 · 수목관리</div></article>`); }
+      w.document.open(); w.document.write(`<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>${esc(title)} - 트리샘 QR 라벨</title><style>@page{size:A4 portrait;margin:8mm}*{box-sizing:border-box}html,body{margin:0;padding:0;background:#fff;color:#17251f;font-family:"Malgun Gothic","Apple SD Gothic Neo",Arial,sans-serif;-webkit-print-color-adjust:exact;print-color-adjust:exact}.toolbar{position:sticky;top:0;z-index:5;display:flex;align-items:center;justify-content:center;gap:10px;padding:10px;background:#174b3b;color:#fff}.toolbar button{border:0;border-radius:7px;padding:9px 18px;background:#fff;color:#174b3b;font-weight:700}.toolbar span{font-size:13px}.sheet{width:194mm;margin:8mm auto;display:grid;grid-template-columns:repeat(3,60mm);grid-auto-rows:67mm;gap:4mm 7mm;align-content:start}.label{width:60mm;height:67mm;border:.35mm solid #bfcac4;border-radius:3mm;padding:3.2mm 3mm 2.5mm;display:flex;flex-direction:column;align-items:center;overflow:hidden;break-inside:avoid;page-break-inside:avoid}.name{width:100%;height:8mm;display:flex;align-items:center;justify-content:center;font-size:13pt;font-weight:800;color:#174b3b;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.label img{width:38mm;height:38mm;object-fit:contain;display:block;margin:1mm auto}.asset{font-size:9pt;font-weight:700}.brand{margin-top:1mm;font-size:7.5pt;color:#617068}@media print{.toolbar{display:none!important}.sheet{margin:0;width:194mm}}</style></head><body><div class="toolbar"><button onclick="window.print()">인쇄하기</button><span>A4 · 3열 × 4행 · 총 ${trees.length}개</span></div><main class="sheet">${labels.join('')}</main></body></html>`); w.document.close(); setStatus(`${title} ${trees.length}개 라벨을 준비했습니다. 인쇄창에서 출력해 주세요.`,'ok');
+    } catch(e){ try{w.close()}catch{} setStatus(e?.message||String(e),'error'); }
+    finally { updateButtons(); }
+  }
+
+  $('treeList').addEventListener('change',e=>{ const input=e.target.closest('[data-tree-id]'); if(!input)return; const id=String(input.dataset.treeId); input.checked?state.selected.add(id):state.selected.delete(id); updateButtons(); });
+  $('searchInput').addEventListener('input',render);
+  $('refreshButton').addEventListener('click',loadTrees);
+  $('selectAllButton').addEventListener('click',()=>{ state.selected=new Set(state.trees.map(t=>String(t.id))); render(); });
+  $('selectNoneButton').addEventListener('click',()=>{ state.selected.clear(); render(); });
+  $('printSelectedButton').addEventListener('click',()=>printLabels(state.trees.filter(t=>state.selected.has(String(t.id))),'선택 QR'));
+  $('printAllButton').addEventListener('click',()=>printLabels(state.trees,'전체 QR'));
+  loadTrees();
+})();
+</script>
+</body>
+</html>
