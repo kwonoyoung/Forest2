@@ -29,7 +29,6 @@
     .secondary{min-height:40px;padding:0 14px;border:1px solid #b9c7c0;border-radius:8px;background:#fff;color:#28443a}
     .actions .secondary{background:#fff;color:#28443a;border:1px solid #b9c7c0}
     .danger-button{color:#b02525!important}
-    /* 화면 모드(auth/app/public)에 맞지 않는 영역은 숨깁니다 */
     body:not([data-mode="app"]) .app-only,
     body:not([data-mode="auth"]) .auth-only,
     body:not([data-mode="public"]) .public-only{display:none!important}
@@ -114,7 +113,6 @@
     .qr-box{width:220px;height:220px;margin:18px auto;padding:10px;display:grid;place-items:center;border:1px solid #dfe6e2;border-radius:12px;background:#fff}
     .qr-box img,.qr-box canvas{max-width:100%;height:auto}
     .qr-url{display:flex;gap:7px;margin:14px 0}.qr-url input{min-width:0;flex:1;margin:0}
-    /* 로그인 화면 */
     .auth-wrap{min-height:calc(100vh - 68px);display:grid;place-items:center;padding:24px 16px}
     .auth-card{width:min(420px,100%);padding:28px;background:#fff;border:1px solid #ddd;border-radius:16px;box-shadow:0 10px 30px #18372b14}
     .auth-card h1{margin:0 0 6px;color:#174b3b;font-size:24px}.auth-card>p{margin:0 0 8px;color:#5f6662;font-size:14px;line-height:1.6}
@@ -123,7 +121,6 @@
     .link-button{border:0;background:none;color:#18533f;text-decoration:underline;padding:6px 0;min-height:36px}
     .auth-message{min-height:20px;margin:12px 0 0;font-size:13px;line-height:1.6}
     .auth-message.error{color:#a31f1f}.auth-message.ok{color:#0f6534}
-    /* QR 공개 화면 */
     .public-wrap{width:min(720px,93%);margin:28px auto 60px}
     .public-card{padding:24px;text-align:center}
     .public-card img,.public-card video{width:100%;max-height:380px;object-fit:cover;border-radius:12px;background:#eef2ef;display:block}
@@ -160,7 +157,6 @@
   </header>
   <div id="status" class="status" aria-live="polite"></div>
 
-  <!-- 로그인 / 회원가입 -->
   <section class="auth-wrap auth-only" aria-labelledby="authTitle">
     <form class="auth-card" id="authForm" novalidate>
       <h1 id="authTitle">관리자 로그인</h1>
@@ -177,12 +173,10 @@
     </form>
   </section>
 
-  <!-- QR 방문자용 공개 화면 -->
   <main class="public-wrap public-only" id="publicView" aria-live="polite">
     <div class="card loading">수목 정보를 불러오는 중입니다.</div>
   </main>
 
-  <!-- 관리 화면 -->
   <main class="content app-only" id="appView">
     <section class="stats" id="stats" aria-label="수목 상태별 현황 (누르면 목록이 걸러집니다)">
       <button class="card stat active" type="button" data-filter="all" aria-pressed="true"><span>전체 수목</span><b id="total">0</b></button>
@@ -212,7 +206,6 @@
     </section>
   </main>
 
-  <!-- 수목 등록·수정 -->
   <div class="modal-bg" id="treeModal">
     <form class="modal" id="treeForm" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
       <h2 id="modalTitle">새 수목 추가</h2>
@@ -224,7 +217,7 @@
         <label>재산종류<input id="propertyType" placeholder="예: 행정재산"></label>
         <label>재산종목<input id="propertyItem" placeholder="예: 입목죽"></label>
         <label>재산구분<input id="propertyClassification" placeholder="예: 교육용"></label>
-        <label>취득일자<input id="acquisitionDate" type="date"></label>
+        <label>취득일자<input id="acquisitionDate" type="text" inputmode="numeric" autocomplete="off" placeholder="YYYY-MM-DD" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" maxlength="10" title="YYYY-MM-DD 형식으로 입력하세요. 예: 2026-10-26"></label>
         <label>취득금액(원)<input id="acquisitionAmount" type="number" min="0" step="1" inputmode="numeric"></label>
         <label>현재금액(원)<input id="currentAmount" type="number" min="0" step="1" inputmode="numeric"></label>
         <h3 class="section-title">위치정보</h3>
@@ -269,7 +262,6 @@
     </form>
   </div>
 
-  <!-- 상세정보 -->
   <div class="modal-bg" id="detailModal">
     <div class="modal detail-modal" role="dialog" aria-modal="true" aria-labelledby="detailTitle">
       <h2 id="detailTitle">수목 상세정보</h2>
@@ -278,13 +270,12 @@
     </div>
   </div>
 
-  <!-- 점검일지 -->
   <div class="modal-bg" id="logModal">
     <form class="modal" id="logForm" role="dialog" aria-modal="true" aria-labelledby="logModalTitle">
       <h2 id="logModalTitle">점검일지 추가</h2>
       <input id="logTreeId" type="hidden"><input id="logId" type="hidden">
       <div class="fields">
-        <label>점검일자 *<input id="logInspectionDate" type="date" required></label>
+        <label>점검일자 *<input id="logInspectionDate" type="text" inputmode="numeric" autocomplete="off" placeholder="YYYY-MM-DD" pattern="[0-9]{4}-[0-9]{2}-[0-9]{2}" maxlength="10" title="YYYY-MM-DD 형식으로 입력하세요. 예: 2026-10-26" required></label>
         <label>점검자 *<input id="logInspector" required placeholder="예: 홍길동"></label>
         <label>점검상태 *<select id="logInspectionStatus"><option>양호</option><option>보통</option><option>주의</option><option>위험</option></select></label>
         <label>점검조치<input id="logInspectionAction" placeholder="예: 전정 및 지주목 보강"></label>
@@ -306,7 +297,6 @@
     </form>
   </div>
 
-  <!-- QR코드 -->
   <div class="modal-bg" id="qrModal">
     <div class="modal qr-modal" role="dialog" aria-modal="true" aria-labelledby="qrTitle">
       <h2 id="qrTitle">수목 QR코드</h2>
