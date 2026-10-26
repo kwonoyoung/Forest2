@@ -16,7 +16,7 @@
 <body>
 <header class="topbar"><div class="wrap"><a class="brand" href="./">🌳 트리샘</a><nav class="nav"><a href="./">첫 화면</a><a href="dashboard/">데이터 대시보드</a></nav></div></header>
 <main class="page">
-<section class="hero"><h1>수목 현장 점검</h1><p>데이터 대시보드와 같은 점검일지를 사용합니다. 어느 화면에서 등록·수정해도 동일한 점검이력이 표시됩니다.</p><div class="sync-note">↔ <b>양방향 연동:</b> 데이터 대시보드의 점검일지와 이 페이지의 점검이력은 동일한 <code>demo_tree_management_logs</code> 자료를 읽고 저장합니다.</div><div class="steps"><div class="step">① 수목 선택</div><div class="step">② 이력 확인</div><div class="step">③ 등록·수정</div><div class="step">④ 사진·GPS</div><div class="step">⑤ 저장</div></div></section>
+<section class="hero"><h1>수목 현장 점검</h1><p>데이터 대시보드와 같은 점검일지를 사용합니다. 어느 화면에서 등록·수정해도 동일한 점검이력이 표시됩니다.</p><div class="steps"><div class="step">① 수목 선택</div><div class="step">② 이력 확인</div><div class="step">③ 등록·수정</div><div class="step">④ 사진·GPS</div><div class="step">⑤ 저장</div></div></section>
 <section class="panel"><h2>1. 점검 수목 선택</h2><div class="tree-search"><input id="treeSearch" class="control" type="search" placeholder="수목명 또는 대장번호 검색" autocomplete="off"><button type="button" id="refreshTrees">자료 새로고침</button></div><div id="selectedTree" class="selected-tree"></div><div id="treeList" class="tree-list"></div></section>
 <section class="panel"><h2>2. 등록된 점검이력</h2><div id="historyArea" class="history-empty">수목을 선택하면 데이터 대시보드에 등록된 점검일지가 여기에 표시됩니다.</div></section>
 <form id="inspectionForm">
