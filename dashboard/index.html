@@ -168,6 +168,7 @@
       <label>이메일<input id="authEmail" type="email" autocomplete="email" required inputmode="email"></label>
       <label id="authPasswordLabel">비밀번호<input id="authPassword" type="password" autocomplete="current-password" minlength="6" required></label>
       <button class="primary" id="authSubmit" type="submit">로그인</button>
+      <button class="secondary" id="guestEnter" type="button" hidden style="width:100%;min-height:46px;margin-top:8px">로그인 없이 테스트 입장</button>
       <p class="auth-message" id="authMessage" role="status"></p>
       <div class="auth-switch">
         <button class="link-button" type="button" id="authModeToggle">처음이신가요? 회원가입</button>
@@ -318,6 +319,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.0/dist/umd/supabase.min.js"></script>
   <script src="../js/supabase-config.js?v=20261004"></script>
-  <script src="../js/dashboard.js?v=20261004"></script>
+  <script src="../js/dashboard.js?v=20261026"></script>
 </body>
 </html>

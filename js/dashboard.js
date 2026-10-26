@@ -7,6 +7,10 @@
 (() => {
   'use strict';
 
+  // 테스트 기간 설정: true 이면 회원가입·로그인 없이 대시보드를 열자마자 "테스트 사용자"로 자동 입장합니다.
+  // (Supabase 익명 로그인 사용) 정식 운영 때는 false 로 바꾸면 이메일 로그인만 남습니다.
+  const TEST_MODE = true;
+
   const client = window.forestSupabase;
   const visitor = window.forestDemoVisitor;
   const $ = id => document.getElementById(id);
@@ -221,6 +225,27 @@
       button.disabled = false;
     }
   });
+  // 테스트 입장: 익명 로그인. 성공하면 onAuthStateChange 가 관리 화면으로 전환합니다.
+  async function enterAsGuest() {
+    const button = $('guestEnter');
+    button.disabled = true;
+    authMessage('테스트 사용자로 입장하는 중입니다…', 'ok');
+    try {
+      const { error } = await client.auth.signInAnonymously();
+      if (error) throw error;
+      authMessage('');
+    } catch (error) {
+      console.error('[TreeSam] 테스트 입장 실패:', error);
+      setMode('auth');
+      authMessage(/anonymous.*disabled|not enabled|signups not allowed/i.test(String(error?.message))
+        ? '로그인 없이 입장하는 기능이 아직 켜져 있지 않습니다. (관리자: Supabase → Authentication → Sign In / Providers → "Allow anonymous sign-ins" 켜기)'
+        : '테스트 입장에 실패했습니다: ' + translateAuthError(error));
+    } finally {
+      button.disabled = false;
+    }
+  }
+  $('guestEnter').addEventListener('click', enterAsGuest);
+
   $('logoutButton').addEventListener('click', async () => {
     await client.auth.signOut();
     show('로그아웃했습니다.', 'ok');
@@ -241,7 +266,7 @@
       setMode('auth');
       return;
     }
-    $('userEmail').textContent = user.email || '';
+    $('userEmail').textContent = user.is_anonymous ? '테스트 사용자' : (user.email || '');
     setMode('app');
     if (changed || (!state.loadedOnce && !state.loadingPromise)) loadData();
   }
@@ -1047,9 +1072,14 @@
       setTimeout(() => applySession(session), 0);
     });
     const { data } = await client.auth.getSession();
+    if (!data.session && TEST_MODE && state.authMode !== 'recovery') {
+      await enterAsGuest();
+      return;
+    }
     applySession(data.session);
   }
 
   setAuthMode('login');
+  $('guestEnter').hidden = !TEST_MODE;
   init();
 })();
