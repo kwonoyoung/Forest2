@@ -8,8 +8,10 @@
   'use strict';
 
   // 테스트 기간 설정: true 이면 회원가입·로그인 없이 대시보드를 열자마자 "테스트 사용자"로 자동 입장합니다.
-  // (Supabase 익명 로그인 사용) 정식 운영 때는 false 로 바꾸면 이메일 로그인만 남습니다.
+  // 공용 테스트 계정으로 로그인하며, 계정이 없으면 처음 한 번 자동으로 만듭니다.
+  // 이 계정 정보는 누구나 볼 수 있으므로 정식 운영 때는 반드시 false 로 바꾸세요.
   const TEST_MODE = true;
+  const TEST_ACCOUNT = { email: 'kwonoyoung77+treesam-test@gmail.com', password: 'treesam-test-2026' };
 
   const client = window.forestSupabase;
   const visitor = window.forestDemoVisitor;
@@ -225,20 +227,28 @@
       button.disabled = false;
     }
   });
-  // 테스트 입장: 익명 로그인. 성공하면 onAuthStateChange 가 관리 화면으로 전환합니다.
+  // 테스트 입장: 공용 테스트 계정으로 로그인 (없으면 한 번 만들고 로그인).
+  // 성공하면 onAuthStateChange 가 관리 화면으로 전환합니다.
   async function enterAsGuest() {
     const button = $('guestEnter');
     button.disabled = true;
     authMessage('테스트 사용자로 입장하는 중입니다…', 'ok');
     try {
-      const { error } = await client.auth.signInAnonymously();
+      let { error } = await client.auth.signInWithPassword(TEST_ACCOUNT);
+      if (error && /invalid login credentials/i.test(error.message)) {
+        // 테스트 계정이 아직 없으면 만듭니다 (이메일 확인 기능이 꺼져 있어 바로 로그인됨)
+        const signUp = await client.auth.signUp(TEST_ACCOUNT);
+        if (signUp.error && !/already registered|already been registered/i.test(signUp.error.message)) throw signUp.error;
+        if (!signUp.data?.session) ({ error } = await client.auth.signInWithPassword(TEST_ACCOUNT));
+        else error = null;
+      }
       if (error) throw error;
       authMessage('');
     } catch (error) {
       console.error('[TreeSam] 테스트 입장 실패:', error);
       setMode('auth');
-      authMessage(/anonymous.*disabled|not enabled|signups not allowed/i.test(String(error?.message))
-        ? '로그인 없이 입장하는 기능이 아직 켜져 있지 않습니다. (관리자: Supabase → Authentication → Sign In / Providers → "Allow anonymous sign-ins" 켜기)'
+      authMessage(/email not confirmed/i.test(String(error?.message))
+        ? '테스트 계정의 이메일 확인이 필요합니다. (관리자: Supabase → Authentication → Sign In / Providers → Email → "Confirm email" 끄기)'
         : '테스트 입장에 실패했습니다: ' + translateAuthError(error));
     } finally {
       button.disabled = false;
@@ -266,7 +276,7 @@
       setMode('auth');
       return;
     }
-    $('userEmail').textContent = user.is_anonymous ? '테스트 사용자' : (user.email || '');
+    $('userEmail').textContent = (user.is_anonymous || user.email === TEST_ACCOUNT.email) ? '테스트 사용자' : (user.email || '');
     setMode('app');
     if (changed || (!state.loadedOnce && !state.loadingPromise)) loadData();
   }
