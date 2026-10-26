@@ -1,0 +1,46 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>나무이야기 | 트리샘</title>
+<meta name="description" content="학교 수목의 사진과 기본정보를 확인하고 등록된 나무이야기 음성파일을 재생합니다.">
+<meta name="theme-color" content="#174b3b">
+<link rel="icon" href="assets/favicon.svg" type="image/svg+xml">
+<style>
+*{box-sizing:border-box}body{margin:0;background:#f4f7f5;color:#27332e;font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",Arial,sans-serif}a{text-decoration:none;color:inherit}button,input,audio{font:inherit}.topbar{background:#174b3b;color:#fff}.topbar .wrap{width:min(1080px,92%);margin:auto;min-height:70px;display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-size:20px;font-weight:800}.nav{display:flex;gap:8px;flex-wrap:wrap}.nav a{padding:8px 11px;border:1px solid rgba(255,255,255,.3);border-radius:8px;font-size:13px}.page{width:min(1080px,92%);margin:28px auto 64px}.hero{padding:28px;border:1px solid #d9e5de;border-radius:18px;background:linear-gradient(135deg,#edf6f1,#fff)}.hero h1{margin:0 0 8px;color:#174b3b;font-size:clamp(30px,5vw,44px)}.hero p{margin:0;color:#5d6963;line-height:1.75}.layout{display:grid;grid-template-columns:340px 1fr;gap:18px;margin-top:18px}.panel{padding:18px;border:1px solid #dbe5df;border-radius:16px;background:#fff;box-shadow:0 8px 26px rgba(23,75,59,.05)}.panel h2{margin:0 0 14px;color:#174b3b;font-size:19px}.search{width:100%;min-height:46px;padding:10px 12px;border:1px solid #cbd7d0;border-radius:10px}.tree-list{margin-top:10px;max-height:560px;overflow:auto;border:1px solid #e0e8e3;border-radius:10px}.tree-item{display:block;width:100%;padding:12px;border:0;border-bottom:1px solid #e9eeeb;background:#fff;text-align:left;cursor:pointer}.tree-item:last-child{border-bottom:0}.tree-item:hover,.tree-item.selected{background:#eaf5ef}.tree-item b{display:block;color:#174b3b;margin-bottom:3px}.tree-item small{color:#718078}.empty{padding:24px;text-align:center;color:#758078}.story{min-height:420px}.placeholder{display:grid;min-height:380px;place-items:center;text-align:center;color:#76827b}.story-card{display:none}.story-card.show{display:block}.photo-wrap{overflow:hidden;border-radius:14px;background:#eef2ef;aspect-ratio:16/9;display:grid;place-items:center}.photo-wrap img{width:100%;height:100%;object-fit:cover}.photo-empty{color:#76827b}.meta{padding:18px 2px 4px}.meta h2{font-size:30px;margin:0 0 6px}.asset{color:#718078;font-size:14px}.chips{display:flex;gap:8px;flex-wrap:wrap;margin:14px 0}.chip{padding:7px 10px;border-radius:999px;background:#eef5f1;color:#315749;font-size:13px}.audio-box{margin-top:18px;padding:18px;border-radius:14px;background:#f6faf7;border:1px solid #dce8e1}.audio-box h3{margin:0 0 8px;color:#174b3b}.audio-box p{margin:0 0 12px;color:#65716b;font-size:14px}.audio-box audio{width:100%}.no-audio{padding:16px;border-radius:10px;background:#fff7e9;color:#7a5a15}.status{margin-top:12px;padding:11px 12px;border-radius:9px;background:#eef4f0;color:#466055;font-size:13px}.status.error{background:#fff0f0;color:#972525}.footer{text-align:center;padding:28px 10px;color:#7a857f;font-size:12px}@media(max-width:780px){.topbar .wrap{padding:11px 0;align-items:flex-start;flex-direction:column}.layout{grid-template-columns:1fr}.tree-list{max-height:270px}.story{min-height:auto}.placeholder{min-height:220px}.meta h2{font-size:25px}}
+</style>
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<script src="js/supabase-config.js"></script>
+</head>
+<body>
+<header class="topbar"><div class="wrap"><a class="brand" href="./">🌳 트리샘</a><nav class="nav"><a href="./">첫 화면</a><a href="dashboard/">관리대장</a></nav></div></header>
+<main class="page">
+<section class="hero"><h1>나무이야기</h1><p>학교의 수목을 선택하면 사진과 기본정보를 확인하고, 등록된 음성으로 나무의 이야기를 들을 수 있습니다.</p></section>
+<div class="layout">
+  <aside class="panel"><h2>수목 선택</h2><input id="searchInput" class="search" type="search" placeholder="수목명 또는 대장번호 검색" autocomplete="off"><div id="treeList" class="tree-list"><div class="empty">수목 목록을 불러오는 중입니다.</div></div><div id="status" class="status">등록된 수목을 불러오는 중입니다.</div></aside>
+  <section class="panel story">
+    <div id="placeholder" class="placeholder"><div><div style="font-size:42px">🎧</div><p>왼쪽 목록에서 나무를 선택해 주세요.</p></div></div>
+    <article id="storyCard" class="story-card">
+      <div class="photo-wrap" id="photoWrap"></div>
+      <div class="meta"><h2 id="treeName"></h2><div id="assetNo" class="asset"></div><div id="chips" class="chips"></div></div>
+      <div class="audio-box"><h3>🎵 나무이야기 듣기</h3><p id="audioName"></p><div id="audioArea"></div></div>
+    </article>
+  </section>
+</div>
+</main>
+<footer class="footer">© 2026 TreeSam Smart Management System.</footer>
+<script>
+(()=>{'use strict';
+const $=id=>document.getElementById(id),client=window.forestSupabase,state={trees:[],selectedId:''};
+const esc=v=>String(v??'').replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+function setStatus(text,error=false){const e=$('status');e.textContent=text;e.className='status'+(error?' error':'')}
+function filtered(){const q=$('searchInput').value.trim().toLowerCase();return q?state.trees.filter(t=>((t.name||'')+' '+(t.asset_no||'')).toLowerCase().includes(q)):state.trees}
+function renderList(){const list=filtered();$('treeList').innerHTML=list.length?list.map(t=>`<button type="button" class="tree-item${state.selectedId===String(t.id)?' selected':''}" data-id="${esc(t.id)}"><b>${esc(t.name||'-')}</b><small>${esc(t.asset_no||'-')}</small></button>`).join(''):'<div class="empty">검색 결과가 없습니다.</div>'}
+function showTree(t){if(!t)return;state.selectedId=String(t.id);renderList();$('placeholder').style.display='none';$('storyCard').classList.add('show');$('treeName').textContent=t.name||'이름 없는 수목';$('assetNo').textContent='대장번호 '+(t.asset_no||'-');const chips=[];if(t.property_type)chips.push(`<span class="chip">${esc(t.property_type)}</span>`);if(t.property_item)chips.push(`<span class="chip">${esc(t.property_item)}</span>`);$('chips').innerHTML=chips.join('');$('photoWrap').innerHTML=t.photo_url?`<img src="${esc(t.photo_url)}" alt="${esc(t.name||'수목')} 사진" loading="lazy">`:'<div class="photo-empty">등록된 대표사진이 없습니다.</div>';$('audioName').textContent=t.audio_name||'';$('audioArea').innerHTML=t.audio_url?`<audio controls preload="metadata" src="${esc(t.audio_url)}">이 브라우저에서는 음성 재생을 지원하지 않습니다.</audio>`:'<div class="no-audio">등록된 나무이야기 음성파일이 없습니다.</div>';history.replaceState(null,'',location.pathname+'?tree='+encodeURIComponent(t.id))}
+async function loadTrees(){try{if(!client)throw new Error('데이터베이스 연결을 준비하지 못했습니다.');const{data,error}=await client.from('demo_trees_public').select('id,asset_no,name,property_type,property_item,photo_url,audio_url,audio_name').order('asset_no');if(error)throw error;state.trees=data||[];renderList();setStatus(`등록 수목 ${state.trees.length}개`);const target=new URLSearchParams(location.search).get('tree');if(target){const t=state.trees.find(x=>String(x.id)===target);if(t)showTree(t)}}catch(e){$('treeList').innerHTML='<div class="empty">목록을 불러오지 못했습니다.</div>';setStatus('수목 목록을 불러오지 못했습니다: '+(e?.message||e),true)}}
+$('searchInput').addEventListener('input',renderList);$('treeList').addEventListener('click',e=>{const b=e.target.closest('[data-id]');if(!b)return;showTree(state.trees.find(t=>String(t.id)===b.dataset.id))});loadTrees();
+})();
+</script>
+</body>
+</html>
