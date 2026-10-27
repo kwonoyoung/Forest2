@@ -3,202 +3,43 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
-<title>식물 수목 생태 분석기 | 트리샘</title>
-<meta name="description" content="찰칵 한 번으로 밝혀내는 우리 학교와 주변 숲의 생태 비밀">
+<title>식물 수목 생태 분석기 | 트리샘 EcoLenses</title>
+<meta name="description" content="사진 한 장으로 수종·학명·생태 특징과 건강 상태를 AI로 분석합니다.">
 <meta name="theme-color" content="#174b3b">
 <style>
-*{box-sizing:border-box}
-:root{--green:#174b3b;--green2:#2f6b50;--leaf:#5f8f35;--bg:#f3f6f1;--line:#dfe7df;--text:#26332d;--muted:#68736d;--soft:#edf4ea;--warn:#956820;--danger:#9a493e}
-html{scroll-behavior:smooth}
-body{margin:0;background:var(--bg);color:var(--text);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Arial,sans-serif;line-height:1.55}
-button,input{font:inherit}
-a{color:inherit}
-header{background:linear-gradient(135deg,#123d30,#245e46);color:#fff;padding:22px 20px 28px}
-.top{width:min(980px,100%);margin:auto;display:flex;justify-content:space-between;align-items:center;gap:16px}
-.brand{font-weight:800;font-size:18px;letter-spacing:-.03em}.back{font-size:14px;color:#e4eee9;text-decoration:none}
-.hero{width:min(980px,100%);margin:26px auto 0}.hero h1{margin:0 0 10px;font-size:clamp(30px,6vw,48px);letter-spacing:-.055em;line-height:1.18}.hero p{margin:0;color:#dce9e3;font-size:clamp(15px,2.5vw,18px)}
-main{width:min(980px,calc(100% - 28px));margin:28px auto 56px}
-.card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 35px rgba(31,62,48,.07);padding:22px}
-.upload{display:grid;grid-template-columns:1fr 1fr;gap:14px}.pick{position:relative;min-height:112px;border:1.5px dashed #9eb7a7;border-radius:15px;background:#f9fbf8;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;cursor:pointer}.pick strong{display:block;color:var(--green);font-size:17px;margin-bottom:5px}.pick span{font-size:13px;color:var(--muted)}.pick input{position:absolute;inset:0;opacity:0;cursor:pointer}
-.previewWrap{display:none;margin-top:18px}.previewWrap.show{display:block}.preview{width:100%;max-height:520px;object-fit:contain;border-radius:14px;background:#172019}.meta{display:flex;gap:10px;flex-wrap:wrap;margin-top:10px;font-size:12px;color:var(--muted)}.badge{padding:6px 9px;border-radius:999px;background:#f0f4f1}
-.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.btn{border:0;border-radius:11px;min-height:48px;padding:0 20px;font-weight:800;cursor:pointer}.primary{background:var(--green);color:#fff}.secondary{background:#eef3ef;color:#315342}.btn:disabled{opacity:.45;cursor:not-allowed}
-.notice{margin-top:15px;padding:13px 15px;border-radius:12px;background:#f7f4ea;color:#6c5b2e;font-size:13px}
-.result{display:none;margin-top:22px}.result.show{display:block}.resultHead{display:flex;justify-content:space-between;align-items:flex-end;gap:12px;margin-bottom:14px}.resultHead h2{margin:0;color:var(--green);font-size:24px}.score{font-size:34px;font-weight:900;color:var(--green)}.score small{font-size:13px;font-weight:700;color:var(--muted)}
-.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric{padding:16px;border:1px solid var(--line);border-radius:14px;background:#fbfcfb}.metric .v{font-size:25px;font-weight:900;color:var(--green)}.metric .k{font-size:12px;color:var(--muted);margin-top:4px}.bar{height:7px;background:#e9eeea;border-radius:999px;margin-top:9px;overflow:hidden}.bar>i{display:block;height:100%;width:0;background:#547f54;border-radius:999px;transition:width .5s ease}
-.analysisGrid{display:grid;grid-template-columns:1.05fr .95fr;gap:14px;margin-top:14px}.panel{border:1px solid var(--line);border-radius:14px;padding:18px}.panel h3{margin:0 0 12px;font-size:17px;color:var(--green)}.status{display:inline-flex;padding:7px 10px;border-radius:999px;background:var(--soft);font-weight:800;color:#436d36;margin-bottom:10px}.panel p{margin:8px 0;color:#4f5c56}.tips{padding-left:19px;margin:8px 0 0}.tips li{margin:7px 0;color:#4f5c56}
-.aiReady{margin-top:14px;border:1px solid #cfe0d5;background:#f5faf6;border-radius:14px;padding:18px}.aiReady strong{color:var(--green)}.aiReady p{margin:7px 0 0;color:var(--muted);font-size:13px}
-footer{text-align:center;color:#87918c;font-size:12px;padding:20px}
-canvas{display:none}
-@media(max-width:760px){.upload,.analysisGrid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.card{padding:17px}.resultHead{align-items:center}.score{font-size:28px}}
-@media(max-width:430px){main{width:min(100% - 18px,980px)}.metrics{grid-template-columns:1fr 1fr}.metric{padding:13px}.metric .v{font-size:21px}.hero h1{font-size:32px}}
+*{box-sizing:border-box}:root{--g:#174b3b;--g2:#2e6b4e;--leaf:#5f8f35;--bg:#f3f6f1;--line:#dce6df;--text:#26332d;--muted:#69756e;--soft:#edf5eb;--warn:#8a631d;--danger:#9b4438}html{scroll-behavior:smooth}body{margin:0;background:var(--bg);color:var(--text);font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic","Noto Sans KR",Arial,sans-serif;line-height:1.6}button,input{font:inherit}a{color:inherit}header{background:linear-gradient(135deg,#103b2d,#286348);color:#fff;padding:20px 20px 30px}.top,.hero,main{width:min(1000px,100%);margin:auto}.top{display:flex;align-items:center;justify-content:space-between;gap:12px}.brand{font-weight:900}.back{font-size:14px;color:#e1eee8;text-decoration:none}.hero{margin-top:27px}.hero h1{margin:0 0 8px;font-size:clamp(31px,6vw,50px);line-height:1.15;letter-spacing:-.055em}.hero p{margin:0;color:#dce9e3;font-size:clamp(15px,2.5vw,18px)}main{width:min(1000px,calc(100% - 28px));margin:28px auto 54px}.card{background:#fff;border:1px solid var(--line);border-radius:18px;box-shadow:0 12px 36px rgba(31,62,48,.07);padding:22px}.upload{display:grid;grid-template-columns:1fr 1fr;gap:14px}.pick{position:relative;min-height:112px;border:1.5px dashed #9eb7a7;border-radius:15px;background:#fafcfa;display:flex;align-items:center;justify-content:center;text-align:center;padding:18px;cursor:pointer}.pick strong{display:block;color:var(--g);font-size:17px;margin-bottom:4px}.pick span{font-size:13px;color:var(--muted)}.pick input{position:absolute;inset:0;opacity:0;cursor:pointer}.previewWrap,.result{display:none}.previewWrap.show,.result.show{display:block}.previewWrap{margin-top:18px}.preview{width:100%;max-height:540px;object-fit:contain;border-radius:14px;background:#172019}.meta{display:flex;gap:8px;flex-wrap:wrap;margin-top:10px}.badge{font-size:12px;color:var(--muted);background:#f0f4f1;padding:6px 9px;border-radius:999px}.actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:16px}.btn{border:0;border-radius:11px;min-height:48px;padding:0 20px;font-weight:850;cursor:pointer}.primary{background:var(--g);color:#fff}.aiBtn{background:#496f26;color:#fff}.secondary{background:#eef3ef;color:#315342}.btn:disabled{opacity:.45;cursor:not-allowed}.notice{margin-top:14px;padding:13px 15px;border-radius:12px;background:#f6f4e9;color:#6c5b2e;font-size:13px}.keybox{margin-top:16px;padding:16px;border:1px solid #cfe0d5;border-radius:14px;background:#f7fbf7}.keyrow{display:flex;gap:8px}.keyrow input{flex:1;min-width:0;border:1px solid #bdcec2;border-radius:9px;padding:11px 12px;background:#fff}.keybox small{display:block;margin-top:8px;color:var(--muted)}.keyok{color:#3d6e31!important;font-weight:800}.result{margin-top:22px}.resultHead{display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-bottom:14px}.resultHead h2{margin:0;color:var(--g);font-size:24px}.score{font-size:33px;font-weight:900;color:var(--g)}.score small{font-size:12px;color:var(--muted)}.metrics{display:grid;grid-template-columns:repeat(4,1fr);gap:10px}.metric,.panel,.aiCard{border:1px solid var(--line);border-radius:14px;background:#fbfcfb}.metric{padding:15px}.metric .v{font-size:24px;font-weight:900;color:var(--g)}.metric .k{font-size:12px;color:var(--muted)}.bar{height:7px;background:#e8eee9;border-radius:999px;margin-top:9px;overflow:hidden}.bar i{display:block;height:100%;width:0;background:#5b8558;border-radius:999px;transition:width .4s}.grid2{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:14px}.panel{padding:18px}.panel h3,.aiCard h3{margin:0 0 10px;color:var(--g);font-size:17px}.panel p{margin:7px 0;color:#4f5c56}.tips{padding-left:18px;margin:8px 0}.tips li{margin:6px 0}.aiCard{margin-top:14px;padding:20px;background:linear-gradient(180deg,#fbfdfb,#f5faf5)}.aiTop{display:flex;justify-content:space-between;gap:12px;align-items:flex-start}.species{font-size:28px;font-weight:950;color:var(--g);letter-spacing:-.04em}.latin{font-style:italic;color:#69756e}.confidence{padding:7px 10px;border-radius:999px;background:#e8f2e5;color:#416934;font-size:13px;font-weight:800}.aiGrid{display:grid;grid-template-columns:repeat(2,1fr);gap:10px;margin-top:16px}.aiField{padding:14px;border-radius:12px;background:#fff;border:1px solid #e2eae4}.aiField b{display:block;color:var(--g);font-size:13px;margin-bottom:5px}.aiField p{margin:0;color:#4e5a54}.wide{grid-column:1/-1}.loading{display:none;margin-top:14px;padding:14px;border-radius:12px;background:#edf5eb;color:var(--g);font-weight:800}.loading.show{display:block}.error{display:none;margin-top:14px;padding:14px;border-radius:12px;background:#fff0ed;color:#8b3f35}.error.show{display:block}.disclaimer{margin-top:14px;font-size:12px;color:#7a8580}.hidden{display:none!important}footer{text-align:center;padding:20px;color:#87918c;font-size:12px}canvas{display:none}@media(max-width:760px){.upload,.grid2,.aiGrid{grid-template-columns:1fr}.metrics{grid-template-columns:1fr 1fr}.wide{grid-column:auto}.card{padding:17px}.keyrow{flex-direction:column}.aiTop{flex-direction:column}.species{font-size:25px}}@media(max-width:430px){main{width:calc(100% - 18px)}.metric{padding:12px}.metric .v{font-size:21px}.hero h1{font-size:32px}}
 </style>
 </head>
 <body>
-<header>
-  <div class="top"><div class="brand">🌿 트리샘 EcoLenses</div><a class="back" href="./">← 메인으로</a></div>
-  <div class="hero">
-    <h1>식물 수목 생태 분석기</h1>
-    <p>찰칵 한 번으로 밝혀내는<br>우리 학교와 주변 숲의 생태 비밀</p>
-  </div>
-</header>
-<main>
-  <section class="card">
-    <div class="upload">
-      <label class="pick">
-        <div><strong>📷 카메라로 촬영</strong><span>휴대폰에서 바로 촬영해 분석합니다.</span></div>
-        <input id="cameraInput" type="file" accept="image/*" capture="environment">
-      </label>
-      <label class="pick">
-        <div><strong>🖼️ 사진 불러오기</strong><span>갤러리 또는 PC의 사진을 선택합니다.</span></div>
-        <input id="fileInput" type="file" accept="image/*">
-      </label>
-    </div>
-
-    <div id="previewWrap" class="previewWrap">
-      <img id="preview" class="preview" alt="분석할 식물 또는 수목 사진">
-      <div class="meta"><span id="fileName" class="badge"></span><span id="imageSize" class="badge"></span></div>
-      <div class="actions">
-        <button id="analyzeBtn" class="btn primary" type="button">🔍 생태 상태 분석하기</button>
-        <button id="resetBtn" class="btn secondary" type="button">다른 사진 선택</button>
-      </div>
-      <div class="notice">1차 버전은 사진의 색상·밝기·식생 비율을 브라우저에서 직접 계산하는 간이 분석입니다. 수종·학명·병해충의 정확한 판별은 다음 단계의 AI 정밀 분석에서 추가됩니다.</div>
-    </div>
-
-    <section id="result" class="result" aria-live="polite">
-      <div class="resultHead"><h2>분석 결과</h2><div class="score"><span id="ecoScore">0</span><small> / 100 생태 상태</small></div></div>
-      <div class="metrics">
-        <div class="metric"><div id="greenValue" class="v">0%</div><div class="k">녹색 식생 비율</div><div class="bar"><i id="greenBar"></i></div></div>
-        <div class="metric"><div id="brownValue" class="v">0%</div><div class="k">갈변·건조색 비율</div><div class="bar"><i id="brownBar"></i></div></div>
-        <div class="metric"><div id="brightnessValue" class="v">0%</div><div class="k">평균 밝기</div><div class="bar"><i id="brightnessBar"></i></div></div>
-        <div class="metric"><div id="vitalityValue" class="v">0%</div><div class="k">추정 활력도</div><div class="bar"><i id="vitalityBar"></i></div></div>
-      </div>
-      <div class="analysisGrid">
-        <div class="panel">
-          <h3>현재 상태 해석</h3>
-          <div id="status" class="status">분석 중</div>
-          <p id="summary"></p>
-          <p id="detail"></p>
-        </div>
-        <div class="panel">
-          <h3>현장 확인 권장사항</h3>
-          <ul id="tips" class="tips"></ul>
-        </div>
-      </div>
-      <div class="aiReady"><strong>🤖 AI 정밀 분석 연결 준비 완료</strong><p>2차 버전에서는 같은 화면에서 수종명·학명·잎/수피 특징·병해충 의심·관리 방법·학생용 생태 설명까지 자동 생성할 수 있도록 확장할 예정입니다.</p></div>
-    </section>
-  </section>
-  <canvas id="canvas"></canvas>
-</main>
-<footer>© 2026 TreeSam · 식물 수목 생태 분석기 EcoLenses</footer>
+<header><div class="top"><div class="brand">🌿 트리샘 EcoLenses</div><a class="back" href="./">← 메인으로</a></div><div class="hero"><h1>식물 수목 생태 분석기</h1><p>찰칵 한 번으로 밝혀내는<br>우리 학교와 주변 숲의 생태 비밀</p></div></header>
+<main><section class="card">
+<div class="upload">
+<label class="pick"><div><strong>📷 카메라로 촬영</strong><span>잎·수피·수관이 잘 보이게 촬영해 주세요.</span></div><input id="cameraInput" type="file" accept="image/*" capture="environment"></label>
+<label class="pick"><div><strong>🖼️ 사진 불러오기</strong><span>갤러리 또는 PC에서 사진을 선택합니다.</span></div><input id="fileInput" type="file" accept="image/*"></label>
+</div>
+<div id="previewWrap" class="previewWrap"><img id="preview" class="preview" alt="분석할 식물 또는 수목 사진"><div class="meta"><span id="fileName" class="badge"></span><span id="imageSize" class="badge"></span></div>
+<div class="keybox"><strong>🤖 AI 수종 판별 설정</strong><div class="keyrow"><input id="apiKey" type="password" autocomplete="off" placeholder="Gemini API 키 입력"><button id="saveKey" class="btn secondary" type="button">이번 창에서 사용</button></div><small id="keyState">API 키는 GitHub에 저장되지 않으며 이 브라우저 탭을 닫으면 삭제됩니다.</small></div>
+<div class="actions"><button id="aiAnalyzeBtn" class="btn aiBtn" type="button">✨ AI 수종 정밀 분석</button><button id="localAnalyzeBtn" class="btn primary" type="button">🔍 기본 생태 상태 분석</button><button id="resetBtn" class="btn secondary" type="button">다른 사진 선택</button></div>
+<div class="notice">AI 판별 결과는 현장 사진을 바탕으로 한 추정입니다. 수목 자산 등록·병해충 처방 등 중요한 판단에는 잎·꽃·열매·수피 등 추가 특징과 전문가 확인을 권장합니다.</div>
+<div id="loading" class="loading">🌱 AI가 사진을 살펴보고 있습니다… 수종과 생태 정보를 분석 중입니다.</div><div id="errorBox" class="error"></div>
+</div>
+<section id="aiResult" class="result" aria-live="polite"><div class="resultHead"><h2>AI 수종 분석 결과</h2></div><div class="aiCard"><div class="aiTop"><div><div id="species" class="species">-</div><div id="latin" class="latin"></div></div><div id="confidence" class="confidence">신뢰도 -</div></div><div class="aiGrid"><div class="aiField"><b>분류</b><p id="classification">-</p></div><div class="aiField"><b>식별 근거</b><p id="evidence">-</p></div><div class="aiField"><b>건강 상태</b><p id="health">-</p></div><div class="aiField"><b>관리 포인트</b><p id="care">-</p></div><div class="aiField wide"><b>생태적 특징</b><p id="ecology">-</p></div><div class="aiField wide"><b>학생용 나무 이야기</b><p id="story">-</p></div><div class="aiField wide"><b>주의·추가 확인</b><p id="caution">-</p></div></div><div class="disclaimer">※ AI 결과는 사진 기반 추정값입니다. 정확한 동정이 어려운 경우 후보 수종을 제시하도록 설계했습니다.</div></div></section>
+<section id="localResult" class="result" aria-live="polite"><div class="resultHead"><h2>기본 생태 상태 분석</h2><div class="score"><span id="ecoScore">0</span><small> / 100</small></div></div><div class="metrics"><div class="metric"><div id="greenValue" class="v">0%</div><div class="k">녹색 식생</div><div class="bar"><i id="greenBar"></i></div></div><div class="metric"><div id="brownValue" class="v">0%</div><div class="k">갈변·건조색</div><div class="bar"><i id="brownBar"></i></div></div><div class="metric"><div id="brightnessValue" class="v">0%</div><div class="k">평균 밝기</div><div class="bar"><i id="brightnessBar"></i></div></div><div class="metric"><div id="vitalityValue" class="v">0%</div><div class="k">추정 활력도</div><div class="bar"><i id="vitalityBar"></i></div></div></div><div class="grid2"><div class="panel"><h3>현재 상태 해석</h3><p id="summary"></p><p id="detail"></p></div><div class="panel"><h3>현장 확인 권장사항</h3><ul id="tips" class="tips"></ul></div></div></section>
+</section><canvas id="canvas"></canvas></main>
+<footer>© 2026 TreeSam · EcoLenses v2</footer>
 <script>
-(function(){
-'use strict';
-const cameraInput=document.getElementById('cameraInput');
-const fileInput=document.getElementById('fileInput');
-const preview=document.getElementById('preview');
-const previewWrap=document.getElementById('previewWrap');
-const result=document.getElementById('result');
-const canvas=document.getElementById('canvas');
-const ctx=canvas.getContext('2d',{willReadFrequently:true});
-let currentFile=null;
-
-function selectFile(file){
-  if(!file||!file.type.startsWith('image/')) return;
-  currentFile=file;
-  const url=URL.createObjectURL(file);
-  preview.onload=function(){
-    document.getElementById('imageSize').textContent=preview.naturalWidth+' × '+preview.naturalHeight+' px';
-    URL.revokeObjectURL(url);
-  };
-  preview.src=url;
-  document.getElementById('fileName').textContent=file.name||'촬영 이미지';
-  previewWrap.classList.add('show');
-  result.classList.remove('show');
-  setTimeout(()=>previewWrap.scrollIntoView({behavior:'smooth',block:'start'}),100);
-}
-[cameraInput,fileInput].forEach(el=>el.addEventListener('change',e=>selectFile(e.target.files&&e.target.files[0])));
-
-document.getElementById('resetBtn').addEventListener('click',()=>{
-  currentFile=null; cameraInput.value=''; fileInput.value=''; preview.removeAttribute('src');
-  previewWrap.classList.remove('show'); result.classList.remove('show'); window.scrollTo({top:0,behavior:'smooth'});
-});
-
-function clamp(n,min,max){return Math.max(min,Math.min(max,n));}
-function pct(n){return Math.round(n*100);}
-function setMetric(id,bar,value){document.getElementById(id).textContent=Math.round(value)+'%';document.getElementById(bar).style.width=clamp(value,0,100)+'%';}
-
-function analyze(){
-  if(!preview.naturalWidth) return;
-  const max=720;
-  const scale=Math.min(1,max/Math.max(preview.naturalWidth,preview.naturalHeight));
-  canvas.width=Math.max(1,Math.round(preview.naturalWidth*scale));
-  canvas.height=Math.max(1,Math.round(preview.naturalHeight*scale));
-  ctx.drawImage(preview,0,0,canvas.width,canvas.height);
-  const data=ctx.getImageData(0,0,canvas.width,canvas.height).data;
-  let green=0,brown=0,bright=0,usable=0,variance=0;
-  let lumSum=0,lumSq=0;
-  for(let i=0;i<data.length;i+=16){
-    const r=data[i],g=data[i+1],b=data[i+2],a=data[i+3]; if(a<100) continue;
-    const mx=Math.max(r,g,b),mn=Math.min(r,g,b),delta=mx-mn;
-    const lum=.2126*r+.7152*g+.0722*b;
-    lumSum+=lum; lumSq+=lum*lum; usable++;
-    const greenish=(g>r*1.06&&g>b*1.04&&g>55&&delta>18)||(g>85&&g-r>12&&g-b>8);
-    const brownish=(r>75&&g>45&&b<110&&r>=g*1.05&&g>=b*1.05&&delta>20);
-    if(greenish) green++;
-    if(brownish) brown++;
-    if(lum>175) bright++;
-  }
-  if(!usable) return;
-  const greenRatio=green/usable;
-  const brownRatio=brown/usable;
-  const brightness=lumSum/usable/255;
-  variance=Math.sqrt(Math.max(0,lumSq/usable-Math.pow(lumSum/usable,2)))/128;
-
-  const vegetation=clamp(greenRatio*1.45,0,1);
-  const dryness=clamp(brownRatio*1.25,0,1);
-  const lightQuality=1-clamp(Math.abs(brightness-.52)/.52,0,1);
-  const texture=clamp(variance,0,1);
-  const vitality=clamp(vegetation*.58+(1-dryness)*.24+lightQuality*.12+texture*.06,0,1);
-  const eco=clamp(Math.round(vitality*100),5,98);
-
-  setMetric('greenValue','greenBar',pct(greenRatio));
-  setMetric('brownValue','brownBar',pct(brownRatio));
-  setMetric('brightnessValue','brightnessBar',pct(brightness));
-  setMetric('vitalityValue','vitalityBar',pct(vitality));
-  document.getElementById('ecoScore').textContent=eco;
-
-  let status,summary,detail,tips=[];
-  if(greenRatio<.08){
-    status='식물 영역 확인 필요';
-    summary='사진에서 녹색 식생 영역이 적게 감지되었습니다.';
-    detail='수간·낙엽·꽃·겨울철 수목처럼 녹색이 적은 대상일 수도 있습니다. 잎이나 수관이 더 크게 보이도록 다시 촬영하면 상태 분석 정확도가 높아집니다.';
-    tips=['식물 또는 수목이 화면의 절반 이상 보이게 촬영','역광을 피하고 잎·수피가 선명하게 보이도록 촬영','수종 판별 시 잎, 수피, 열매를 각각 가까이 촬영'];
-  }else if(brownRatio>.28&&greenRatio<.32){
-    status='갈변 징후 관찰 권장';
-    summary='녹색 대비 갈색·건조 계열 색상이 비교적 많이 감지되었습니다.';
-    detail='계절 변화, 마른 잎, 수피, 토양 영향일 수 있으므로 실제 잎의 마름·반점·가지 고사 여부를 현장에서 확인하는 것이 좋습니다.';
-    tips=['잎 끝 마름과 반점 여부 확인','토양 건조 또는 과습 여부 확인','고사 가지와 정상 가지의 비율 비교','동일 수목을 1~2주 간격으로 재촬영해 변화 기록'];
-  }else if(vitality>.58){
-    status='전반적으로 양호';
-    summary='녹색 식생 비율과 명암 상태를 기준으로 비교적 양호한 활력 신호가 감지되었습니다.';
-    detail='사진 기반 간이 판정이므로 병해충, 뿌리 상태, 토양 환경까지 직접 판단하지는 않습니다. 정기적인 육안 점검과 함께 사용해 주세요.';
-    tips=['잎 앞·뒷면의 반점과 해충 흔적 확인','수간 균열·공동·버섯 발생 여부 확인','뿌리 주변 답압과 배수 상태 확인','계절별 사진을 남겨 생육 변화를 비교'];
-  }else{
-    status='추가 관찰 권장';
-    summary='식생 신호는 확인되지만 활력 지표가 중간 수준으로 계산되었습니다.';
-    detail='조명, 계절, 배경색의 영향을 받을 수 있습니다. 잎이 화면을 더 많이 차지하도록 한 장 더 촬영해 비교하는 것을 권장합니다.';
-    tips=['밝은 자연광에서 재촬영','잎과 가지를 가까이서 추가 촬영','갈변·황화가 실제 잎에 있는지 육안 확인','관수·배수·주변 공사 등 최근 환경 변화 확인'];
-  }
-  document.getElementById('status').textContent=status;
-  document.getElementById('summary').textContent=summary;
-  document.getElementById('detail').textContent=detail;
-  const ul=document.getElementById('tips'); ul.innerHTML=''; tips.forEach(t=>{const li=document.createElement('li');li.textContent=t;ul.appendChild(li);});
-  result.classList.add('show');
-  setTimeout(()=>result.scrollIntoView({behavior:'smooth',block:'start'}),100);
-}
-
-document.getElementById('analyzeBtn').addEventListener('click',analyze);
+(()=>{'use strict';
+const $=id=>document.getElementById(id),cameraInput=$('cameraInput'),fileInput=$('fileInput'),preview=$('preview'),previewWrap=$('previewWrap'),canvas=$('canvas'),ctx=canvas.getContext('2d',{willReadFrequently:true});let currentFile=null;
+function selectFile(file){if(!file||!file.type.startsWith('image/'))return;currentFile=file;const url=URL.createObjectURL(file);preview.onload=()=>{$('imageSize').textContent=preview.naturalWidth+' × '+preview.naturalHeight+' px';URL.revokeObjectURL(url)};preview.src=url;$('fileName').textContent=file.name||'촬영 이미지';previewWrap.classList.add('show');$('aiResult').classList.remove('show');$('localResult').classList.remove('show');$('errorBox').classList.remove('show');setTimeout(()=>previewWrap.scrollIntoView({behavior:'smooth',block:'start'}),80)}
+[cameraInput,fileInput].forEach(x=>x.addEventListener('change',e=>selectFile(e.target.files?.[0])));
+const existing=sessionStorage.getItem('treesamGeminiKey');if(existing){$('apiKey').value=existing;$('keyState').textContent='✓ 이번 브라우저 탭에 API 키가 설정되어 있습니다.';$('keyState').classList.add('keyok')}
+$('saveKey').onclick=()=>{const k=$('apiKey').value.trim();if(!k){sessionStorage.removeItem('treesamGeminiKey');$('keyState').textContent='API 키가 비어 있습니다.';return}sessionStorage.setItem('treesamGeminiKey',k);$('keyState').textContent='✓ 이번 브라우저 탭에서만 사용할 API 키를 설정했습니다.';$('keyState').classList.add('keyok')};
+$('resetBtn').onclick=()=>{currentFile=null;cameraInput.value='';fileInput.value='';preview.removeAttribute('src');previewWrap.classList.remove('show');$('aiResult').classList.remove('show');$('localResult').classList.remove('show');window.scrollTo({top:0,behavior:'smooth'})};
+function clamp(n,a,b){return Math.max(a,Math.min(b,n))}function setM(v,b,n){$(v).textContent=Math.round(n)+'%';$(b).style.width=clamp(n,0,100)+'%'}
+$('localAnalyzeBtn').onclick=()=>{if(!preview.naturalWidth)return;const max=720,s=Math.min(1,max/Math.max(preview.naturalWidth,preview.naturalHeight));canvas.width=Math.max(1,Math.round(preview.naturalWidth*s));canvas.height=Math.max(1,Math.round(preview.naturalHeight*s));ctx.drawImage(preview,0,0,canvas.width,canvas.height);const d=ctx.getImageData(0,0,canvas.width,canvas.height).data;let green=0,brown=0,n=0,ls=0,l2=0;for(let i=0;i<d.length;i+=16){const r=d[i],g=d[i+1],b=d[i+2],a=d[i+3];if(a<100)continue;const mx=Math.max(r,g,b),mn=Math.min(r,g,b),delta=mx-mn,lum=.2126*r+.7152*g+.0722*b;ls+=lum;l2+=lum*lum;n++;if((g>r*1.06&&g>b*1.04&&g>55&&delta>18)||(g>85&&g-r>12&&g-b>8))green++;if(r>75&&g>45&&b<110&&r>=g*1.05&&g>=b*1.05&&delta>20)brown++}if(!n)return;const gr=green/n,br=brown/n,bright=ls/n/255,variance=Math.sqrt(Math.max(0,l2/n-(ls/n)**2))/128,veg=clamp(gr*1.45,0,1),dry=clamp(br*1.25,0,1),light=1-clamp(Math.abs(bright-.52)/.52,0,1),vit=clamp(veg*.58+(1-dry)*.24+light*.12+clamp(variance,0,1)*.06,0,1),eco=clamp(Math.round(vit*100),5,98);setM('greenValue','greenBar',gr*100);setM('brownValue','brownBar',br*100);setM('brightnessValue','brightnessBar',bright*100);setM('vitalityValue','vitalityBar',vit*100);$('ecoScore').textContent=eco;let summary,detail,tips;if(gr<.08){summary='녹색 식생 영역이 적게 감지되었습니다.';detail='수간·낙엽·꽃·겨울철 수목일 수 있으므로 잎이나 수관이 더 크게 보이게 재촬영하면 좋습니다.';tips=['잎 또는 수관을 가까이 촬영','역광을 피해 자연광에서 촬영','수피·열매·꽃 사진도 함께 확보']}else if(br>.28){summary='갈변·건조색 영역이 비교적 많이 관찰됩니다.';detail='계절적 변화일 수도 있으나 잎 마름, 수분 부족, 병해충 여부를 현장에서 확인해 주세요.';tips=['잎 뒷면과 가지 끝 확인','토양 수분·배수 상태 확인','반점·구멍·해충 흔적 확인']}else if(vit>.62){summary='사진상 녹색 식생과 활력이 비교적 양호합니다.';detail='현재 사진에서는 뚜렷한 갈변 신호가 크게 나타나지 않습니다.';tips=['정기 점검 사진 누적','수관 고사 가지 확인','계절별 변화 비교']}else{summary='보통 수준의 식생 상태로 추정됩니다.';detail='사진만으로 단정하기 어려우므로 잎·가지·수피 상태를 함께 확인해 주세요.';tips=['가까운 잎 사진 추가','수관 전체 사진 추가','이상 부위가 있다면 확대 촬영']}$('summary').textContent=summary;$('detail').textContent=detail;$('tips').innerHTML=tips.map(x=>'<li>'+x+'</li>').join('');$('localResult').classList.add('show');$('localResult').scrollIntoView({behavior:'smooth',block:'start'})};
+async function imageData(){const max=1280,s=Math.min(1,max/Math.max(preview.naturalWidth,preview.naturalHeight));canvas.width=Math.round(preview.naturalWidth*s);canvas.height=Math.round(preview.naturalHeight*s);ctx.drawImage(preview,0,0,canvas.width,canvas.height);const url=canvas.toDataURL('image/jpeg',.82);return url.split(',')[1]}
+function cleanJson(t){t=t.trim().replace(/^```json\s*/i,'').replace(/```$/,'').trim();const a=t.indexOf('{'),b=t.lastIndexOf('}');return JSON.parse(t.slice(a,b+1))}
+$('aiAnalyzeBtn').onclick=async()=>{if(!preview.naturalWidth)return;const key=$('apiKey').value.trim()||sessionStorage.getItem('treesamGeminiKey');if(!key){$('errorBox').textContent='Gemini API 키를 먼저 입력해 주세요. 키는 GitHub 저장소에 저장되지 않습니다.';$('errorBox').classList.add('show');return}sessionStorage.setItem('treesamGeminiKey',key);$('loading').classList.add('show');$('errorBox').classList.remove('show');$('aiResult').classList.remove('show');$('aiAnalyzeBtn').disabled=true;try{const base64=await imageData();const prompt=`당신은 대한민국의 학교 수목과 도시 식생을 분석하는 생태 전문가입니다. 사진만 보고 과도하게 단정하지 마세요. 식별이 불확실하면 species에 '정확한 판별 어려움' 또는 가장 유력한 후보를 쓰고 caution에 추가 사진이 필요한 부위를 알려주세요. 한국에서 통용되는 국명과 학명을 우선 사용하세요. 병해충은 사진에서 명확한 징후가 있을 때만 '의심' 수준으로 표현하세요. 반드시 JSON 객체 하나만 반환하세요. 키는 species, scientificName, confidence, classification, evidence, health, care, ecology, story, caution 입니다. confidence는 0~100 정수. classification은 교목/관목/초본/덩굴/기타 중 하나와 상록/낙엽 여부를 가능하면 포함하세요. evidence는 잎 모양·배열·수피·꽃·열매 등 실제 사진에서 보이는 식별 근거를 2~4개 요약하세요. health는 건강 상태와 관찰된 이상 징후를 요약하세요. care는 학교 현장에서 실천 가능한 관리 포인트를 2~4개 한 문장으로 요약하세요. ecology는 생태적 특징과 가치, story는 학생이 이해하기 쉬운 2~3문장 설명, caution은 오동정 가능성과 추가 확인사항입니다.`;const body={contents:[{parts:[{text:prompt},{inline_data:{mime_type:'image/jpeg',data:base64}}]}],generationConfig:{temperature:.2,responseMimeType:'application/json'}};const res=await fetch('https://generativelanguage.googleapis.com/v1beta/models/gemini-3.8-flash:generateContent',{method:'POST',headers:{'Content-Type':'application/json','x-goog-api-key':key},body:JSON.stringify(body)});const raw=await res.json();if(!res.ok)throw new Error(raw?.error?.message||('API 오류 '+res.status));const text=raw?.candidates?.[0]?.content?.parts?.map(p=>p.text||'').join('')||'';if(!text)throw new Error('AI 분석 결과가 비어 있습니다.');const j=cleanJson(text);$('species').textContent=j.species||'판별 어려움';$('latin').textContent=j.scientificName||'';$('confidence').textContent='신뢰도 '+(Number.isFinite(+j.confidence)?Math.round(+j.confidence):'-')+'%';$('classification').textContent=j.classification||'-';$('evidence').textContent=j.evidence||'-';$('health').textContent=j.health||'-';$('care').textContent=j.care||'-';$('ecology').textContent=j.ecology||'-';$('story').textContent=j.story||'-';$('caution').textContent=j.caution||'-';$('aiResult').classList.add('show');$('aiResult').scrollIntoView({behavior:'smooth',block:'start'})}catch(e){$('errorBox').textContent='AI 분석을 완료하지 못했습니다: '+e.message+' API 키 권한·사용량 또는 인터넷 연결을 확인해 주세요.';$('errorBox').classList.add('show')}finally{$('loading').classList.remove('show');$('aiAnalyzeBtn').disabled=false}};
 })();
 </script>
-</body>
-</html>
+</body></html>
