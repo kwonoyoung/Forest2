@@ -104,8 +104,9 @@
     const yellowOfPlant = m.plantRatio ? m.yellow / m.plantRatio : 0;
     const autumnOfPlant = m.plantRatio ? (m.yellow + m.autumn) / m.plantRatio : 0;
     if (autumnSeason && autumnOfPlant > 0.2) reasons.push('가을 단풍 시기라 노란·주황 잎은 자연스러운 변화로 보았습니다.');
-    if (brownOfPlant > 0.45) bump(3, '식물 부분의 갈변·건조색이 매우 많습니다.');
-    else if (brownOfPlant > 0.25) bump(2, '식물 부분에 갈변·건조색이 눈에 띕니다.');
+    if (brownOfPlant > 0.35) bump(3, '잎 사이의 갈변·건조색이 매우 많습니다.');
+    else if (brownOfPlant > 0.15) bump(2, '잎 사이에 갈변·건조색이 눈에 띕니다.');
+    else if (brownOfPlant > 0.07) bump(1, '잎 사이에 갈변이 조금 보입니다.');
     if (!autumnSeason) {
       if (autumnOfPlant > 0.35) bump(2, '노랗거나 주황으로 변한 잎이 많습니다(물·영양 부족 여부 확인).');
       else if (yellowOfPlant > 0.18) bump(1, '노란 잎이 일부 보입니다.');
@@ -139,6 +140,18 @@
       const lum = lumOf(r, g, b); gray[i] = lum; ls += lum; l2 += lum * lum;
       const c = classify(r, g, b); cls[i] = c;
       if (c === CLS.GREEN) green++; else if (c === CLS.YELLOW) yellow++; else if (c === CLS.AUTUMN) autumn++; else if (c === CLS.BROWN) brown++; else if (c === CLS.SKY) sky++;
+    }
+    // 잎 사이 갈변만 인정: 주변(창 안)에 잎이 30% 이상 있는 갈색만 '갈변'으로 남기고,
+    // 줄기 껍질·흙·건물처럼 잎과 떨어진 갈색은 '그 밖'으로 돌립니다 (잎 가까이 방식은 제외)
+    if (mode !== 'leaf') {
+      const rad = Math.max(3, Math.round(Math.min(w, h) / 90)), W1 = w + 1, I = new Uint32Array((w + 1) * (h + 1));
+      for (let y = 0; y < h; y++) { let row = 0; for (let x = 0; x < w; x++) { const c = cls[y * w + x]; row += (c === CLS.GREEN || c === CLS.YELLOW || c === CLS.AUTUMN) ? 1 : 0; I[(y + 1) * W1 + x + 1] = I[y * W1 + x + 1] + row; } }
+      for (let i = 0; i < n; i++) {
+        if (cls[i] !== CLS.BROWN) continue;
+        const x = i % w, y = (i / w) | 0, x0 = Math.max(0, x - rad), x1 = Math.min(w, x + rad + 1), y0 = Math.max(0, y - rad), y1 = Math.min(h, y + rad + 1);
+        const leaf = I[y1 * W1 + x1] - I[y0 * W1 + x1] - I[y1 * W1 + x0] + I[y0 * W1 + x0];
+        if (leaf / ((x1 - x0) * (y1 - y0)) < 0.3) { cls[i] = CLS.OTHER; brown--; }
+      }
     }
     const q = quality(gray, w, h);
     const gr = green / n, ye = yellow / n, au = autumn / n, br = brown / n, sk = sky / n;
