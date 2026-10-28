@@ -37,6 +37,7 @@
   const METRIC_INFO = {
     green: ['녹색 식생', '사진에서 초록 잎으로 보이는 부분의 비율'],
     yellow: ['노란 잎', '노랗게 변한 잎. 물·영양 부족이나 단풍의 신호'],
+    autumn: ['단풍색', '선명한 주황·빨강 잎. 가을에는 자연스러운 변화'],
     brown: ['갈변·건조색', '마르거나 갈색으로 변한 부분. 수피·흙도 섞일 수 있음'],
     brightness: ['평균 밝기', '사진 전체의 밝기. 너무 어둡거나 밝으면 결과가 흔들림'],
     canopy: ['수관 피복률', '하늘을 향해 찍었을 때 잎·가지가 하늘을 가린 비율'],
@@ -80,9 +81,13 @@
       summary = '갈변·건조색 영역이 비교적 많이 관찰됩니다.';
       detail = '계절적 변화일 수도 있으나 잎 마름, 수분 부족, 병해충 여부를 현장에서 확인해 주세요.';
       tips = ['잎 뒷면과 가지 끝 확인', '토양 수분·배수 상태 확인', '반점·구멍·해충 흔적 확인'];
-    } else if (m.yellow / m.plantRatio > 0.18) {
-      summary = '노랗게 변한 잎이 눈에 띕니다.';
-      detail = '가을 단풍이라면 자연스러운 변화입니다. 생장기라면 물 부족, 배수 불량, 영양 부족을 의심해 볼 수 있습니다.';
+    } else if ((m.yellow + m.autumn) / m.plantRatio > 0.18 && m.autumnSeason) {
+      summary = '가을 단풍이 들고 있습니다.';
+      detail = '노란·주황 잎은 낙엽수가 겨울을 준비하는 자연스러운 변화입니다. 같은 시기 다른 나무보다 유난히 빠르거나 잎이 말라 떨어진다면 확인이 필요합니다.';
+      tips = ['같은 수종의 다른 나무와 단풍 시기 비교', '갈색으로 말라 붙은 잎이 많은지 확인', '내년 봄 새잎이 나면 다시 촬영해 비교'];
+    } else if ((m.yellow + m.autumn) / m.plantRatio > 0.18) {
+      summary = '노랗거나 주황으로 변한 잎이 눈에 띕니다.';
+      detail = '생장기(봄·여름)라면 물 부족, 배수 불량, 영양 부족을 의심해 볼 수 있습니다.';
       tips = ['같은 나무의 다른 가지와 비교', '최근 가뭄·과습 여부 확인', '주변 같은 수종의 잎 색 비교'];
     } else if (m.vitality > 0.62) {
       summary = '사진상 녹색 식생과 활력이 비교적 양호합니다.';
@@ -120,7 +125,7 @@
     qb.className = 'quality ' + (q.ok ? 'ok' : 'warn');
     qb.innerHTML = q.ok ? '<b>촬영 품질 좋음</b> 밝기와 선명도가 분석하기에 알맞습니다.' : '<b>다시 찍으면 더 정확해요</b><ul>' + q.issues.map(i => `<li>${esc(i)}</li>`).join('') + '</ul>';
     // 지표
-    const cards = [metricCard('green', pct(m.green), m.green), metricCard('yellow', pct(m.yellow), m.yellow), metricCard('brown', pct(m.brown), m.brown)];
+    const cards = [metricCard('green', pct(m.green), m.green), metricCard('yellow', pct(m.yellow), m.yellow), metricCard('autumn', pct(m.autumn), m.autumn), metricCard('brown', pct(m.brown), m.brown)];
     if (r.mode === 'sky') cards.push(metricCard('canopy', pct(m.canopyCover), m.canopyCover));
     else if (r.mode === 'leaf') cards.push(metricCard('spots', m.spots + '개', Math.min(1, m.spots / 20)));
     else cards.push(metricCard('brightness', pct(m.brightness), m.brightness));

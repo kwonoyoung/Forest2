@@ -4,7 +4,7 @@
 (function (root) {
   'use strict';
 
-  const CLS = { OTHER: 0, GREEN: 1, YELLOW: 2, BROWN: 3, SKY: 4, SPOT: 5 };
+  const CLS = { OTHER: 0, GREEN: 1, YELLOW: 2, BROWN: 3, SKY: 4, SPOT: 5, AUTUMN: 6 };
 
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
   const lumOf = (r, g, b) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
@@ -18,6 +18,8 @@
     if ((g > r * 1.06 && g > b * 1.04 && g > 55 && delta > 18) || (g > 85 && g - r > 12 && g - b > 8)) return CLS.GREEN;
     // 노란 잎: 빨강≈초록, 파랑이 확실히 낮음
     if (r > 120 && g > 105 && Math.abs(r - g) < 0.22 * Math.max(r, g) && b < 0.68 * Math.min(r, g)) return CLS.YELLOW;
+    // 단풍색(선명한 주황·빨강): 밝고 채도가 높음. 칙칙한 갈색과 구분
+    if (r > 185 && r > g * 1.15 && b < g * 0.75 && delta > 80) return CLS.AUTUMN;
     // 갈색·건조색
     if (r > 75 && g > 45 && b < 110 && r >= g * 1.05 && g >= b * 1.05 && delta > 20) return CLS.BROWN;
     return CLS.OTHER;
@@ -81,7 +83,7 @@
       let ring = 0, leaf = 0;
       for (let y = y0; y <= y1; y++) for (let x = x0; x <= x1; x++) {
         if (x > minx - 1 && x < maxx + 1 && y > miny - 1 && y < maxy + 1) continue;
-        ring++; const c = cls[y * w + x]; if (c === CLS.GREEN || c === CLS.YELLOW) leaf++;
+        ring++; const c = cls[y * w + x]; if (c === CLS.GREEN || c === CLS.YELLOW || c === CLS.AUTUMN) leaf++;
       }
       if (ring && leaf / ring >= 0.55) spots.push({ x: sx / area, y: sy / area, r: Math.max(maxx - minx, maxy - miny) / 2 + 2 });
     }
@@ -89,8 +91,9 @@
   }
 
   /* 점검 상태 추천 (트리샘 점검일지의 양호·보통·주의·위험) */
-  function recommend(m, mode, q) {
+  function recommend(m, mode, q, opt) {
     const reasons = [];
+    const autumnSeason = !!(opt && opt.autumnSeason);
     if (!q.ok) reasons.push('촬영 품질이 낮아 판단이 정확하지 않을 수 있습니다.');
     if (mode !== 'sky' && m.plantRatio < 0.08) {
       return { status: null, label: '판단 보류', reasons: reasons.concat('사진에서 잎이 거의 보이지 않습니다. 잎이나 수관이 잘 보이게 다시 찍어 주세요.') };
@@ -99,10 +102,14 @@
     const bump = (lv, why) => { if (lv > level) level = lv; reasons.push(why); };
     const brownOfPlant = m.plantRatio ? m.brown / m.plantRatio : 0;
     const yellowOfPlant = m.plantRatio ? m.yellow / m.plantRatio : 0;
+    const autumnOfPlant = m.plantRatio ? (m.yellow + m.autumn) / m.plantRatio : 0;
+    if (autumnSeason && autumnOfPlant > 0.2) reasons.push('가을 단풍 시기라 노란·주황 잎은 자연스러운 변화로 보았습니다.');
     if (brownOfPlant > 0.45) bump(3, '식물 부분의 갈변·건조색이 매우 많습니다.');
     else if (brownOfPlant > 0.25) bump(2, '식물 부분에 갈변·건조색이 눈에 띕니다.');
-    if (yellowOfPlant > 0.35) bump(2, '노랗게 변한 잎이 많습니다(물·영양 부족 또는 단풍 확인).');
-    else if (yellowOfPlant > 0.18) bump(1, '노란 잎이 일부 보입니다.');
+    if (!autumnSeason) {
+      if (autumnOfPlant > 0.35) bump(2, '노랗거나 주황으로 변한 잎이 많습니다(물·영양 부족 여부 확인).');
+      else if (yellowOfPlant > 0.18) bump(1, '노란 잎이 일부 보입니다.');
+    }
     if (mode === 'leaf') {
       if (m.spots >= 15) bump(3, '잎 반점이 많습니다. 병해충 여부를 확인해 주세요.');
       else if (m.spots >= 5) bump(2, '잎에 반점이 여럿 있습니다.');
@@ -112,7 +119,7 @@
       if (m.canopyCover < 0.25) bump(2, '수관 피복률이 낮습니다. 잎이 적거나 가지가 고사했을 수 있습니다(계절 확인).');
       else if (m.canopyCover < 0.45) bump(1, '수관 피복률이 다소 낮습니다.');
     }
-    if (m.score < 35) bump(2, '추정 활력도가 낮습니다.');
+    if (m.score < 35 && !(autumnSeason && autumnOfPlant > 0.3)) bump(2, '추정 활력도가 낮습니다.');
     else if (m.score < 55) bump(1, '추정 활력도가 보통 수준입니다.');
     if (level === 0) reasons.push('색으로 본 상태에서 뚜렷한 이상 신호가 없습니다.');
     const labels = ['양호', '보통', '주의', '위험'];
@@ -120,19 +127,21 @@
   }
 
   /* 메인 분석 */
-  function analyze(img, mode) {
+  function analyze(img, mode, opt) {
     mode = mode || 'tree';
+    const month = (opt && opt.month) || (new Date().getMonth() + 1);
+    const autumnSeason = month >= 9 && month <= 11;
     const { data, width: w, height: h } = img, n = w * h;
     const cls = new Uint8Array(n), gray = new Float32Array(n);
-    let green = 0, yellow = 0, brown = 0, sky = 0, ls = 0, l2 = 0;
+    let green = 0, yellow = 0, autumn = 0, brown = 0, sky = 0, ls = 0, l2 = 0;
     for (let i = 0, p = 0; i < n; i++, p += 4) {
       const r = data[p], g = data[p + 1], b = data[p + 2];
       const lum = lumOf(r, g, b); gray[i] = lum; ls += lum; l2 += lum * lum;
       const c = classify(r, g, b); cls[i] = c;
-      if (c === CLS.GREEN) green++; else if (c === CLS.YELLOW) yellow++; else if (c === CLS.BROWN) brown++; else if (c === CLS.SKY) sky++;
+      if (c === CLS.GREEN) green++; else if (c === CLS.YELLOW) yellow++; else if (c === CLS.AUTUMN) autumn++; else if (c === CLS.BROWN) brown++; else if (c === CLS.SKY) sky++;
     }
     const q = quality(gray, w, h);
-    const gr = green / n, ye = yellow / n, br = brown / n, sk = sky / n;
+    const gr = green / n, ye = yellow / n, au = autumn / n, br = brown / n, sk = sky / n;
     const bright = ls / n / 255;
     const variance = Math.sqrt(Math.max(0, l2 / n - (ls / n) ** 2)) / 128;
     // 녹색 지수(ExG 평균): 2G - R - B 를 0~1로 정규화. 교과서에 나오는 식생 지수의 하나
@@ -145,11 +154,13 @@
     const canopyCover = mode === 'sky' ? 1 - sk : null;
     // 식물 부분 비율: 하늘을 뺀 면적 중 녹색+노랑+갈색
     const nonSky = Math.max(1e-6, 1 - sk);
-    const plantRatio = mode === 'sky' ? (green + yellow + brown) / n : gr + ye + br;
+    const plantRatio = mode === 'sky' ? (green + yellow + autumn + brown) / n : gr + ye + au + br;
 
     let veg, dry, yel;
-    if (mode === 'sky') { veg = clamp(gr / nonSky * 1.3, 0, 1); dry = clamp(br / nonSky * 1.25, 0, 1); yel = clamp(ye / nonSky * 1.2, 0, 1); }
-    else { veg = clamp(gr * 1.45, 0, 1); dry = clamp(br * 1.25, 0, 1); yel = clamp(ye * 1.2, 0, 1); }
+    // 단풍 시기에는 노란·주황 잎도 살아 있는 잎으로 봅니다
+    const leafLike = autumnSeason ? gr + (ye + au) * 0.85 : gr;
+    if (mode === 'sky') { veg = clamp(leafLike / nonSky * 1.3, 0, 1); dry = clamp(br / nonSky * 1.25, 0, 1); yel = autumnSeason ? 0 : clamp((ye + au) / nonSky * 1.2, 0, 1); }
+    else { veg = clamp(leafLike * 1.45, 0, 1); dry = clamp(br * 1.25, 0, 1); yel = autumnSeason ? 0 : clamp((ye + au) * 1.2, 0, 1); }
     const light = 1 - clamp(Math.abs(bright - 0.52) / 0.52, 0, 1);
     let vit = veg * 0.55 + (1 - dry) * 0.2 + (1 - yel) * 0.08 + light * 0.12 + clamp(variance, 0, 1) * 0.05;
     if (mode === 'leaf') vit -= clamp(spots.length / 40, 0, 0.15);
@@ -157,12 +168,12 @@
     vit = clamp(vit, 0, 1);
     const score = clamp(Math.round(vit * 100), 5, 98);
 
-    const metrics = { green: gr, yellow: ye, brown: br, sky: sk, brightness: bright, vitality: vit, score, exg, spots: spots.length, canopyCover, plantRatio };
-    return { mode, width: w, height: h, cls, spotList: spots, quality: q, metrics, recommendation: recommend(metrics, mode, q) };
+    const metrics = { green: gr, yellow: ye, autumn: au, autumnSeason, brown: br, sky: sk, brightness: bright, vitality: vit, score, exg, spots: spots.length, canopyCover, plantRatio };
+    return { mode, width: w, height: h, cls, spotList: spots, quality: q, metrics, recommendation: recommend(metrics, mode, q, { autumnSeason }) };
   }
 
   /* 분석 지도: 분류 결과를 색으로 칠한 RGBA 배열 */
-  const LAYER_COLORS = { 1: [46, 160, 67], 2: [242, 196, 15], 3: [214, 82, 40], 4: [66, 133, 244] };
+  const LAYER_COLORS = { 1: [46, 160, 67], 2: [242, 196, 15], 3: [120, 72, 40], 4: [66, 133, 244], 6: [255, 128, 20] };
   function overlayPixels(result, base, alpha) {
     const { cls, width: w, height: h } = result, out = new Uint8ClampedArray(w * h * 4);
     alpha = alpha == null ? 0.62 : alpha;
