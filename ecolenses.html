@@ -32,7 +32,7 @@
 .refSheet table{width:100%;border-collapse:collapse;margin-bottom:14px}.refSheet th,.refSheet td{border:1px solid #999;padding:7px 9px;text-align:left;vertical-align:top}.refSheet th{width:26%;background:#f1f4f1;word-break:keep-all;font-weight:700}.refSheet td{word-break:break-word}
 .refSheet input,.refSheet textarea,.refSheet select{width:100%;box-sizing:border-box;border:1px solid #9bb3a2;border-radius:6px;padding:7px 9px;font:inherit;background:#fffdf3;color:#222;line-height:1.5}.refSheet input,.refSheet select{min-height:42px}.refSheet textarea{resize:vertical;overflow:hidden}.refSheet input:focus,.refSheet textarea:focus,.refSheet select:focus{outline:2px solid #174b3b;background:#fff}
 .refSheet .val{display:none;white-space:pre-wrap}.refSheet.preview .val{display:block}.refSheet.preview input,.refSheet.preview textarea,.refSheet.preview select,.refSheet.preview .tip{display:none}
-.refSheet .refPhoto{max-width:100%;max-height:360px;border:1px solid #ccc;display:block}.refSheet .note{font-size:11.5px;color:#555;margin-top:12px}.refSheet.capture{width:820px;max-width:none;box-shadow:none}
+.refSheet .refPhoto{max-width:100%;max-height:360px;border:1px solid #ccc;display:block}.refSheet .note{font-size:11.5px;color:#555;margin-top:12px}.printBox{position:absolute;left:-10000px;top:0;width:718px;background:#fff;z-index:-1}.refSheet.capture{width:718px;max-width:none;margin:0;padding:0;box-shadow:none;background:#fff}.refSheet.capture th,.refSheet.capture td{display:table-cell!important;border-bottom:1px solid #999!important}.refSheet.capture tr{display:table-row!important}.refSheet.capture .refPhoto{max-height:360px}
 @media(max-width:600px){.refSheet{padding:16px}.refSheet:not(.capture) th,.refSheet:not(.capture) td{display:block;width:auto;border-bottom:none}.refSheet:not(.capture) tr{display:block;border-bottom:1px solid #999}.refSheet:not(.capture) table{border-bottom:none}.refSheet h1{font-size:19px}.refActs button,.refSeg button{padding:0 10px;font-size:13.5px}}
 @media print{body.refOpen>*:not(#refOverlay){display:none!important}body.refOpen #refOverlay{position:static;overflow:visible;background:#fff}body.refOpen .refBar,body.refOpen .refMsg{display:none}body.refOpen .refWrap{padding:0}body.refOpen .refSheet{box-shadow:none;margin:0;max-width:none;padding:0}body.refOpen .refSheet th,body.refOpen .refSheet td{display:table-cell!important;border-bottom:1px solid #999!important}body.refOpen .refSheet tr{display:table-row!important}}
 </style>
@@ -156,5 +156,5 @@ $('aiAnalyzeBtn').onclick=async()=>{if(!preview.naturalWidth)return;const viaFir
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.0/dist/umd/supabase.min.js"></script>
 <script src="./js/supabase-config.js"></script>
 <script src="./js/eco-analysis.js?v=202610290629"></script>
-<script src="./js/eco-lab.js?v=202610290704"></script>
+<script src="./js/eco-lab.js?v=202610290744"></script>
 </body></html>

@@ -525,12 +525,29 @@ psis: PSIS 검색용 {crop: 수목·작물 이름, pest: 병해충 이름}`;
     $('refClose').onclick = close;
     const fileBase = () => `수목진료의뢰서_${(($('f_tree').value || '수목').split('·')[0].trim() || '수목').replace(/[\\/:*?"<>|\s]+/g, '')}_${new Date().toLocaleDateString('sv-SE')}`;
     // 의뢰서를 그림으로 만들기 (미리보기 상태, A4 폭 기준)
+    /* 인쇄와 같은 모양으로 저장: A4 본문 폭(190mm = 718px)으로 다시 그린 사본을 찍습니다 */
+    const PAGE_PX = 718, PAGE_MM = { w: 210, h: 297, mg: 10 };
     async function capture() {
       await Promise.all(LIBS.map(loadLib));
       const wasPrev = sheet.classList.contains('preview');
-      setPreview(true); sheet.classList.add('capture');
-      try { return await window.html2canvas(sheet, { scale: 2, backgroundColor: '#ffffff', useCORS: true, windowWidth: 820 }); }
-      finally { sheet.classList.remove('capture'); if (!wasPrev) setPreview(false); }
+      setPreview(true);
+      const box = document.createElement('div');
+      box.className = 'printBox';
+      const clone = sheet.cloneNode(true);
+      clone.removeAttribute('id'); clone.className = 'refSheet preview capture';
+      clone.querySelectorAll('input,textarea,select,.tip').forEach(el => el.remove());
+      box.appendChild(clone); document.body.appendChild(box);
+      try {
+        const imgs = [...clone.querySelectorAll('img')];
+        await Promise.race([Promise.all(imgs.map(im => im.complete ? 0 : new Promise(ok => { im.onload = im.onerror = ok; }))), new Promise(ok => setTimeout(ok, 3000))]);
+        const top = clone.getBoundingClientRect().top;
+        // 쪽 나눔 후보: 표의 행, 제목·문단, 사진의 아래쪽 경계 (행 중간이 잘리지 않게)
+        const breaks = [...clone.querySelectorAll('tr,h1,p,img,table')].map(el => el.getBoundingClientRect().bottom - top);
+        const height = Math.ceil(clone.scrollHeight);
+        const cv = await window.html2canvas(clone, { scale: 2.5, backgroundColor: '#ffffff', useCORS: true, width: PAGE_PX, height, windowWidth: PAGE_PX, windowHeight: height, scrollX: 0, scrollY: 0 });
+        cv.breaks = breaks.map(b => b * cv.width / PAGE_PX).sort((a, b) => a - b);
+        return cv;
+      } finally { box.remove(); if (!wasPrev) setPreview(false); }
     }
     let lastFile = null;
     function deliver(blob, name) {
@@ -548,12 +565,15 @@ psis: PSIS 검색용 {crop: 수목·작물 이름, pest: 병해충 이름}`;
     }
     $('refPdf').onclick = () => run('refPdf', async () => {
       const cv = await capture(), { jsPDF } = window.jspdf, pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
-      const pw = 210, ph = 297, mg = 10, w = pw - mg * 2, pageH = ph - mg * 2, pxPerMm = cv.width / w, slice = Math.floor(pageH * pxPerMm);
-      for (let y = 0, page = 0; y < cv.height; y += slice, page++) {
-        const h = Math.min(slice, cv.height - y), part = document.createElement('canvas'); part.width = cv.width; part.height = h;
-        part.getContext('2d').drawImage(cv, 0, y, cv.width, h, 0, 0, cv.width, h);
+      const { w: pw, h: ph, mg } = PAGE_MM, w = pw - mg * 2, pxPerMm = cv.width / w, slice = Math.floor((ph - mg * 2) * pxPerMm);
+      for (let y = 0, page = 0; y < cv.height - 2; page++) {
+        let end = Math.min(cv.height, y + slice);
+        if (end < cv.height) { const ok = (cv.breaks || []).filter(b => b > y + slice * 0.3 && b <= end); if (ok.length) end = Math.ceil(ok[ok.length - 1]) + 2; }
+        const h = end - y, part = document.createElement('canvas'); part.width = cv.width; part.height = h;
+        const g = part.getContext('2d'); g.fillStyle = '#fff'; g.fillRect(0, 0, part.width, h); g.drawImage(cv, 0, y, cv.width, h, 0, 0, cv.width, h);
         if (page) pdf.addPage();
         pdf.addImage(part.toDataURL('image/jpeg', 0.92), 'JPEG', mg, mg, w, h / pxPerMm);
+        y = end;
       }
       deliver(pdf.output('blob'), fileBase() + '.pdf');
     });
