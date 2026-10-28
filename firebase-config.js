@@ -12,8 +12,8 @@ window.TREESAM_FIREBASE = {
     appId: "1:15139196388:web:fec7d1eef8820e6ac7cbf1"
   },
   // App Check(reCAPTCHA) 사이트 키. 콘솔 > 보안 > App Check에서 웹 앱 등록 후 받은 키
-  recaptchaSiteKey: "",
-  // "v3" 또는 "enterprise" (App Check에 등록한 reCAPTCHA 종류)
-  recaptchaProvider: "v3",
+  recaptchaSiteKey: "6LchKgQuAAAAAHKfj_4grkZmD9W1PVex0NraIvox",
+  // "enterprise"(Fraud Defense, 옛 reCAPTCHA Enterprise) 또는 "v3"
+  recaptchaProvider: "enterprise",
   model: "gemini-3.8-flash"
 };
