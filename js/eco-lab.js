@@ -369,7 +369,19 @@ parts: 피해가 보이는 부위 요약 한 문장
 actions: 학교 현장에서 할 수 있는 조치 2~4개(짧은 문장 배열)
 report: {needed(true/false), reason}
 moreShots: 정확한 진단을 위해 추가로 찍으면 좋은 부위 1~3개(배열)
-student: 학생이 이해하기 쉬운 2문장 설명`;
+student: 학생이 이해하기 쉬운 2문장 설명
+host: 사진 속 수목·식물의 추정 이름(모르면 빈 문자열)
+control: 방제 요령 객체 {
+  timing: 방제 적기(발생 시기·세대, 언제 하면 효과적인지) 한두 문장,
+  monitoring: 예찰 방법(어디를 어떻게 살필지) 배열 1~3개,
+  physical: 물리적·경종적 방제(가지·잎 제거, 포살, 끈끈이·유인 트랩, 낙엽 수거, 물주기·통풍 개선 등) 배열 2~4개,
+  biological: 천적·생물적 방제 배열 0~2개,
+  chemicalNeeded: '필요 없음' | '피해 확산 시 검토' | '필요',
+  chemicalType: 약제가 필요하면 약제 종류만(예: '흡즙성 해충용 살충제', '흰가루병용 살균제'). 제품명·성분명·사용량은 쓰지 말 것,
+  threshold: 약제 방제를 검토할 기준(피해 정도·밀도) 한 문장,
+  prevention: 재발 방지 관리 배열 1~3개
+}
+psis: PSIS 검색용 {crop: 수목·작물 이름, pest: 병해충 이름}`;
 
   function waitAI() {
     return window.treesamAI ? Promise.resolve(window.treesamAI) : new Promise((ok, no) => {
@@ -413,6 +425,67 @@ student: 학생이 이해하기 쉬운 2문장 설명`;
     return `<div class="srcBox"><h4>공식 정보로 확인하기</h4><p class="muted">진단·방제는 아래 공공·전문 사이트 정보를 먼저 확인하세요. 약제는 PSIS에서 해당 수목·병해충 등록 여부를 확인한 뒤 나무병원·나무의사와 상담해 사용합니다.</p>${rows}<div class="srcMore">${MORE_SOURCES.map(x => `<a href="${x.home}" target="_blank" rel="noopener">${esc(x.name)}<small>${esc(x.note)}</small></a>`).join('')}</div></div>`;
   }
 
+  const CHEM_CLASS = { '필요 없음': 'st-good', '피해 확산 시 검토': 'st-warn', '필요': 'st-bad' };
+  const list = a => arr(a).length ? `<ul class="tips">${arr(a).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '';
+  function hostName(j) { return (state.tree && state.tree.name) || (j && j.host) || ($('species') && $('species').textContent.trim() !== '-' ? $('species').textContent.trim() : '') || ''; }
+  function controlHtml(j) {
+    const c = j.control || {}; if (!Object.keys(c).length) return '';
+    const pestName = cleanName((j.psis && j.psis.pest) || (arr(j.suspects)[0] || {}).name || '');
+    const crop = cleanName((j.psis && j.psis.crop) || hostName(j));
+    const psisQ = [crop, pestName].filter(Boolean).join(' ');
+    const chem = c.chemicalNeeded || '';
+    return `<div class="ctrlBox"><h4>방제 요령</h4>
+      ${c.timing ? `<p class="ctrlTiming"><b>방제 적기</b> ${esc(c.timing)}</p>` : ''}
+      <div class="ctrlGrid">
+        ${arr(c.monitoring).length ? `<div><h5>살펴볼 곳 (예찰)</h5>${list(c.monitoring)}</div>` : ''}
+        ${arr(c.physical).length ? `<div><h5>약 없이 하는 방제</h5>${list(c.physical)}</div>` : ''}
+        ${arr(c.biological).length ? `<div><h5>천적·생물적 방제</h5>${list(c.biological)}</div>` : ''}
+        ${arr(c.prevention).length ? `<div><h5>재발 방지</h5>${list(c.prevention)}</div>` : ''}
+      </div></div>
+      <div class="chemBox"><div class="chemTop"><h4>약제 방제 안내</h4>${chem ? `<span class="recBadge ${CHEM_CLASS[chem] || 'st-hold'}">${esc(chem)}</span>` : ''}</div>
+        ${c.chemicalType && chem !== '필요 없음' ? `<p><b>약제 종류</b> ${esc(c.chemicalType)}</p>` : ''}
+        ${c.threshold ? `<p><b>약제를 검토할 기준</b> ${esc(c.threshold)}</p>` : ''}
+        <ol class="chemSteps">
+          <li><b>등록 약제 확인</b> — 농약안전정보시스템(PSIS)에서 ${esc(psisQ || '해당 수목·병해충')}에 등록된 약제만 쓸 수 있습니다. <a class="srcChip" href="${siteSearch('psis.rda.go.kr', (psisQ || '수목') + ' 등록 약제')}" target="_blank" rel="noopener">PSIS에서 찾기</a> <a href="https://psis.rda.go.kr/psis/" target="_blank" rel="noopener">PSIS 바로가기</a></li>
+          <li><b>처방·시행</b> — 학교 수목 방제를 업체에 맡길 때는 등록된 나무병원(나무의사)을 통해야 합니다(산림보호법 제21조의9). 처방전에 따라 약제·사용량·횟수를 정합니다.</li>
+          <li><b>라벨 기준 준수</b> — 제품 라벨의 사용량·희석 배수·안전사용기준을 그대로 지키고, 다른 약을 임의로 섞지 않습니다.</li>
+        </ol>
+        <h5>학교에서 약제를 뿌릴 때</h5>
+        <ul class="tips"><li>학생이 없는 시간(방과 후·주말)에, 바람이 약하고 비 예보가 없는 날 실시</li><li>살포 구역에 출입 통제 띠와 안내문을 붙이고 학생·교직원에게 미리 알림</li><li>창문을 닫고, 급식실·텃밭·놀이시설 주변은 특히 주의</li><li>약제 보관은 잠금장치가 있는 곳, 빈 용기는 규정대로 처리</li></ul>
+        <p class="muted">AI는 제품명과 사용량을 처방하지 않습니다. 처방은 나무의사의 업무이며, 등록되지 않은 약제 사용은 학생 안전과 법 규정에 어긋날 수 있습니다.</p>
+      </div>`;
+  }
+
+  /* 나무병원 진료 의뢰서: 진단 내용을 한 장으로 정리해 인쇄·PDF 저장 */
+  function openReferral() {
+    const j = state.pest || {}, r = state.last, fin = r ? (state.final || finalRec(r)) : null, m = r ? r.metrics : null;
+    let photo = '';
+    try { const img = $('preview'), c = document.createElement('canvas'), sc = Math.min(1, 1000 / Math.max(img.naturalWidth, img.naturalHeight)); c.width = Math.round(img.naturalWidth * sc); c.height = Math.round(img.naturalHeight * sc); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); photo = c.toDataURL('image/jpeg', 0.85); } catch (e) { photo = ''; }
+    const ck = checklist().items.map(i => i.label);
+    const today = new Date().toLocaleDateString('ko-KR');
+    const row = (k, v) => v ? `<tr><th>${esc(k)}</th><td>${v}</td></tr>` : '';
+    const html = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>수목 진료 의뢰서</title><style>
+      body{font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;color:#222;margin:28px;font-size:13px}h1{font-size:22px;margin:0 0 4px}p.sub{margin:0 0 16px;color:#555}
+      table{width:100%;border-collapse:collapse;margin-bottom:14px}th,td{border:1px solid #999;padding:7px 9px;text-align:left;vertical-align:top}th{width:24%;background:#f1f4f1}
+      img{max-width:100%;max-height:360px;border:1px solid #ccc}ul{margin:0;padding-left:18px}.note{font-size:11.5px;color:#555}@media print{button{display:none}}</style></head><body>
+      <button onclick="window.print()" style="float:right;padding:8px 14px">인쇄 / PDF 저장</button>
+      <h1>수목 진료 의뢰서</h1><p class="sub">트리샘 생태 분석기 결과를 바탕으로 작성 · ${esc(today)}</p>
+      <table>${row('기관·장소', '<span contenteditable>(학교명·위치 입력)</span>')}${row('수목', esc(hostName(j) || '(수종 입력)') + (state.tree ? ` · 대장번호 ${esc(state.tree.asset_no || '')}` : ''))}${row('담당자·연락처', '<span contenteditable>(입력)</span>')}</table>
+      <table>${row('점검 상태(추천)', esc(fin && fin.status || '-'))}
+      ${row('AI 의심 병해충', arr(j.suspects).map(x => `${esc(x.name)}${Number.isFinite(+x.likelihood) ? ' (' + Math.round(+x.likelihood) + '%)' : ''} — ${esc(x.evidence || '')}`).join('<br>'))}
+      ${row('피해 부위·정도', [esc(j.parts || ''), j.severity ? '피해 정도 ' + esc(j.severity) : ''].filter(Boolean).join(' · '))}
+      ${row('관찰 증상', ck.length ? esc(ck.join(', ')) : '')}
+      ${row('사진 색 분석', m ? `활력도 ${m.score}점, 녹색 ${pct(m.green)}, 잎 갈변 ${pct(m.brown)}, 흰 잔점 ${m.paleSpots}점${r.mode === 'leaf' ? `, 잎 반점 ${m.spots}개` : ''}` : '')}
+      ${row('요청 사항', '현장 진단 및 확진, 방제 필요 여부 판단, 필요 시 처방전 발급(등록 약제·사용량·시기), 학교 내 안전한 방제 일정 협의')}</table>
+      ${photo ? `<p><b>현장 사진</b></p><img src="${photo}" alt="현장 사진">` : ''}
+      <p class="note">※ 이 의뢰서의 진단 내용은 사진 기반 AI·색 분석 추정이며 확진이 아닙니다. 법정 병해충(소나무재선충병 등)이 의심되면 시·군·구 산림 담당 부서에 신고해야 합니다.</p>
+      </body></html>`;
+    const w = window.open('', '_blank');
+    if (!w) { alert('팝업이 차단되어 의뢰서를 열 수 없습니다. 팝업을 허용해 주세요.'); return; }
+    w.document.open(); w.document.write(html); w.document.close();
+  }
+  document.addEventListener('click', e => { if (e.target && e.target.id === 'referralBtn') openReferral(); });
+
   function renderPest(j) {
     const box = $('pestBody');
     const sus = arr(j.suspects).slice(0, 3);
@@ -424,7 +497,9 @@ student: 학생이 이해하기 쉬운 2문장 설명`;
       ${arr(j.actions).length ? `<h4>현장 조치</h4><ul class="tips">${arr(j.actions).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
       ${arr(j.moreShots).length ? `<h4>더 찍으면 좋은 부위</h4><ul class="tips">${arr(j.moreShots).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
       ${j.student ? `<h4>학생용 설명</h4><p>${esc(j.student)}</p>` : ''}
+      ${controlHtml(j)}
       ${sourcesPanel(sus.map(x => x.name))}
+      <div class="pestActions"><button type="button" class="btn secondary small" id="referralBtn">나무병원 진료 의뢰서 만들기</button><small class="muted">진단 결과·사진·증상을 한 장으로 정리해 인쇄하거나 PDF로 저장합니다.</small></div>
       <p class="muted">AI 진단은 사진을 바탕으로 한 추정입니다. 방제가 필요하면 나무병원·나무의사와 상담해 주세요.</p>`;
   }
 

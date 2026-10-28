@@ -23,6 +23,7 @@
 @media(max-width:760px){.toolGrid{grid-template-columns:1fr}.seg span{font-size:13px}}
 .pestBtn{background:#8a4f1d;color:#fff}.symptoms{margin-top:14px;border:1px solid var(--line)}.symptoms legend{font-weight:850;color:var(--g);padding:0 4px}.symptoms legend small{font-weight:500;color:var(--muted)}.symGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.symGrid label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid #dfe7e1;border-radius:10px;background:#fff;cursor:pointer;min-height:44px;font-size:14px}.symGrid input{width:20px;height:20px;margin-top:1px;flex:none;accent-color:#174b3b}.symGrid small{display:block;color:var(--muted);font-size:12px}.symGrid label:has(input:checked){border-color:#174b3b;background:#f1f7f2}.recCaution{margin:10px 0 4px;padding:11px 13px;border-radius:10px;background:#f4f6f4;color:#4f5c56;font-size:13.5px}.recCaution.alert{background:#fde3e0;color:#8b2318}.pestTop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}.pestOverall{font-weight:800;color:#4f5c56}.pestCard h4{margin:14px 0 6px;color:var(--g);font-size:14.5px}.pestCard p{margin:0;color:#4e5a54}.suspects{margin:0;padding-left:20px}.suspects li{margin-bottom:10px}.sTop{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.sType{font-size:12px;color:var(--muted)}.sLike{margin-left:auto;font-weight:800;color:#8a4f1d}.sBar{height:6px;background:#efe6dc;border-radius:99px;overflow:hidden;margin:4px 0 6px}.sBar i{display:block;height:100%;background:#b8682a}.lg7{background:#ec40ff}@media(max-width:760px){.symGrid{grid-template-columns:1fr}}
 .srcBox{margin-top:14px;padding:14px;border:1px solid #d7e4da;border-radius:12px;background:#f7fbf8}.srcBox h4{margin:0 0 4px!important}.srcItem{margin-top:10px}.srcItem b{display:block;font-size:13.5px;color:#26332d;margin-bottom:4px}.srcRow{display:flex;flex-wrap:wrap;gap:6px}.srcChip{display:inline-flex;align-items:center;min-height:36px;padding:0 12px;border-radius:999px;background:#174b3b;color:#fff!important;text-decoration:none;font-size:13px;font-weight:700}.srcChip:hover{background:#0f3a2d}.srcMore{display:flex;flex-wrap:wrap;gap:6px 14px;margin-top:12px;font-size:13px}.srcMore a{color:#174b3b;font-weight:700}.srcMore small{color:var(--muted);font-weight:500;margin-left:4px}
+.ctrlBox,.chemBox{margin-top:14px;padding:14px;border:1px solid #e3e9e4;border-radius:12px;background:#fff}.ctrlBox h4,.chemBox h4{margin:0 0 6px!important}.ctrlBox h5,.chemBox h5{margin:10px 0 4px;font-size:13.5px;color:#4b6b58}.ctrlTiming{background:#eef6ef;border-radius:8px;padding:8px 10px}.ctrlGrid{display:grid;grid-template-columns:1fr 1fr;gap:4px 16px}.chemTop{display:flex;justify-content:space-between;align-items:center;gap:8px}.chemBox p{margin:6px 0!important}.chemSteps{padding-left:20px;margin:8px 0;font-size:14px;color:#4e5a54}.chemSteps li{margin-bottom:8px}.chemSteps .srcChip{min-height:32px;margin:4px 4px 0 0}.pestActions{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:14px}@media(max-width:760px){.ctrlGrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -81,7 +82,7 @@
 </div>
 </div></section>
 <canvas id="canvas"></canvas></main>
-<footer>© 2026 TreeSam · EcoLenses v6</footer>
+<footer>© 2026 TreeSam · EcoLenses v7</footer>
 <script src="./firebase-config.js"></script>
 <script type="module">
 // Firebase AI Logic: firebase-config.js에 값이 있으면 이용자 키 없이 Gemini를 호출합니다.
@@ -125,6 +126,6 @@ $('aiAnalyzeBtn').onclick=async()=>{if(!preview.naturalWidth)return;const viaFir
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.0/dist/umd/supabase.min.js"></script>
 <script src="./js/supabase-config.js"></script>
-<script src="./js/eco-analysis.js?v=202610282055"></script>
-<script src="./js/eco-lab.js?v=202610282055"></script>
+<script src="./js/eco-analysis.js?v=202610282119"></script>
+<script src="./js/eco-lab.js?v=202610282119"></script>
 </body></html>
