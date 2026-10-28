@@ -104,9 +104,10 @@
     const yellowOfPlant = m.plantRatio ? m.yellow / m.plantRatio : 0;
     const autumnOfPlant = m.plantRatio ? (m.yellow + m.autumn) / m.plantRatio : 0;
     if (autumnSeason && autumnOfPlant > 0.2) reasons.push('가을 단풍 시기라 노란·주황 잎은 자연스러운 변화로 보았습니다.');
-    if (brownOfPlant > 0.35) bump(3, '잎 사이의 갈변·건조색이 매우 많습니다.');
-    else if (brownOfPlant > 0.15) bump(2, '잎 사이에 갈변·건조색이 눈에 띕니다.');
-    else if (brownOfPlant > 0.07) bump(1, '잎 사이에 갈변이 조금 보입니다.');
+    const bk = autumnSeason ? [0.5, 0.3, 0.15] : [0.35, 0.15, 0.07]; // 가을에는 낙엽 직전 갈변도 자연스러움
+    if (brownOfPlant > bk[0]) bump(3, '잎 사이의 갈변·건조색이 매우 많습니다.');
+    else if (brownOfPlant > bk[1]) bump(2, '잎 사이에 갈변·건조색이 눈에 띕니다.');
+    else if (brownOfPlant > bk[2]) bump(1, '잎 사이에 갈변이 조금 보입니다.');
     if (!autumnSeason) {
       if (autumnOfPlant > 0.35) bump(2, '노랗거나 주황으로 변한 잎이 많습니다(물·영양 부족 여부 확인).');
       else if (yellowOfPlant > 0.18) bump(1, '노란 잎이 일부 보입니다.');

@@ -12,9 +12,9 @@
   const MODE_HINT = {
     tree: '나무 전체나 잎이 무성한 부분을 화면 가득 찍어 주세요.',
     leaf: '잎 몇 장을 가까이(20~30cm) 찍으면 반점까지 셉니다.',
-    sky: '나무 바로 아래에서 휴대폰을 하늘로 향해 찍으면 잎이 하늘을 가린 비율(수관 피복률)을 잽니다.'
+    sky: '나무 바로 아래에서 휴대폰을 하늘로 향해 찍으면 잎·가지가 하늘을 가린 비율(수관 피복률)을 잽니다.'
   };
-  const MODE_NAME = { tree: '나무 전체', leaf: '잎 가까이', sky: '하늘 향해(수관)' };
+  const MODE_NAME = { tree: '나무 전체', leaf: '잎 가까이', sky: '하늘 향해' };
   const mode = () => document.querySelector('input[name="shotMode"]:checked')?.value || 'tree';
   document.querySelectorAll('input[name="shotMode"]').forEach(r => r.addEventListener('change', () => {
     $('modeHint').textContent = MODE_HINT[mode()];
@@ -227,7 +227,7 @@
     const body = $('compareBody');
     const note = loggedIn ? '' : '<p class="muted">로그인한 관리자는 점검일지 사진까지 함께 비교됩니다. <a href="dashboard/">관리자 로그인</a></p>';
     if (rows.length < 2) { body.innerHTML = '<p class="muted">비교할 지난 사진이 아직 없습니다. 점검일지에 사진을 남기면 다음부터 변화를 볼 수 있습니다.</p>' + note; return; }
-    const W = 560, H = 190, pl = 34, pr = 12, pt = 14, pb = 34, n = rows.length;
+    const W = Math.round(Math.min(560, Math.max(300, body.clientWidth || 560))), H = 190, pl = 34, pr = 12, pt = 14, pb = 34, n = rows.length;
     const X = i => pl + (n === 1 ? 0 : i * (W - pl - pr) / (n - 1)), Y = v => pt + (1 - v / 100) * (H - pt - pb);
     const line = key => rows.map((r, i) => `${i ? 'L' : 'M'}${X(i).toFixed(1)},${Y(key === 'score' ? r.score : r[key] * 100).toFixed(1)}`).join(' ');
     const grid = [0, 50, 100].map(v => `<line x1="${pl}" x2="${W - pr}" y1="${Y(v)}" y2="${Y(v)}" class="g"/><text x="${pl - 6}" y="${Y(v) + 4}" text-anchor="end">${v}</text>`).join('');
