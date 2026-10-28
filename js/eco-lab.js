@@ -457,48 +457,118 @@ psis: PSIS 검색용 {crop: 수목·작물 이름, pest: 병해충 이름}`;
   }
 
   /* 나무병원 진료 의뢰서: 진단 내용을 한 장으로 정리해 인쇄·PDF 저장 */
+  /* 나무병원 진료 의뢰서: 같은 화면 위에 띄워 편집 → 미리보기 → PDF·이미지 저장·공유·인쇄 (휴대폰 지원) */
+  const REF_KEY = 'treesamReferralInfo', REF_SAVE = ['f_org', 'f_place', 'f_name', 'f_tel'];
+  const loadScript = src => new Promise((ok, no) => { if (document.querySelector(`script[src="${src}"]`)) return ok(); const t = document.createElement('script'); t.src = src; t.onload = ok; t.onerror = () => no(new Error('저장 도구를 불러오지 못했습니다. 인터넷 연결을 확인해 주세요.')); document.head.appendChild(t); });
+  const LIBS = [
+    ['https://cdnjs.cloudflare.com/ajax/libs/html2canvas/1.4.1/html2canvas.min.js', 'https://cdn.jsdelivr.net/npm/html2canvas@1.4.1/dist/html2canvas.min.js'],
+    ['https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js', 'https://cdn.jsdelivr.net/npm/jspdf@2.5.1/dist/jspdf.umd.min.js']
+  ];
+  const loadLib = async urls => { let err; for (const u of urls) { try { await loadScript(u); return; } catch (e) { err = e; } } throw err; };
+
   function openReferral() {
     const j = state.pest || {}, r = state.last, fin = r ? (state.final || finalRec(r)) : null, m = r ? r.metrics : null;
     let photo = '';
     try { const img = $('preview'), c = document.createElement('canvas'), sc = Math.min(1, 1000 / Math.max(img.naturalWidth, img.naturalHeight)); c.width = Math.round(img.naturalWidth * sc); c.height = Math.round(img.naturalHeight * sc); c.getContext('2d').drawImage(img, 0, 0, c.width, c.height); photo = c.toDataURL('image/jpeg', 0.85); } catch (e) { photo = ''; }
     const ck = checklist().items.map(i => i.label);
     const today = new Date().toLocaleDateString('ko-KR');
-    const row = (k, v) => v ? `<tr><th>${esc(k)}</th><td>${v}</td></tr>` : '';
-    const area = (k, id, v, ph) => `<tr><th>${esc(k)}</th><td><textarea id="${id}" rows="2" placeholder="${esc(ph)}">${esc(v)}</textarea></td></tr>`;
-    const html = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>수목 진료 의뢰서</title><style>
-      body{font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;color:#222;margin:28px;font-size:13px}h1{font-size:22px;margin:0 0 4px}p.sub{margin:0 0 16px;color:#555}
-      table{width:100%;border-collapse:collapse;margin-bottom:14px}th,td{border:1px solid #999;padding:7px 9px;text-align:left;vertical-align:top}th{width:26%;background:#f1f4f1;word-break:keep-all}td{word-break:break-word}
-      img{max-width:100%;max-height:360px;border:1px solid #ccc}ul{margin:0;padding-left:18px}.note{font-size:11.5px;color:#555}
-      .form select,.form textarea{width:100%;box-sizing:border-box;border:1px solid #9bb3a2;border-radius:6px;padding:6px 9px;font:inherit;background:#fffdf3;resize:vertical;overflow:hidden;line-height:1.5}.form select{min-height:38px}.form textarea:focus,.form select:focus{outline:2px solid #174b3b;background:#fff}@media(max-width:600px){body{margin:14px}th,td{display:block;width:auto!important;border-bottom:none}tr{display:block;border-bottom:1px solid #999;margin-bottom:0}table{border-bottom:none}h1{font-size:19px}}
-      .form input{width:100%;box-sizing:border-box;min-height:38px;border:1px solid #9bb3a2;border-radius:6px;padding:6px 9px;font:inherit;background:#fffdf3}.form input:focus{outline:2px solid #174b3b;background:#fff}
-      .tip{background:#eef6ef;border-radius:8px;padding:8px 12px;margin:0 0 12px;font-size:12.5px;color:#2f5d3c}
-      @media print{.form textarea,.form select{border:none;background:none;padding:0;resize:none;-webkit-appearance:none;appearance:none}.form textarea::placeholder{color:transparent}button,.tip{display:none}.form input{border:none;background:none;padding:0;min-height:0}.form input::placeholder{color:transparent}}</style></head><body>
-      <button onclick="window.print()" style="float:right;padding:8px 14px">인쇄 / PDF 저장</button>
-      <h1>수목 진료 의뢰서</h1><p class="tip">노란 칸에 기관명·장소·담당자·연락처를 입력하고, AI가 채운 진단 내용은 필요하면 고친 뒤 '인쇄 / PDF 저장'을 누르세요. 입력한 기관·담당자 정보는 이 기기에 기억되어 다음 의뢰서에 자동으로 채워집니다.</p><p class="sub">트리샘 생태 분석기 결과를 바탕으로 작성 · ${esc(today)}</p>
-      <table class="form">
-      ${row('기관명', '<input id="f_org" type="text" placeholder="예: ○○초등학교" autocomplete="organization">')}
-      ${row('장소(위치)', '<input id="f_place" type="text" placeholder="예: 본관 앞 화단, 운동장 북쪽" autocomplete="off">')}
-      ${row('수목', esc(hostName(j) || '') + (state.tree ? ` · 대장번호 ${esc(state.tree.asset_no || '')}` : '') + (hostName(j) ? '' : '<input id="f_tree" type="text" placeholder="수종 입력">'))}
-      ${row('담당자', '<input id="f_name" type="text" placeholder="이름·직위" autocomplete="name">')}
-      ${row('연락처', '<input id="f_tel" type="tel" inputmode="tel" placeholder="예: 063-000-0000" autocomplete="tel">')}
-      </table>
-      <table class="form ai">
-      <tr><th>점검 상태(추천)</th><td><select id="e_status">${['양호', '보통', '주의', '위험'].map(v => `<option${(fin && fin.status) === v ? ' selected' : ''}>${v}</option>`).join('')}</select></td></tr>
-      ${area('AI 의심 병해충', 'e_pest', arr(j.suspects).map(x => `${x.name}${Number.isFinite(+x.likelihood) ? ' (' + Math.round(+x.likelihood) + '%)' : ''} — ${x.evidence || ''}`).join('\n'), '예: 진딧물류 — 새순에 무리 지어 붙어 있음')}
-      ${area('피해 부위·정도', 'e_parts', [j.parts || '', j.severity ? '피해 정도 ' + j.severity : ''].filter(Boolean).join(' · '), '피해가 보이는 부위와 정도')}
-      ${area('관찰 증상', 'e_symptoms', ck.join(', '), '현장에서 눈으로 본 증상')}
-      ${area('사진 색 분석', 'e_color', m ? `활력도 ${m.score}점, 녹색 ${pct(m.green)}, 잎 갈변 ${pct(m.brown)}, 흰 잔점 ${m.paleSpots}점${r.mode === 'leaf' ? `, 잎 반점 ${m.spots}개` : ''}` : '', '')}
-      ${area('요청 사항', 'e_request', '현장 진단 및 확진, 방제 필요 여부 판단, 필요 시 처방전 발급(등록 약제·사용량·시기), 학교 내 안전한 방제 일정 협의', '')}
-      </table>
-      ${photo ? `<p><b>현장 사진</b></p><img src="${photo}" alt="현장 사진">` : ''}
-      <p class="note">※ 이 의뢰서의 진단 내용은 사진 기반 AI·색 분석 추정이며 확진이 아닙니다. 법정 병해충(소나무재선충병 등)이 의심되면 시·군·구 산림 담당 부서에 신고해야 합니다.</p>
-      <script>(function(){var K='treesamReferralInfo',ids=['f_org','f_place','f_name','f_tel'],v={};try{v=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}
-      ids.forEach(function(id){var el=document.getElementById(id);if(!el)return;if(v[id])el.value=v[id];el.addEventListener('input',function(){v[id]=el.value;try{localStorage.setItem(K,JSON.stringify(v))}catch(e){}})});
-      var fit=function(t){t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px'};[].forEach.call(document.querySelectorAll('textarea'),function(t){fit(t);t.addEventListener('input',function(){fit(t)})});window.addEventListener('beforeprint',function(){[].forEach.call(document.querySelectorAll('textarea'),fit)});var f=document.getElementById('f_org');if(f&&!f.value)f.focus();})();<\/script>
-      </body></html>`;
-    const w = window.open('', '_blank');
-    if (!w) { alert('팝업이 차단되어 의뢰서를 열 수 없습니다. 팝업을 허용해 주세요.'); return; }
-    w.document.open(); w.document.write(html); w.document.close();
+    const tr = (k, field) => `<tr><th>${esc(k)}</th><td>${field}<div class="val"></div></td></tr>`;
+    const inp = (id, ph, type, extra) => `<input id="${id}" type="${type || 'text'}" placeholder="${esc(ph)}" ${extra || ''}>`;
+    const area = (id, v, ph) => `<textarea id="${id}" rows="2" placeholder="${esc(ph || '')}">${esc(v)}</textarea>`;
+    const host = hostName(j);
+    let ov = $('refOverlay');
+    if (!ov) { ov = document.createElement('div'); ov.id = 'refOverlay'; ov.setAttribute('role', 'dialog'); ov.setAttribute('aria-modal', 'true'); ov.setAttribute('aria-label', '수목 진료 의뢰서'); document.body.appendChild(ov); }
+    ov.innerHTML = `<div class="refBar">
+        <div class="refSeg" role="group" aria-label="보기 방식"><button type="button" id="refEditBtn" class="on">편집</button><button type="button" id="refPrevBtn">미리보기</button></div>
+        <div class="refActs"><button type="button" id="refPdf">PDF 저장</button><button type="button" id="refImg">이미지 저장</button><button type="button" id="refShare" class="hidden">공유</button><button type="button" id="refPrint">인쇄</button><button type="button" id="refClose" aria-label="닫기">닫기</button></div>
+      </div>
+      <div id="refMsg" class="refMsg" aria-live="polite"></div>
+      <div class="refWrap"><div id="refSheet" class="refSheet edit">
+        <h1>수목 진료 의뢰서</h1><p class="sub">트리샘 생태 분석기 결과를 바탕으로 작성 · ${esc(today)}</p>
+        <p class="tip">노란 칸에 기관·담당자 정보를 입력하고, AI가 채운 진단 내용은 필요하면 고친 뒤 미리보기로 확인하세요. 기관·담당자 정보는 이 기기에 기억됩니다.</p>
+        <table>
+          ${tr('기관명', inp('f_org', '예: ○○초등학교', 'text', 'autocomplete="organization"'))}
+          ${tr('장소(위치)', inp('f_place', '예: 본관 앞 화단, 운동장 북쪽'))}
+          ${tr('수목', inp('f_tree', '수종 입력').replace('>', ` value="${esc((host || '') + (state.tree ? ' · 대장번호 ' + (state.tree.asset_no || '') : ''))}">`))}
+          ${tr('담당자', inp('f_name', '이름·직위', 'text', 'autocomplete="name"'))}
+          ${tr('연락처', inp('f_tel', '예: 063-000-0000', 'tel', 'inputmode="tel" autocomplete="tel"'))}
+        </table>
+        <table>
+          ${tr('점검 상태(추천)', `<select id="e_status">${['양호', '보통', '주의', '위험'].map(v => `<option${(fin && fin.status) === v ? ' selected' : ''}>${v}</option>`).join('')}</select>`)}
+          ${tr('AI 의심 병해충', area('e_pest', arr(j.suspects).map(x => `${x.name}${Number.isFinite(+x.likelihood) ? ' (' + Math.round(+x.likelihood) + '%)' : ''} — ${x.evidence || ''}`).join('\n'), '예: 진딧물류 — 새순에 무리 지어 붙어 있음'))}
+          ${tr('피해 부위·정도', area('e_parts', [j.parts || '', j.severity ? '피해 정도 ' + j.severity : ''].filter(Boolean).join(' · '), '피해가 보이는 부위와 정도'))}
+          ${tr('관찰 증상', area('e_symptoms', ck.join(', '), '현장에서 눈으로 본 증상'))}
+          ${tr('사진 색 분석', area('e_color', m ? `활력도 ${m.score}점, 녹색 ${pct(m.green)}, 잎 갈변 ${pct(m.brown)}, 흰 잔점 ${m.paleSpots}점${r.mode === 'leaf' ? `, 잎 반점 ${m.spots}개` : ''}` : ''))}
+          ${tr('요청 사항', area('e_request', '현장 진단 및 확진, 방제 필요 여부 판단, 필요 시 처방전 발급(등록 약제·사용량·시기), 학교 내 안전한 방제 일정 협의'))}
+        </table>
+        ${photo ? `<p class="phLabel"><b>현장 사진</b></p><img class="refPhoto" src="${photo}" alt="현장 사진">` : ''}
+        <p class="note">※ 이 의뢰서의 진단 내용은 사진 기반 AI·색 분석 추정이며 확진이 아닙니다. 법정 병해충(소나무재선충병 등)이 의심되면 시·군·구 산림 담당 부서에 신고해야 합니다.</p>
+      </div></div>`;
+    ov.classList.add('show'); document.body.classList.add('refOpen');
+    const sheet = $('refSheet'), msg = t => { $('refMsg').textContent = t || ''; };
+    // 기억된 기관·담당자 정보 채우기
+    let saved = {}; try { saved = JSON.parse(localStorage.getItem(REF_KEY) || '{}'); } catch (e) { saved = {}; }
+    REF_SAVE.forEach(id => { const el = $(id); if (saved[id]) el.value = saved[id]; el.addEventListener('input', () => { saved[id] = el.value; try { localStorage.setItem(REF_KEY, JSON.stringify(saved)); } catch (e) { } }); });
+    const fit = t => { t.style.height = 'auto'; t.style.height = (t.scrollHeight + 2) + 'px'; };
+    sheet.querySelectorAll('textarea').forEach(t => { fit(t); t.addEventListener('input', () => fit(t)); });
+    // 편집 ↔ 미리보기
+    const setPreview = on => {
+      sheet.querySelectorAll('td').forEach(td => { const f = td.querySelector('input,textarea,select'), v = td.querySelector('.val'); if (f && v) { v.textContent = f.value.trim() || '-'; } });
+      sheet.classList.toggle('preview', on); sheet.classList.toggle('edit', !on);
+      $('refPrevBtn').classList.toggle('on', on); $('refEditBtn').classList.toggle('on', !on);
+      if (!on) sheet.querySelectorAll('textarea').forEach(fit);
+      ov.scrollTop = 0;
+    };
+    $('refEditBtn').onclick = () => setPreview(false);
+    $('refPrevBtn').onclick = () => setPreview(true);
+    const close = () => { ov.classList.remove('show'); document.body.classList.remove('refOpen'); };
+    $('refClose').onclick = close;
+    const fileBase = () => `수목진료의뢰서_${(($('f_tree').value || '수목').split('·')[0].trim() || '수목').replace(/[\\/:*?"<>|\s]+/g, '')}_${new Date().toLocaleDateString('sv-SE')}`;
+    // 의뢰서를 그림으로 만들기 (미리보기 상태, A4 폭 기준)
+    async function capture() {
+      await Promise.all(LIBS.map(loadLib));
+      const wasPrev = sheet.classList.contains('preview');
+      setPreview(true); sheet.classList.add('capture');
+      try { return await window.html2canvas(sheet, { scale: 2, backgroundColor: '#ffffff', useCORS: true, windowWidth: 820 }); }
+      finally { sheet.classList.remove('capture'); if (!wasPrev) setPreview(false); }
+    }
+    let lastFile = null;
+    function deliver(blob, name) {
+      lastFile = new File([blob], name, { type: blob.type });
+      const canShare = navigator.canShare && navigator.canShare({ files: [lastFile] });
+      $('refShare').classList.toggle('hidden', !canShare);
+      const url = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = url; a.download = name; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 60000);
+      msg(`'${name}' 파일을 저장했습니다. 휴대폰에서는 '내 파일 → 다운로드'에 있습니다.` + (canShare ? ' 카카오톡 등으로 보내려면 \'공유\'를 누르세요.' : ''));
+    }
+    async function run(btn, job) {
+      const b = $(btn), label = b.textContent; b.disabled = true; b.textContent = '만드는 중…'; msg('');
+      try { await job(); } catch (e) { msg((e && e.message) || '저장하지 못했습니다.'); } finally { b.disabled = false; b.textContent = label; }
+    }
+    $('refPdf').onclick = () => run('refPdf', async () => {
+      const cv = await capture(), { jsPDF } = window.jspdf, pdf = new jsPDF({ unit: 'mm', format: 'a4', orientation: 'portrait' });
+      const pw = 210, ph = 297, mg = 10, w = pw - mg * 2, pageH = ph - mg * 2, pxPerMm = cv.width / w, slice = Math.floor(pageH * pxPerMm);
+      for (let y = 0, page = 0; y < cv.height; y += slice, page++) {
+        const h = Math.min(slice, cv.height - y), part = document.createElement('canvas'); part.width = cv.width; part.height = h;
+        part.getContext('2d').drawImage(cv, 0, y, cv.width, h, 0, 0, cv.width, h);
+        if (page) pdf.addPage();
+        pdf.addImage(part.toDataURL('image/jpeg', 0.92), 'JPEG', mg, mg, w, h / pxPerMm);
+      }
+      deliver(pdf.output('blob'), fileBase() + '.pdf');
+    });
+    $('refImg').onclick = () => run('refImg', async () => {
+      const cv = await capture(); const blob = await new Promise(ok => cv.toBlob(ok, 'image/png'));
+      deliver(blob, fileBase() + '.png');
+    });
+    $('refShare').onclick = async () => { if (!lastFile) return; try { await navigator.share({ files: [lastFile], title: '수목 진료 의뢰서' }); } catch (e) { if (e && e.name !== 'AbortError') msg('공유하지 못했습니다.'); } };
+    $('refPrint').onclick = () => {
+      setPreview(true);
+      const inApp = /KAKAOTALK|NAVER|Instagram|FBAN|FBAV|Line\//i.test(navigator.userAgent);
+      if (inApp) { msg('카카오톡·네이버 앱 안에서는 인쇄가 되지 않을 수 있습니다. \'PDF 저장\'을 누르거나, 오른쪽 위 메뉴에서 \'다른 브라우저로 열기\'를 해 주세요.'); }
+      setTimeout(() => { try { window.print(); } catch (e) { msg('이 브라우저에서는 인쇄를 지원하지 않습니다. \'PDF 저장\'을 이용해 주세요.'); } }, 150);
+    };
+    const f = $('f_org'); if (f && !f.value && !/Mobi|Android/i.test(navigator.userAgent)) f.focus();
   }
   document.addEventListener('click', e => { if (e.target && e.target.id === 'referralBtn') openReferral(); });
 
