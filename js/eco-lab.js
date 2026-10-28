@@ -139,6 +139,20 @@
     return { status, label: status ? (onlyColor && level <= 1 ? status + ' (색 기준)' : status) : base.label, reasons, report, onlyColor };
   }
 
+  /* 사진 색·증상 체크로 짐작한 검색어 (AI 진단 전) */
+  function guessKeywords(r) {
+    const m = r.metrics, k = [];
+    const ck = checklist().items.map(i => i.label);
+    if (ck.some(l => /소나무|솔잎/.test(l))) k.push('소나무재선충병');
+    if (ck.some(l => /흰 가루/.test(l))) k.push('흰가루병');
+    if (ck.some(l => /거미줄/.test(l))) k.push('미국흰불나방');
+    if (ck.some(l => /벌레가 모여|끈적/.test(l))) k.push('진딧물');
+    if (ck.some(l => /줄기·가지 구멍/.test(l))) k.push('천공성 해충');
+    if ((m.paleDensity || 0) >= 150 || ck.some(l => /하얗게 바래/.test(l))) k.push('방패벌레');
+    if (r.mode === 'leaf' && m.spots >= 5) k.push('점무늬병');
+    return [...new Set(k)];
+  }
+
   function renderRecommendation(r) {
     const rec = finalRec(r);
     state.final = rec;
@@ -147,6 +161,9 @@
     $('recReasons').innerHTML = rec.reasons.map(x => `<li>${esc(x)}</li>`).join('');
     $('recCaution').innerHTML = rec.report ? '<b>신고 대상 병해충이 의심됩니다.</b> 소나무재선충병 같은 법정 병해충은 나무를 임의로 베거나 옮기지 말고, 시·군·구 산림 담당 부서에 신고해 주세요.' : rec.onlyColor && rec.status && LEVELS.indexOf(rec.status) <= 1 ? '사진 색만 본 결과입니다. 벌레·구멍·거미줄·흰 가루처럼 색으로 드러나지 않는 병해충은 놓칠 수 있으니, 아래 증상 체크나 AI 병해충 진단을 함께 해 주세요.' : '';
     $('recCaution').className = 'recCaution' + (rec.report ? ' alert' : '') + ($('recCaution').innerHTML ? '' : ' hidden');
+    const lv = rec.status ? LEVELS.indexOf(rec.status) : -1;
+    const kw = state.pest && arr(state.pest.suspects).length ? arr(state.pest.suspects).map(x => x.name) : guessKeywords(r);
+    $('recSources').innerHTML = lv >= 1 || checklist().level >= 0 ? sourcesPanel(kw) : '';
     const btn = $('sendInspection'), hint = $('recHint');
     if (!rec.status) { btn.classList.add('hidden'); hint.textContent = '다시 촬영하거나 증상을 체크하면 점검 상태를 추천해 드립니다.'; return; }
     if (state.tree) { btn.classList.remove('hidden'); hint.textContent = `'${state.tree.name}' 점검일지에 이 상태와 사진을 넣어 엽니다. 저장 전에 내용을 확인·수정할 수 있습니다.`; }
@@ -341,7 +358,8 @@
 - 확신이 없으면 likelihood를 낮게 주고 moreShots에 추가로 찍을 부위를 적으세요.
 - 한국에서 통용되는 국명을 쓰세요. 학교 수목에 흔한 예: 미국흰불나방, 진딧물류, 깍지벌레류, 응애류, 방패벌레류(버즘나무방패벌레 등), 매미충류, 회양목명나방, 솔잎혹파리, 꽃매미, 하늘소·나무좀 같은 천공성 해충, 흰가루병, 탄저병, 점무늬병·갈색무늬병, 녹병, 그을음병, 소나무재선충병, 잎떨림병, 생리장해(햇볕데임·건조·과습·염해).
 - 소나무재선충병처럼 법으로 신고해야 하는 병해충이 의심되면 report.needed를 true로 하세요.
-- 약제 이름과 사용량은 쓰지 말고, 약제가 필요하면 '나무병원·나무의사 상담 후 방제'로 안내하세요.
+- 진단 기준과 현장 조치는 농촌진흥청 국가농작물병해충관리시스템(NCPMS)·농사로, 산림청(산림병해충 방제 지침)의 내용에 맞게 쓰세요.
+- 약제 이름과 사용량은 쓰지 말고, 약제가 필요하면 '농약안전정보시스템(PSIS)에서 해당 수목·병해충 등록 약제 확인 후, 나무병원·나무의사 상담을 거쳐 방제'로 안내하세요.
 반드시 JSON 객체 하나만 반환하세요. 키:
 overall: '이상 없음' | '의심' | '뚜렷함'
 status: '양호' | '보통' | '주의' | '위험'
@@ -369,6 +387,32 @@ student: 학생이 이해하기 쉬운 2문장 설명`;
   function parseJson(t) { t = String(t || '').trim().replace(/^```json\s*/i, '').replace(/```$/, '').trim(); const a = t.indexOf('{'), b = t.lastIndexOf('}'); return JSON.parse(t.slice(a, b + 1)); }
   const arr = v => Array.isArray(v) ? v : v ? [v] : [];
 
+  /* 진단·치료 정보는 아래 공공·전문 사이트를 우선 안내합니다 (사이트 안 검색으로 바로 연결) */
+  const SOURCES = [
+    { key: 'ncpms', name: 'NCPMS 병해충 정보', domain: 'ncpms.rda.go.kr', home: 'https://ncpms.rda.go.kr/npms/Main.np', note: '농촌진흥청 병해충 도감·진단' },
+    { key: 'nongsaro', name: '농사로', domain: 'nongsaro.go.kr', home: 'https://www.nongsaro.go.kr/portal/portalMain.ps?menuId=PS00001', note: '농업기술 정보' },
+    { key: 'forest', name: '산림청', domain: 'forest.go.kr', home: 'https://www.forest.go.kr/kfsweb/kfs/idx/Index.do', note: '산림병해충 방제·신고' },
+    { key: 'psis', name: 'PSIS 등록 약제', domain: 'psis.rda.go.kr', home: 'https://psis.rda.go.kr/psis/', note: '농약안전정보시스템' }
+  ];
+  const MORE_SOURCES = [
+    { name: '나무병원119', home: 'http://www.xn--119-9g1mm83b2kc2z1a.kr', note: '수목 진료' },
+    { name: 'plant119', home: 'https://www.plant119.kr', note: '식물 상담' },
+    { name: '남부지방산림청', home: 'https://south.forest.go.kr', note: '지역 산림 행정' },
+    { name: '산림청 ftims', home: 'https://ftims.forest.go.kr/', note: '산림 정보시스템' },
+    { name: '한국작물보호협회', home: 'https://www.koreacpa.org/en/kcpa/introduction/', note: '작물보호·농약' }
+  ];
+  const siteSearch = (domain, q) => 'https://www.google.com/search?q=' + encodeURIComponent('site:' + domain + ' ' + q);
+  const cleanName = n => String(n || '').replace(/\(.*?\)/g, '').replace(/류$/, '').trim();
+  function sourceLinks(keyword) {
+    const k = cleanName(keyword);
+    return '<div class="srcRow">' + SOURCES.map(x => `<a class="srcChip" href="${k ? siteSearch(x.domain, k + (x.key === 'psis' ? ' 등록 약제' : '')) : x.home}" target="_blank" rel="noopener">${esc(x.name)}</a>`).join('') + '</div>';
+  }
+  function sourcesPanel(keywords) {
+    const ks = keywords.map(cleanName).filter(Boolean).slice(0, 3);
+    const rows = ks.length ? ks.map(k => `<div class="srcItem"><b>${esc(k)}</b>${sourceLinks(k)}</div>`).join('') : `<div class="srcItem">${sourceLinks('')}</div>`;
+    return `<div class="srcBox"><h4>공식 정보로 확인하기</h4><p class="muted">진단·방제는 아래 공공·전문 사이트 정보를 먼저 확인하세요. 약제는 PSIS에서 해당 수목·병해충 등록 여부를 확인한 뒤 나무병원·나무의사와 상담해 사용합니다.</p>${rows}<div class="srcMore">${MORE_SOURCES.map(x => `<a href="${x.home}" target="_blank" rel="noopener">${esc(x.name)}<small>${esc(x.note)}</small></a>`).join('')}</div></div>`;
+  }
+
   function renderPest(j) {
     const box = $('pestBody');
     const sus = arr(j.suspects).slice(0, 3);
@@ -380,6 +424,7 @@ student: 학생이 이해하기 쉬운 2문장 설명`;
       ${arr(j.actions).length ? `<h4>현장 조치</h4><ul class="tips">${arr(j.actions).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
       ${arr(j.moreShots).length ? `<h4>더 찍으면 좋은 부위</h4><ul class="tips">${arr(j.moreShots).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : ''}
       ${j.student ? `<h4>학생용 설명</h4><p>${esc(j.student)}</p>` : ''}
+      ${sourcesPanel(sus.map(x => x.name))}
       <p class="muted">AI 진단은 사진을 바탕으로 한 추정입니다. 방제가 필요하면 나무병원·나무의사와 상담해 주세요.</p>`;
   }
 
