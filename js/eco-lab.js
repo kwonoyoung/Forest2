@@ -464,15 +464,17 @@ psis: PSIS 검색용 {crop: 수목·작물 이름, pest: 병해충 이름}`;
     const ck = checklist().items.map(i => i.label);
     const today = new Date().toLocaleDateString('ko-KR');
     const row = (k, v) => v ? `<tr><th>${esc(k)}</th><td>${v}</td></tr>` : '';
-    const html = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><title>수목 진료 의뢰서</title><style>
+    const area = (k, id, v, ph) => `<tr><th>${esc(k)}</th><td><textarea id="${id}" rows="2" placeholder="${esc(ph)}">${esc(v)}</textarea></td></tr>`;
+    const html = `<!doctype html><html lang="ko"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>수목 진료 의뢰서</title><style>
       body{font-family:"Malgun Gothic","Apple SD Gothic Neo",sans-serif;color:#222;margin:28px;font-size:13px}h1{font-size:22px;margin:0 0 4px}p.sub{margin:0 0 16px;color:#555}
-      table{width:100%;border-collapse:collapse;margin-bottom:14px}th,td{border:1px solid #999;padding:7px 9px;text-align:left;vertical-align:top}th{width:24%;background:#f1f4f1}
+      table{width:100%;border-collapse:collapse;margin-bottom:14px}th,td{border:1px solid #999;padding:7px 9px;text-align:left;vertical-align:top}th{width:26%;background:#f1f4f1;word-break:keep-all}td{word-break:break-word}
       img{max-width:100%;max-height:360px;border:1px solid #ccc}ul{margin:0;padding-left:18px}.note{font-size:11.5px;color:#555}
+      .form select,.form textarea{width:100%;box-sizing:border-box;border:1px solid #9bb3a2;border-radius:6px;padding:6px 9px;font:inherit;background:#fffdf3;resize:vertical;overflow:hidden;line-height:1.5}.form select{min-height:38px}.form textarea:focus,.form select:focus{outline:2px solid #174b3b;background:#fff}@media(max-width:600px){body{margin:14px}th,td{display:block;width:auto!important;border-bottom:none}tr{display:block;border-bottom:1px solid #999;margin-bottom:0}table{border-bottom:none}h1{font-size:19px}}
       .form input{width:100%;box-sizing:border-box;min-height:38px;border:1px solid #9bb3a2;border-radius:6px;padding:6px 9px;font:inherit;background:#fffdf3}.form input:focus{outline:2px solid #174b3b;background:#fff}
       .tip{background:#eef6ef;border-radius:8px;padding:8px 12px;margin:0 0 12px;font-size:12.5px;color:#2f5d3c}
-      @media print{button,.tip{display:none}.form input{border:none;background:none;padding:0;min-height:0}.form input::placeholder{color:transparent}}</style></head><body>
+      @media print{.form textarea,.form select{border:none;background:none;padding:0;resize:none;-webkit-appearance:none;appearance:none}.form textarea::placeholder{color:transparent}button,.tip{display:none}.form input{border:none;background:none;padding:0;min-height:0}.form input::placeholder{color:transparent}}</style></head><body>
       <button onclick="window.print()" style="float:right;padding:8px 14px">인쇄 / PDF 저장</button>
-      <h1>수목 진료 의뢰서</h1><p class="tip">노란 칸에 기관명·장소·담당자·연락처를 입력한 뒤 '인쇄 / PDF 저장'을 누르세요. 입력한 기관·담당자 정보는 이 기기에 기억되어 다음 의뢰서에 자동으로 채워집니다.</p><p class="sub">트리샘 생태 분석기 결과를 바탕으로 작성 · ${esc(today)}</p>
+      <h1>수목 진료 의뢰서</h1><p class="tip">노란 칸에 기관명·장소·담당자·연락처를 입력하고, AI가 채운 진단 내용은 필요하면 고친 뒤 '인쇄 / PDF 저장'을 누르세요. 입력한 기관·담당자 정보는 이 기기에 기억되어 다음 의뢰서에 자동으로 채워집니다.</p><p class="sub">트리샘 생태 분석기 결과를 바탕으로 작성 · ${esc(today)}</p>
       <table class="form">
       ${row('기관명', '<input id="f_org" type="text" placeholder="예: ○○초등학교" autocomplete="organization">')}
       ${row('장소(위치)', '<input id="f_place" type="text" placeholder="예: 본관 앞 화단, 운동장 북쪽" autocomplete="off">')}
@@ -480,17 +482,19 @@ psis: PSIS 검색용 {crop: 수목·작물 이름, pest: 병해충 이름}`;
       ${row('담당자', '<input id="f_name" type="text" placeholder="이름·직위" autocomplete="name">')}
       ${row('연락처', '<input id="f_tel" type="tel" inputmode="tel" placeholder="예: 063-000-0000" autocomplete="tel">')}
       </table>
-      <table>${row('점검 상태(추천)', esc(fin && fin.status || '-'))}
-      ${row('AI 의심 병해충', arr(j.suspects).map(x => `${esc(x.name)}${Number.isFinite(+x.likelihood) ? ' (' + Math.round(+x.likelihood) + '%)' : ''} — ${esc(x.evidence || '')}`).join('<br>'))}
-      ${row('피해 부위·정도', [esc(j.parts || ''), j.severity ? '피해 정도 ' + esc(j.severity) : ''].filter(Boolean).join(' · '))}
-      ${row('관찰 증상', ck.length ? esc(ck.join(', ')) : '')}
-      ${row('사진 색 분석', m ? `활력도 ${m.score}점, 녹색 ${pct(m.green)}, 잎 갈변 ${pct(m.brown)}, 흰 잔점 ${m.paleSpots}점${r.mode === 'leaf' ? `, 잎 반점 ${m.spots}개` : ''}` : '')}
-      ${row('요청 사항', '현장 진단 및 확진, 방제 필요 여부 판단, 필요 시 처방전 발급(등록 약제·사용량·시기), 학교 내 안전한 방제 일정 협의')}</table>
+      <table class="form ai">
+      <tr><th>점검 상태(추천)</th><td><select id="e_status">${['양호', '보통', '주의', '위험'].map(v => `<option${(fin && fin.status) === v ? ' selected' : ''}>${v}</option>`).join('')}</select></td></tr>
+      ${area('AI 의심 병해충', 'e_pest', arr(j.suspects).map(x => `${x.name}${Number.isFinite(+x.likelihood) ? ' (' + Math.round(+x.likelihood) + '%)' : ''} — ${x.evidence || ''}`).join('\n'), '예: 진딧물류 — 새순에 무리 지어 붙어 있음')}
+      ${area('피해 부위·정도', 'e_parts', [j.parts || '', j.severity ? '피해 정도 ' + j.severity : ''].filter(Boolean).join(' · '), '피해가 보이는 부위와 정도')}
+      ${area('관찰 증상', 'e_symptoms', ck.join(', '), '현장에서 눈으로 본 증상')}
+      ${area('사진 색 분석', 'e_color', m ? `활력도 ${m.score}점, 녹색 ${pct(m.green)}, 잎 갈변 ${pct(m.brown)}, 흰 잔점 ${m.paleSpots}점${r.mode === 'leaf' ? `, 잎 반점 ${m.spots}개` : ''}` : '', '')}
+      ${area('요청 사항', 'e_request', '현장 진단 및 확진, 방제 필요 여부 판단, 필요 시 처방전 발급(등록 약제·사용량·시기), 학교 내 안전한 방제 일정 협의', '')}
+      </table>
       ${photo ? `<p><b>현장 사진</b></p><img src="${photo}" alt="현장 사진">` : ''}
       <p class="note">※ 이 의뢰서의 진단 내용은 사진 기반 AI·색 분석 추정이며 확진이 아닙니다. 법정 병해충(소나무재선충병 등)이 의심되면 시·군·구 산림 담당 부서에 신고해야 합니다.</p>
       <script>(function(){var K='treesamReferralInfo',ids=['f_org','f_place','f_name','f_tel'],v={};try{v=JSON.parse(localStorage.getItem(K)||'{}')}catch(e){}
       ids.forEach(function(id){var el=document.getElementById(id);if(!el)return;if(v[id])el.value=v[id];el.addEventListener('input',function(){v[id]=el.value;try{localStorage.setItem(K,JSON.stringify(v))}catch(e){}})});
-      var f=document.getElementById('f_org');if(f&&!f.value)f.focus();})();<\/script>
+      var fit=function(t){t.style.height='auto';t.style.height=(t.scrollHeight+2)+'px'};[].forEach.call(document.querySelectorAll('textarea'),function(t){fit(t);t.addEventListener('input',function(){fit(t)})});window.addEventListener('beforeprint',function(){[].forEach.call(document.querySelectorAll('textarea'),fit)});var f=document.getElementById('f_org');if(f&&!f.value)f.focus();})();<\/script>
       </body></html>`;
     const w = window.open('', '_blank');
     if (!w) { alert('팝업이 차단되어 의뢰서를 열 수 없습니다. 팝업을 허용해 주세요.'); return; }
