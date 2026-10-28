@@ -21,6 +21,7 @@
 .learn{margin-top:14px}.learn summary{cursor:pointer;font-weight:850;color:var(--g)}.learnBody{margin-top:8px;color:#4f5c56;font-size:14px}
 .tools{margin-top:18px}.tools h2{margin:0 0 4px;color:var(--g);font-size:22px}.toolGrid{display:grid;grid-template-columns:1fr 1fr;gap:14px;margin-top:12px}.frow{display:grid;grid-template-columns:1fr 1fr;gap:10px}.tools label{display:grid;gap:4px;font-size:13px;font-weight:700;color:#4f5c56;margin-bottom:10px}.steps{padding-left:18px;margin:0 0 10px;font-size:13.5px;color:#4f5c56}.angleRow{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:8px}.angleLive{display:flex;flex-direction:column;min-width:86px}.angleLive small{font-size:11px;color:var(--muted)}.angleLive b{font-size:24px;color:var(--g)}.camBox{position:relative;border-radius:12px;overflow:hidden;margin:6px 0 8px;background:#000}.camBox video{display:block;width:100%;max-height:300px;object-fit:cover}.cross{position:absolute;inset:0;pointer-events:none;background:linear-gradient(#ff2d55,#ff2d55) center/2px 44px no-repeat,linear-gradient(#ff2d55,#ff2d55) center/44px 2px no-repeat}.bigResult{font-size:18px;color:var(--g);margin:6px 0}.bigResult b{font-size:34px}.mgrid{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:8px;margin-top:4px}#sensorState{display:block;margin-bottom:8px}
 @media(max-width:760px){.toolGrid{grid-template-columns:1fr}.seg span{font-size:13px}}
+.pestBtn{background:#8a4f1d;color:#fff}.symptoms{margin-top:14px;border:1px solid var(--line)}.symptoms legend{font-weight:850;color:var(--g);padding:0 4px}.symptoms legend small{font-weight:500;color:var(--muted)}.symGrid{display:grid;grid-template-columns:1fr 1fr;gap:8px}.symGrid label{display:flex;gap:10px;align-items:flex-start;padding:10px 12px;border:1px solid #dfe7e1;border-radius:10px;background:#fff;cursor:pointer;min-height:44px;font-size:14px}.symGrid input{width:20px;height:20px;margin-top:1px;flex:none;accent-color:#174b3b}.symGrid small{display:block;color:var(--muted);font-size:12px}.symGrid label:has(input:checked){border-color:#174b3b;background:#f1f7f2}.recCaution{margin:10px 0 4px;padding:11px 13px;border-radius:10px;background:#f4f6f4;color:#4f5c56;font-size:13.5px}.recCaution.alert{background:#fde3e0;color:#8b2318}.pestTop{display:flex;align-items:center;gap:12px;flex-wrap:wrap;margin-bottom:6px}.pestOverall{font-weight:800;color:#4f5c56}.pestCard h4{margin:14px 0 6px;color:var(--g);font-size:14.5px}.pestCard p{margin:0;color:#4e5a54}.suspects{margin:0;padding-left:20px}.suspects li{margin-bottom:10px}.sTop{display:flex;gap:8px;align-items:baseline;flex-wrap:wrap}.sType{font-size:12px;color:var(--muted)}.sLike{margin-left:auto;font-weight:800;color:#8a4f1d}.sBar{height:6px;background:#efe6dc;border-radius:99px;overflow:hidden;margin:4px 0 6px}.sBar i{display:block;height:100%;background:#b8682a}.lg7{background:#ec40ff}@media(max-width:760px){.symGrid{grid-template-columns:1fr}}
 </style>
 </head>
 <body>
@@ -34,17 +35,29 @@
 <div id="previewWrap" class="previewWrap"><img id="preview" class="preview" alt="분석할 식물 또는 수목 사진"><div class="meta"><span id="fileName" class="badge"></span><span id="imageSize" class="badge"></span></div>
 <div class="keybox"><strong>🤖 AI 수종 판별 설정</strong><div class="keyrow"><input id="apiKey" type="password" autocomplete="off" placeholder="Gemini API 키 입력"><button id="saveKey" class="btn secondary" type="button">이번 창에서 사용</button></div><small id="keyState">API 키는 GitHub에 저장되지 않으며 이 브라우저 탭을 닫으면 삭제됩니다.</small></div>
 <fieldset class="modeBox"><legend>촬영 방식 <small>(기본 생태 상태 분석에 적용)</small></legend><div class="seg"><label><input type="radio" name="shotMode" value="tree" checked><span>나무 전체</span></label><label><input type="radio" name="shotMode" value="leaf"><span>잎 가까이</span></label><label><input type="radio" name="shotMode" value="sky"><span>하늘 향해</span></label></div><small id="modeHint" class="modeHint"></small></fieldset>
-<div class="actions"><button id="localAnalyzeBtn" class="btn primary" type="button">🔍 기본 생태 상태 분석</button><button id="aiAnalyzeBtn" class="btn aiBtn" type="button">✨ AI 수종 정밀 분석</button><button id="resetBtn" class="btn secondary" type="button">다른 사진 선택</button></div>
+<div class="actions"><button id="localAnalyzeBtn" class="btn primary" type="button">🔍 기본 생태 상태 분석</button><button id="aiAnalyzeBtn" class="btn aiBtn" type="button">✨ AI 수종 정밀 분석</button><button id="pestBtn" class="btn pestBtn" type="button">🐛 AI 병해충 진단</button><button id="resetBtn" class="btn secondary" type="button">다른 사진 선택</button></div>
 <div class="notice">AI 판별 결과는 현장 사진을 바탕으로 한 추정입니다. 수목 자산 등록·병해충 처방 등 중요한 판단에는 잎·꽃·열매·수피 등 추가 특징과 전문가 확인을 권장합니다.</div>
-<div id="loading" class="loading">🌱 AI가 사진을 살펴보고 있습니다… 수종과 생태 정보를 분석 중입니다.</div><div id="errorBox" class="error"></div>
+<div id="loading" class="loading">🌱 AI가 사진을 살펴보고 있습니다… 수종과 생태 정보를 분석 중입니다.</div><div id="errorBox" class="error"></div><div id="pestLoading" class="loading"></div><div id="pestError" class="error"></div>
 </div>
-<section id="aiResult" class="result" aria-live="polite"><div class="resultHead"><h2>AI 수종 분석 결과</h2></div><div class="aiCard"><div class="aiTop"><div><div id="species" class="species">-</div><div id="latin" class="latin"></div></div><div id="confidence" class="confidence">신뢰도 -</div></div><div class="aiGrid"><div class="aiField"><b>분류</b><p id="classification">-</p></div><div class="aiField"><b>식별 근거</b><p id="evidence">-</p></div><div class="aiField"><b>건강 상태</b><p id="health">-</p></div><div class="aiField"><b>관리 포인트</b><p id="care">-</p></div><div class="aiField wide"><b>생태적 특징</b><p id="ecology">-</p></div><div class="aiField wide"><b>학생용 나무 이야기</b><p id="story">-</p></div><div class="aiField wide"><b>주의·추가 확인</b><p id="caution">-</p></div></div><div class="disclaimer">※ AI 결과는 사진 기반 추정값입니다. 정확한 동정이 어려운 경우 후보 수종을 제시하도록 설계했습니다.</div></div></section>
+<section id="aiResult" class="result" aria-live="polite"><div class="resultHead"><h2>AI 수종 분석 결과</h2></div><div class="aiCard"><div class="aiTop"><div><div id="species" class="species">-</div><div id="latin" class="latin"></div></div><div id="confidence" class="confidence">신뢰도 -</div></div><div class="aiGrid"><div class="aiField"><b>분류</b><p id="classification">-</p></div><div class="aiField"><b>식별 근거</b><p id="evidence">-</p></div><div class="aiField"><b>건강 상태</b><p id="health">-</p></div><div class="aiField"><b>관리 포인트</b><p id="care">-</p></div><div class="aiField wide"><b>생태적 특징</b><p id="ecology">-</p></div><div class="aiField wide"><b>학생용 나무 이야기</b><p id="story">-</p></div><div class="aiField wide"><b>주의·추가 확인</b><p id="caution">-</p></div></div><div class="disclaimer">※ AI 결과는 사진 기반 추정값입니다. 정확한 동정이 어려운 경우 후보 수종을 제시하도록 설계했습니다.</div></div></section><section id="pestResult" class="result" aria-live="polite"><div class="resultHead"><h2>AI 병해충 진단</h2></div><div class="aiCard pestCard"><div id="pestBody"></div></div></section>
 <section id="localResult" class="result" aria-live="polite"><div class="resultHead"><h2>기본 생태 상태 분석 <span id="modeTag" class="modeTag"></span></h2><div class="score"><span id="ecoScore">0</span><small> / 100</small></div></div>
 <div id="qualityBox" class="quality"></div>
-<div class="mapCard"><div class="mapHead"><h3>분석 지도</h3><button id="mapToggle" class="btn secondary small" type="button">원본 사진 보기</button></div><canvas id="mapCanvas" class="mapCanvas" aria-label="사진에서 녹색·노란 잎·갈변·하늘로 분류한 부분을 색으로 표시한 지도"></canvas><div id="mapLegend" class="legend"><span><i class="lg1"></i>녹색 잎</span><span><i class="lg2"></i>노란 잎</span><span><i class="lg6"></i>단풍색</span><span><i class="lg3"></i>갈변·건조</span><span><i class="lg4"></i>하늘</span><span><i class="lg5"></i>잎 반점</span><span><i class="lg0"></i>그 밖(흑백)</span></div></div>
+<div class="mapCard"><div class="mapHead"><h3>분석 지도</h3><button id="mapToggle" class="btn secondary small" type="button">원본 사진 보기</button></div><canvas id="mapCanvas" class="mapCanvas" aria-label="사진에서 녹색·노란 잎·갈변·하늘로 분류한 부분을 색으로 표시한 지도"></canvas><div id="mapLegend" class="legend"><span><i class="lg1"></i>녹색 잎</span><span><i class="lg2"></i>노란 잎</span><span><i class="lg6"></i>단풍색</span><span><i class="lg3"></i>갈변·건조</span><span><i class="lg4"></i>하늘</span><span><i class="lg7"></i>흰 잔점</span><span><i class="lg5"></i>잎 반점</span><span><i class="lg0"></i>그 밖(흑백)</span></div></div>
 <div id="metricGrid" class="metrics"></div>
 <div class="grid2"><div class="panel"><h3>현재 상태 해석</h3><p id="summary"></p><p id="detail"></p></div><div class="panel"><h3>현장 확인 권장사항</h3><ul id="tips" class="tips"></ul></div></div>
-<div class="panel recCard"><div class="recTop"><h3>점검 상태 추천</h3><span id="recBadge" class="recBadge"></span></div><ul id="recReasons" class="tips"></ul><button id="sendInspection" class="btn primary hidden" type="button">점검일지에 기록하기</button><small id="recHint" class="muted"></small></div>
+<fieldset class="panel symptoms"><legend>눈으로 본 증상 체크 <small>(해당하는 것을 고르면 추천 상태에 반영됩니다)</small></legend><div id="symptomList" class="symGrid">
+<label><input type="checkbox" data-w="1" data-label="잎에 구멍·갉아 먹은 자국"><span>잎에 구멍·갉아 먹은 자국</span></label>
+<label><input type="checkbox" data-w="2" data-label="거미줄 같은 실·벌레집"><span>거미줄 같은 실이나 벌레집<small>미국흰불나방 등</small></span></label>
+<label><input type="checkbox" data-w="2" data-label="잎·가지에 벌레가 모여 있음"><span>잎 뒷면·새순·가지에 벌레가 모여 있음<small>진딧물·깍지벌레 등</small></span></label>
+<label><input type="checkbox" data-w="1" data-label="잎이 오그라들거나 말림"><span>잎이 오그라들거나 말림</span></label>
+<label><input type="checkbox" data-w="1" data-label="잎이 하얗게 바래고 잔점이 많음"><span>잎이 하얗게 바래고 잔점이 많음<small>방패벌레·응애 등</small></span></label>
+<label><input type="checkbox" data-w="2" data-label="잎에 흰 가루"><span>잎에 흰 가루가 묻어남<small>흰가루병</small></span></label>
+<label><input type="checkbox" data-w="1" data-label="끈적한 물질·검은 그을음"><span>끈적한 물질이나 검은 그을음<small>진딧물·깍지벌레 배설물, 그을음병</small></span></label>
+<label><input type="checkbox" data-w="1" data-label="가지 끝이 마름"><span>가지 끝이 말라 죽음</span></label>
+<label><input type="checkbox" data-w="3" data-label="줄기·가지 구멍과 톱밥 같은 가루"><span>줄기·가지에 구멍과 톱밥 같은 가루<small>하늘소·나무좀 등 천공성 해충</small></span></label>
+<label><input type="checkbox" data-w="3" data-report="1" data-label="솔잎이 갑자기 붉게 변하며 처짐(소나무류)"><span>솔잎이 갑자기 붉게 변하며 아래로 처짐<small>소나무·잣나무 — 소나무재선충병 의심</small></span></label>
+</div></fieldset>
+<div class="panel recCard"><div class="recTop"><h3>점검 상태 추천</h3><span id="recBadge" class="recBadge"></span></div><ul id="recReasons" class="tips"></ul><div id="recCaution" class="recCaution hidden"></div><button id="sendInspection" class="btn primary hidden" type="button">점검일지에 기록하기</button><small id="recHint" class="muted"></small></div>
 <div id="compareBox" class="panel compare hidden"><h3>같은 나무 시기별 비교</h3><div id="compareBody"></div></div>
 <details class="panel learn"><summary>지표 알아보기 · 탐구 질문</summary><div class="learnBody"><p><b>어떻게 계산하나요?</b> 사진을 작은 점(픽셀)으로 나누고, 각 점의 빨강·초록·파랑 값을 비교해 녹색 잎·노란 잎·갈변·하늘로 분류합니다. 분석 지도의 색이 바로 그 분류 결과입니다.</p><p><b>수관 피복률</b>은 산림 조사에서 쓰는 지표로, 나무 아래에서 하늘을 올려다봤을 때 잎과 가지가 가린 비율입니다. 그늘·기온 낮춤 효과와 관련이 큽니다.</p><p><b>탐구 질문</b></p><ul class="tips"><li>같은 나무를 봄·여름·가을에 찍으면 녹색 식생과 노란 잎 비율은 어떻게 달라질까요?</li><li>햇빛이 잘 드는 쪽과 그늘진 쪽 가지의 수관 피복률을 비교해 보세요.</li><li>분석 지도에서 '갈변'으로 칠해진 곳이 실제로 마른 잎인지, 수피나 흙인지 확인해 보세요. 컴퓨터는 왜 헷갈렸을까요?</li></ul></div></details>
 </section>
@@ -67,7 +80,7 @@
 </div>
 </div></section>
 <canvas id="canvas"></canvas></main>
-<footer>© 2026 TreeSam · EcoLenses v4</footer>
+<footer>© 2026 TreeSam · EcoLenses v5</footer>
 <script src="./firebase-config.js"></script>
 <script type="module">
 // Firebase AI Logic: firebase-config.js에 값이 있으면 이용자 키 없이 Gemini를 호출합니다.
@@ -111,6 +124,6 @@ $('aiAnalyzeBtn').onclick=async()=>{if(!preview.naturalWidth)return;const viaFir
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.0/dist/umd/supabase.min.js"></script>
 <script src="./js/supabase-config.js"></script>
-<script src="./js/eco-analysis.js?v=202610281447"></script>
-<script src="./js/eco-lab.js?v=202610281447"></script>
+<script src="./js/eco-analysis.js?v=202610281702"></script>
+<script src="./js/eco-lab.js?v=202610281702"></script>
 </body></html>

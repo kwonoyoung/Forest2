@@ -4,7 +4,7 @@
 (function (root) {
   'use strict';
 
-  const CLS = { OTHER: 0, GREEN: 1, YELLOW: 2, BROWN: 3, SKY: 4, SPOT: 5, AUTUMN: 6 };
+  const CLS = { OTHER: 0, GREEN: 1, YELLOW: 2, BROWN: 3, SKY: 4, SPOT: 5, AUTUMN: 6, PALE: 7 };
 
   const clamp = (n, a, b) => Math.max(a, Math.min(b, n));
   const lumOf = (r, g, b) => 0.2126 * r + 0.7152 * g + 0.0722 * b;
@@ -90,6 +90,70 @@
     return spots;
   }
 
+  /* 잎 위 탈색·흰 잔점: 주변 잎보다 확실히 밝고 색이 바랜 작은 점들
+     (방패벌레·응애 같은 흡즙 해충 피해, 흰가루병 초기의 흔한 모습). 큰 덩어리(빛 반사)는 뺍니다. */
+  function findPale(data, cls, gray, w, h, mode) {
+    const n = w * h, rad = Math.max(4, Math.round(Math.min(w, h) / 40)), W1 = w + 1;
+    const sat = new Float32Array(n);
+    for (let i = 0, p = 0; i < n; i++, p += 4) { const mx = Math.max(data[p], data[p + 1], data[p + 2]), mn = Math.min(data[p], data[p + 1], data[p + 2]); sat[i] = mx ? (mx - mn) / mx : 0; }
+    const IL = new Float64Array((w + 1) * (h + 1)), IS = new Float64Array((w + 1) * (h + 1)), IG = new Uint32Array((w + 1) * (h + 1));
+    for (let y = 0; y < h; y++) {
+      let rl = 0, rs = 0, rg = 0;
+      for (let x = 0; x < w; x++) {
+        const i = y * w + x, c = cls[i]; rl += gray[i]; rs += sat[i]; rg += (c === CLS.GREEN || c === CLS.YELLOW || c === CLS.AUTUMN) ? 1 : 0;
+        const k = (y + 1) * W1 + x + 1, u = y * W1 + x + 1; IL[k] = IL[u] + rl; IS[k] = IS[u] + rs; IG[k] = IG[u] + rg;
+      }
+    }
+    const box = (I, x0, y0, x1, y1) => I[y1 * W1 + x1] - I[y0 * W1 + x1] - I[y1 * W1 + x0] + I[y0 * W1 + x0];
+    // 넓은 배경(하늘·흐린 배경) 덩어리를 찾아, 그 근처(잎 테두리)는 잔점 후보에서 뺍니다
+    const bg = new Uint8Array(n), IB = new Uint32Array((w + 1) * (h + 1));
+    {
+      const seenB = new Uint8Array(n), st = new Int32Array(n), big = Math.round(n * 0.01);
+      for (let s0 = 0; s0 < n; s0++) {
+        if (cls[s0] !== CLS.SKY || seenB[s0]) continue;
+        const comp = []; let top = 0; st[top++] = s0; seenB[s0] = 1;
+        while (top) { const i = st[--top]; comp.push(i); const x = i % w;
+          for (const j of [x > 0 ? i - 1 : -1, x < w - 1 ? i + 1 : -1, i - w, i + w]) if (j >= 0 && j < n && cls[j] === CLS.SKY && !seenB[j]) { seenB[j] = 1; st[top++] = j; } }
+        if (comp.length >= big) for (const i of comp) bg[i] = 1;
+      }
+      for (let y = 0; y < h; y++) { let rb = 0; for (let x = 0; x < w; x++) { rb += bg[y * w + x]; IB[(y + 1) * W1 + x + 1] = IB[y * W1 + x + 1] + rb; } }
+    }
+    const er = Math.max(2, Math.round(rad / 2));
+    const cand = new Uint8Array(n);
+    for (let i = 0; i < n; i++) {
+      const c = cls[i]; if ((c === CLS.SKY && mode === 'sky') || c === CLS.BROWN || c === CLS.AUTUMN) continue;
+      const x = i % w, y = (i / w) | 0, x0 = Math.max(0, x - rad), x1 = Math.min(w, x + rad + 1), y0 = Math.max(0, y - rad), y1 = Math.min(h, y + rad + 1), a = (x1 - x0) * (y1 - y0);
+      if (box(IG, x0, y0, x1, y1) / a < 0.45) continue; // 잎으로 둘러싸인 곳만
+      if (bg[i] || box(IB, Math.max(0, x - er), Math.max(0, y - er), Math.min(w, x + er + 1), Math.min(h, y + er + 1)) > 0) continue; // 잎 테두리 제외
+      const mL = box(IL, x0, y0, x1, y1) / a, mS = box(IS, x0, y0, x1, y1) / a;
+      if (gray[i] > mL + Math.max(9, mL * 0.07) && sat[i] < mS * 0.8 && sat[i] < mS - 0.05) cand[i] = 1;
+    }
+    // 작은 덩어리만 잔점으로 인정
+    const seen = new Uint8Array(n), stack = new Int32Array(n), maxA = Math.max(12, Math.round(n * (mode === 'leaf' ? 0.006 : 0.0015)));
+    let count = 0, area = 0;
+    for (let s0 = 0; s0 < n; s0++) {
+      if (!cand[s0] || seen[s0]) continue;
+      const comp = []; let top = 0; stack[top++] = s0; seen[s0] = 1;
+      while (top) {
+        const i = stack[--top]; comp.push(i); const x = i % w;
+        if (x > 0 && cand[i - 1] && !seen[i - 1]) { seen[i - 1] = 1; stack[top++] = i - 1; }
+        if (x < w - 1 && cand[i + 1] && !seen[i + 1]) { seen[i + 1] = 1; stack[top++] = i + 1; }
+        if (i - w >= 0 && cand[i - w] && !seen[i - w]) { seen[i - w] = 1; stack[top++] = i - w; }
+        if (i + w < n && cand[i + w] && !seen[i + w]) { seen[i + w] = 1; stack[top++] = i + w; }
+      }
+      if (comp.length > maxA) continue;
+      // 모양 검사: 잔점은 둥근 점, 잎맥·테두리는 길쭉한 선
+      if (comp.length > 6) {
+        let mnx = w, mxx = 0, mny = h, mxy = 0;
+        for (const i of comp) { const x = i % w, y = (i / w) | 0; if (x < mnx) mnx = x; if (x > mxx) mxx = x; if (y < mny) mny = y; if (y > mxy) mxy = y; }
+        const bw = mxx - mnx + 1, bh = mxy - mny + 1, elong = Math.max(bw, bh) / Math.min(bw, bh), fill = comp.length / (bw * bh);
+        if (elong > 3.5 || fill < 0.3) continue;
+      }
+      count++; area += comp.length; for (const i of comp) cls[i] = CLS.PALE;
+    }
+    return { count, area };
+  }
+
   /* 점검 상태 추천 (트리샘 점검일지의 양호·보통·주의·위험) */
   function recommend(m, mode, q, opt) {
     const reasons = [];
@@ -112,6 +176,11 @@
       if (autumnOfPlant > 0.35) bump(2, '노랗거나 주황으로 변한 잎이 많습니다(물·영양 부족 여부 확인).');
       else if (yellowOfPlant > 0.18) bump(1, '노란 잎이 일부 보입니다.');
     }
+    // 잔점 밀도: 사진 10만 픽셀당 잔점 수 (사진 크기와 무관하게 비교)
+    const dens = m.paleDensity || 0;
+    if ((m.pale >= 0.2 && m.paleSpots >= 40) || (m.pale >= 0.08 && dens >= 300)) bump(3, '잎에 하얗게 탈색된 잔점이 매우 많습니다(흡즙 해충·흰가루병 의심). 잎 뒷면을 꼭 확인하세요.');
+    else if ((m.pale >= 0.07 && m.paleSpots >= 25) || (m.pale >= 0.03 && dens >= 150)) bump(2, '잎에 하얗게 탈색된 잔점이 많습니다(방패벌레·응애 같은 흡즙 해충 의심).');
+    else if (m.pale >= 0.025 && m.paleSpots >= 12) bump(1, '잎에 흰 잔점이 조금 보입니다.');
     if (mode === 'leaf') {
       if (m.spots >= 15) bump(3, '잎 반점이 많습니다. 병해충 여부를 확인해 주세요.');
       else if (m.spots >= 5) bump(2, '잎에 반점이 여럿 있습니다.');
@@ -154,6 +223,12 @@
         if (leaf / ((x1 - x0) * (y1 - y0)) < 0.3) { cls[i] = CLS.OTHER; brown--; }
       }
     }
+    let paleInfo = { count: 0, area: 0 };
+    {
+      const before = new Uint8Array(cls);
+      paleInfo = findPale(data, cls, gray, w, h, mode);
+      for (let i = 0; i < n; i++) if (cls[i] === CLS.PALE) { const b0 = before[i]; if (b0 === CLS.GREEN) green--; else if (b0 === CLS.YELLOW) yellow--; else if (b0 === CLS.SKY) sky--; }
+    }
     const q = quality(gray, w, h);
     const gr = green / n, ye = yellow / n, au = autumn / n, br = brown / n, sk = sky / n;
     const bright = ls / n / 255;
@@ -168,7 +243,8 @@
     const canopyCover = mode === 'sky' ? 1 - sk : null;
     // 식물 부분 비율: 하늘을 뺀 면적 중 녹색+노랑+갈색
     const nonSky = Math.max(1e-6, 1 - sk);
-    const plantRatio = mode === 'sky' ? (green + yellow + autumn + brown) / n : gr + ye + au + br;
+    const plantRatio = mode === 'sky' ? (green + yellow + autumn + brown + paleInfo.area) / n : gr + ye + au + br + paleInfo.area / n;
+    const paleOfLeaf = (green + yellow + autumn + paleInfo.area) ? paleInfo.area / (green + yellow + autumn + paleInfo.area) : 0;
 
     let veg, dry, yel;
     // 단풍 시기에는 노란·주황 잎도 살아 있는 잎으로 봅니다
@@ -178,16 +254,17 @@
     const light = 1 - clamp(Math.abs(bright - 0.52) / 0.52, 0, 1);
     let vit = veg * 0.55 + (1 - dry) * 0.2 + (1 - yel) * 0.08 + light * 0.12 + clamp(variance, 0, 1) * 0.05;
     if (mode === 'leaf') vit -= clamp(spots.length / 40, 0, 0.15);
+    vit -= clamp(paleOfLeaf * 2 + (paleInfo.count / n * 1e5) / 3000, 0, 0.35);
     if (mode === 'sky' && canopyCover != null) vit = vit * 0.7 + canopyCover * 0.3;
     vit = clamp(vit, 0, 1);
     const score = clamp(Math.round(vit * 100), 5, 98);
 
-    const metrics = { green: gr, yellow: ye, autumn: au, autumnSeason, brown: br, sky: sk, brightness: bright, vitality: vit, score, exg, spots: spots.length, canopyCover, plantRatio };
+    const metrics = { green: gr, yellow: ye, autumn: au, autumnSeason, brown: br, sky: sk, brightness: bright, vitality: vit, score, exg, spots: spots.length, canopyCover, plantRatio, pale: paleOfLeaf, paleSpots: paleInfo.count, paleDensity: paleInfo.count / n * 1e5 };
     return { mode, width: w, height: h, cls, spotList: spots, quality: q, metrics, recommendation: recommend(metrics, mode, q, { autumnSeason }) };
   }
 
   /* 분석 지도: 분류 결과를 색으로 칠한 RGBA 배열 */
-  const LAYER_COLORS = { 1: [46, 160, 67], 2: [242, 196, 15], 3: [120, 72, 40], 4: [66, 133, 244], 6: [255, 128, 20] };
+  const LAYER_COLORS = { 1: [46, 160, 67], 2: [242, 196, 15], 3: [120, 72, 40], 4: [66, 133, 244], 6: [255, 128, 20], 7: [236, 64, 255] };
   function overlayPixels(result, base, alpha) {
     const { cls, width: w, height: h } = result, out = new Uint8ClampedArray(w * h * 4);
     alpha = alpha == null ? 0.62 : alpha;
