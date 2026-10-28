@@ -4,12 +4,12 @@
 // apiKey가 비어 있으면 분석기는 기존처럼 '이용자 API 키 입력' 방식으로 동작합니다.
 window.TREESAM_FIREBASE = {
   firebaseConfig: {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    storageBucket: "",
-    messagingSenderId: "",
-    appId: ""
+    apiKey: "AIzaSyABmpWXg-Lf1TGhphBU7X8pPsx3WjaozAg",
+    authDomain: "forest-15628.firebaseapp.com",
+    projectId: "forest-15628",
+    storageBucket: "forest-15628.firebasestorage.app",
+    messagingSenderId: "15139196388",
+    appId: "1:15139196388:web:fec7d1eef8820e6ac7cbf1"
   },
   // App Check(reCAPTCHA) 사이트 키. 콘솔 > 보안 > App Check에서 웹 앱 등록 후 받은 키
   recaptchaSiteKey: "",
