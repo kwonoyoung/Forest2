@@ -605,7 +605,7 @@ psis: PSIS 검색용 {crop: 수목·작물 이름, pest: 병해충 이름}`;
       ${j.student ? `<h4>학생용 설명</h4><p>${esc(j.student)}</p>` : ''}
       ${controlHtml(j)}
       ${sourcesPanel(sus.map(x => x.name))}
-      <div class="pestActions"><button type="button" class="btn secondary small" id="referralBtn">나무병원 진료 의뢰서 만들기</button><small class="muted">진단 결과·사진·증상을 한 장으로 정리해 인쇄하거나 PDF로 저장합니다.</small></div>
+      <div class="refCta"><div class="refCtaText"><b>나무병원에 진료를 맡기시나요?</b><span>진단 결과·사진·증상을 한 장으로 정리해 PDF·이미지로 저장하거나 인쇄합니다.</span></div><button type="button" class="refCtaBtn" id="referralBtn"><svg aria-hidden="true" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"/><path d="M14 2v6h6M9 13h6M9 17h4"/></svg>나무병원 진료 의뢰서 만들기</button></div>
       <p class="muted">AI 진단은 사진을 바탕으로 한 추정입니다. 방제가 필요하면 나무병원·나무의사와 상담해 주세요.</p>`;
   }
 
