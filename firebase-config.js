@@ -15,5 +15,9 @@ window.TREESAM_FIREBASE = {
   recaptchaSiteKey: "6LchKgQuAAAAAHKfj_4grkZmD9W1PVex0NraIvox",
   // "enterprise"(Fraud Defense, 옛 reCAPTCHA Enterprise) 또는 "v3"
   recaptchaProvider: "enterprise",
-  model: "gemini-3.8-flash"
+  // 위에서부터 차례로 시도합니다 (혼잡·시간초과 시 재시도 후 다음 모델)
+  models: [
+    { id: "gemini-3.5-flash-lite", name: "빠른 모델", timeout: 30000, tries: 2 },
+    { id: "gemini-3.8-flash", name: "표준 모델", timeout: 60000, tries: 2 }
+  ]
 };

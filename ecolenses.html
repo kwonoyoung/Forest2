@@ -82,7 +82,7 @@
 </div>
 </div></section>
 <canvas id="canvas"></canvas></main>
-<footer>© 2026 TreeSam · EcoLenses v7</footer>
+<footer>© 2026 TreeSam · EcoLenses v8</footer>
 <script src="./firebase-config.js"></script>
 <script type="module">
 // Firebase AI Logic: firebase-config.js에 값이 있으면 이용자 키 없이 Gemini를 호출합니다.
@@ -99,8 +99,26 @@ if(c.firebaseConfig&&c.firebaseConfig.apiKey){
     }
     const {getAI,getGenerativeModel,GoogleAIBackend}=await import(B+'firebase-ai.js');
     const ai=getAI(app,{backend:new GoogleAIBackend()});
-    const model=getGenerativeModel(ai,{model:c.model||'gemini-3.8-flash',generationConfig:{temperature:.2,responseMimeType:'application/json'}});
-    window.treesamAI={async generate(prompt,b64){const r=await model.generateContent([prompt,{inlineData:{mimeType:'image/jpeg',data:b64}}]);return r.response.text()}};
+    // 빠른 모델부터 시도하고, 혼잡·시간초과면 자동 재시도 후 다음 모델로 넘어갑니다
+    const chain=(c.models&&c.models.length?c.models:[{id:'gemini-3.5-flash-lite',name:'빠른 모델',timeout:30000,tries:2},{id:'gemini-3.8-flash',name:'표준 모델',timeout:60000,tries:2}]);
+    const models=chain.map(m=>({...m,model:getGenerativeModel(ai,{model:m.id,generationConfig:{temperature:.2,responseMimeType:'application/json'}})}));
+    const say=t=>{document.dispatchEvent(new CustomEvent('treesam-ai-progress',{detail:t}));['loading','pestLoading'].forEach(id=>{const e=document.getElementById(id);if(e&&e.classList.contains('show'))e.textContent=t})};
+    const sleep=ms=>new Promise(r=>setTimeout(r,ms));
+    const retryable=e=>/429|500|502|503|504|overload|unavailable|exhausted|quota|timeout|시간|fetch|network/i.test(String(e&&e.message||e));
+    window.treesamAI={async generate(prompt,b64){
+      let last;
+      for(let i=0;i<models.length;i++){const m=models[i];
+        for(let t=1;t<=m.tries;t++){
+          if(i||t>1)say(`AI가 혼잡해 ${m.name}로 다시 시도하고 있습니다 (${t}/${m.tries})…`);
+          try{
+            const r=await Promise.race([m.model.generateContent([prompt,{inlineData:{mimeType:'image/jpeg',data:b64}}]),new Promise((_,no)=>setTimeout(()=>no(new Error('응답 시간 초과')),m.timeout))]);
+            const text=r.response.text();if(!text)throw new Error('빈 응답');
+            window.treesamAI.lastModel=m.id;return text;
+          }catch(e){last=e;console.warn('[TreeSam AI]',m.id,t,e&&e.message);if(!retryable(e)&&!/빈 응답/.test(e.message))break;await sleep(1200*t)}
+        }
+      }
+      throw last||new Error('AI 응답을 받지 못했습니다.');
+    }};
     document.dispatchEvent(new Event('treesam-ai-ready'));
   }catch(e){
     console.warn('Firebase AI 초기화 실패',e);
@@ -126,6 +144,6 @@ $('aiAnalyzeBtn').onclick=async()=>{if(!preview.naturalWidth)return;const viaFir
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.0/dist/umd/supabase.min.js"></script>
 <script src="./js/supabase-config.js"></script>
-<script src="./js/eco-analysis.js?v=202610282119"></script>
-<script src="./js/eco-lab.js?v=202610282119"></script>
+<script src="./js/eco-analysis.js?v=202610290629"></script>
+<script src="./js/eco-lab.js?v=202610290629"></script>
 </body></html>

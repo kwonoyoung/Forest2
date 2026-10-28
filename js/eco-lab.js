@@ -509,7 +509,7 @@ psis: PSIS 검색용 {crop: 수목·작물 이름, pest: 병해충 이름}`;
     const btn = $('pestBtn'), load = $('pestLoading'), err = $('pestError');
     btn.disabled = true; err.classList.remove('show'); load.classList.add('show');
     load.textContent = 'AI가 잎·줄기의 병해충 흔적을 살펴보고 있습니다…';
-    const slow = setTimeout(() => { load.textContent = '응답이 늦어지고 있습니다. 혼잡할 때는 1~3분 걸릴 수 있으니 잠시만 기다려 주세요…'; }, 20000);
+    const slow = setTimeout(() => { if (/살펴보고/.test(load.textContent)) load.textContent = '응답이 늦어지고 있습니다. 잠시만 기다려 주세요…'; }, 15000);
     try {
       const ai = await waitAI();
       const j = parseJson(await ai.generate(PEST_PROMPT, photoBase64()));
