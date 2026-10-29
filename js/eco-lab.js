@@ -668,5 +668,32 @@ psis: PSIS 검색용 {crop: 수목·작물 이름, pest: 병해충 이름}`;
   });
   $('preview').addEventListener('error', () => { pendingAuto = false; $('autoRun').textContent = ''; });
 
+  /* 열매·꽃 확대 사진: 노란·주황 부분이 가장 많이 모인 곳을 찾아 원본 해상도로 잘라 냄 (수종 판별 보조) */
+  window.treesamZoomCrops = () => {
+    try {
+      const img = $('preview'); if (!img.naturalWidth) return [];
+      const small = pixelsOf(img, 360), w = small.width, h = small.height, d = small.data, G = 8;
+      const cellW = w / G, cellH = h / G, cnt = new Float32Array(G * G);
+      for (let y = 0; y < h; y++) for (let x = 0; x < w; x++) {
+        const p = (y * w + x) * 4, c = E.classify(d[p], d[p + 1], d[p + 2]);
+        if (c === E.CLS.YELLOW || c === E.CLS.AUTUMN) cnt[Math.min(G - 1, (y / cellH) | 0) * G + Math.min(G - 1, (x / cellW) | 0)]++;
+      }
+      // 3×3 칸 창 중 열매색이 가장 많은 곳
+      let best = -1, bx = 0, by = 0;
+      for (let gy = 0; gy <= G - 3; gy++) for (let gx = 0; gx <= G - 3; gx++) {
+        let sum = 0; for (let yy = 0; yy < 3; yy++) for (let xx = 0; xx < 3; xx++) sum += cnt[(gy + yy) * G + gx + xx];
+        if (sum > best) { best = sum; bx = gx; by = gy; }
+      }
+      if (best < w * h * 0.004) return []; // 열매·꽃 색이 거의 없으면 생략
+      const sx = img.naturalWidth / w, sy = img.naturalHeight / h;
+      const side = Math.min(img.naturalWidth, img.naturalHeight) * 0.38;
+      const cx = (bx + 1.5) * cellW * sx, cy = (by + 1.5) * cellH * sy;
+      const x0 = Math.max(0, Math.min(img.naturalWidth - side, cx - side / 2)), y0 = Math.max(0, Math.min(img.naturalHeight - side, cy - side / 2));
+      const c = document.createElement('canvas'), out = Math.min(1024, Math.round(side)); c.width = out; c.height = out;
+      c.getContext('2d').drawImage(img, x0, y0, side, side, 0, 0, out, out);
+      return [c.toDataURL('image/jpeg', 0.88).split(',')[1]];
+    } catch (e) { console.warn('[TreeSam] 확대 사진 생성 실패', e); return []; }
+  };
+
   loadTrees();
 })();
