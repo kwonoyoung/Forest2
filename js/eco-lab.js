@@ -427,7 +427,7 @@ psis: PSIS 검색용 {crop: 수목·작물 이름, pest: 병해충 이름}`;
 
   const CHEM_CLASS = { '필요 없음': 'st-good', '피해 확산 시 검토': 'st-warn', '필요': 'st-bad' };
   const list = a => arr(a).length ? `<ul class="tips">${arr(a).map(x => `<li>${esc(x)}</li>`).join('')}</ul>` : '';
-  function hostName(j) { return (state.tree && state.tree.name) || (j && j.host) || ($('species') && $('species').textContent.trim() !== '-' ? $('species').textContent.trim() : '') || ''; }
+  function hostName(j) { return state.speciesFix || (state.tree && state.tree.name) || (j && j.host) || ($('species') && $('species').firstChild && $('species').firstChild.textContent.trim() !== '-' ? $('species').firstChild.textContent.trim() : '') || ''; }
   function controlHtml(j) {
     const c = j.control || {}; if (!Object.keys(c).length) return '';
     const pestName = cleanName((j.psis && j.psis.pest) || (arr(j.suspects)[0] || {}).name || '');
@@ -592,6 +592,19 @@ psis: PSIS 검색용 {crop: 수목·작물 이름, pest: 병해충 이름}`;
   }
   document.addEventListener('click', e => { if (e.target && e.target.id === 'referralBtn') openReferral(); });
 
+  /* 수종 바로잡기: 사용자가 고친 수종을 이후 진단·의뢰서에 사용 */
+  window.treesamTreeHint = () => state.tree && state.tree.name ? ` 참고: 이 나무는 트리샘 관리대장에 '${state.tree.name}'(으)로 등록되어 있습니다. 사진 특징과 맞는지 확인하고, 다르면 caution에 그 이유를 적으세요.` : '';
+  $('speciesFixBtn').onclick = () => {
+    const v = $('speciesFix').value.trim(); if (!v) return;
+    state.speciesFix = v;
+    $('species').innerHTML = esc(v) + '<span class="fixedTag">담당자 수정</span>';
+    $('latin').textContent = ''; $('confidence').textContent = '담당자 확인';
+    $('speciesFixNote').textContent = `'${v}'(으)로 고쳤습니다. 병해충 진단과 진료 의뢰서에 이 수종이 쓰입니다.`;
+    if (state.last) renderRecommendation(state.last);
+  };
+  ['fileInput', 'cameraInput'].forEach(id => $(id) && $(id).addEventListener('change', () => { state.speciesFix = ''; $('speciesFix').value = ''; $('speciesFixNote').textContent = '고친 수종은 병해충 진단과 진료 의뢰서에 반영됩니다.'; }));
+  $('speciesFix').addEventListener('keydown', e => { if (e.key === 'Enter') { e.preventDefault(); $('speciesFixBtn').click(); } });
+
   function renderPest(j) {
     const box = $('pestBody');
     const sus = arr(j.suspects).slice(0, 3);
@@ -618,7 +631,8 @@ psis: PSIS 검색용 {crop: 수목·작물 이름, pest: 병해충 이름}`;
     const slow = setTimeout(() => { if (/살펴보고/.test(load.textContent)) load.textContent = '응답이 늦어지고 있습니다. 잠시만 기다려 주세요…'; }, 15000);
     try {
       const ai = await waitAI();
-      const j = parseJson(await ai.generate(PEST_PROMPT, photoBase64()));
+      const hostHint = hostName(null) ? `\n참고: 이 나무(식물)는 '${hostName(null)}'입니다. 이 수종에 주로 생기는 병해충을 우선 고려하세요.` : (window.treesamTreeHint ? window.treesamTreeHint() : '');
+      const j = parseJson(await ai.generate(PEST_PROMPT + hostHint, photoBase64()));
       j.status = LEVELS.includes(j.status) ? j.status : (j.overall === '이상 없음' ? '양호' : '주의');
       const top = arr(j.suspects)[0];
       j.summaryLine = j.overall === '이상 없음' ? '뚜렷한 병해충 흔적 없음' : `${top ? top.name + ' 의심' : '병해충 의심'}${j.severity ? ' (피해 ' + j.severity + ')' : ''}`;
