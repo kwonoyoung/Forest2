@@ -153,10 +153,24 @@
     return [...new Set(k)];
   }
 
+  /* 담당자 수정 반영: 상태·근거를 고치면 점검일지·진료 의뢰서에 그대로 쓰임 */
+  function effectiveRec(r) {
+    const auto = finalRec(r), o = state.recEdit || {};
+    const rec = { ...auto, auto };
+    if (o.status && o.status !== auto.status) { rec.status = o.status; rec.label = o.status; rec.edited = true; }
+    if (o.reasons != null) { rec.reasons = o.reasons.split('\n').map(x => x.trim()).filter(Boolean); rec.edited = true; }
+    return rec;
+  }
+  function renderRecEdit(rec) {
+    $('recSeg').innerHTML = LEVELS.map(v => `<button type="button" data-v="${v}" class="${STATUS_CLASS[v]}${rec.status === v ? ' on' : ''}" aria-pressed="${rec.status === v}">${v}</button>`).join('');
+    const a = rec.auto;
+    $('recAuto').innerHTML = rec.edited ? `담당자 수정 · 자동 추천은 <b>${esc(a.status || a.label)}</b> <button type="button" id="recReset" class="linkBtn">자동 추천으로 되돌리기</button>` : '자동 추천입니다. 현장 판단과 다르면 상태를 누르거나 근거를 고치세요.';
+  }
   function renderRecommendation(r) {
-    const rec = finalRec(r);
+    const rec = effectiveRec(r);
     state.final = rec;
-    $('recBadge').textContent = rec.label;
+    renderRecEdit(rec);
+    $('recBadge').textContent = rec.label + (rec.edited ? ' (수정)' : '');
     $('recBadge').className = 'recBadge ' + (STATUS_CLASS[rec.status] || 'st-hold');
     $('recReasons').innerHTML = rec.reasons.map(x => `<li>${esc(x)}</li>`).join('');
     $('recCaution').innerHTML = rec.report ? '<b>신고 대상 병해충이 의심됩니다.</b> 소나무재선충병 같은 법정 병해충은 나무를 임의로 베거나 옮기지 말고, 시·군·구 산림 담당 부서에 신고해 주세요.' : rec.onlyColor && rec.status && LEVELS.indexOf(rec.status) <= 1 ? '사진 색만 본 결과입니다. 벌레·구멍·거미줄·흰 가루처럼 색으로 드러나지 않는 병해충은 놓칠 수 있으니, 아래 증상 체크나 AI 병해충 진단을 함께 해 주세요.' : '';
@@ -694,6 +708,26 @@ psis: PSIS 검색용 {crop: 수목·작물 이름, pest: 병해충 이름}`;
       return [c.toDataURL('image/jpeg', 0.88).split(',')[1]];
     } catch (e) { console.warn('[TreeSam] 확대 사진 생성 실패', e); return []; }
   };
+
+  /* 점검 상태 추천 수정 */
+  $('recSeg').addEventListener('click', e => {
+    const b = e.target.closest('button[data-v]'); if (!b || !state.last) return;
+    state.recEdit = { ...(state.recEdit || {}), status: b.dataset.v };
+    renderRecommendation(state.last);
+  });
+  $('recEditBtn').onclick = () => {
+    const box = $('recReasonEdit'), open = box.classList.toggle('hidden') === false;
+    if (open) { $('recReasonText').value = (state.final ? state.final.reasons : []).join('\n'); $('recReasonText').focus(); }
+    $('recEditBtn').textContent = open ? '근거 고치기 닫기' : '근거 고치기';
+  };
+  $('recReasonSave').onclick = () => {
+    if (!state.last) return;
+    state.recEdit = { ...(state.recEdit || {}), reasons: $('recReasonText').value };
+    $('recReasonEdit').classList.add('hidden'); $('recEditBtn').textContent = '근거 고치기';
+    renderRecommendation(state.last);
+  };
+  document.addEventListener('click', e => { if (e.target && e.target.id === 'recReset' && state.last) { state.recEdit = null; $('recReasonEdit').classList.add('hidden'); $('recEditBtn').textContent = '근거 고치기'; renderRecommendation(state.last); } });
+  ['fileInput', 'cameraInput'].forEach(id => $(id) && $(id).addEventListener('change', () => { state.recEdit = null; }));
 
   loadTrees();
 })();

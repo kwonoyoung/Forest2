@@ -38,6 +38,7 @@
 .refCta{display:flex;align-items:center;justify-content:space-between;gap:14px;flex-wrap:wrap;margin-top:16px;padding:16px 18px;border-radius:14px;background:#174b3b;color:#fff}.refCtaText{display:flex;flex-direction:column;gap:4px;min-width:200px;flex:1}.refCtaText b{font-size:18px}.refCtaText span{font-size:14px;color:#d3e4d9;line-height:1.5}.refCtaBtn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:56px;padding:0 22px;border:0;border-radius:12px;background:#f2c14e;color:#1f2a24;font-size:18px;font-weight:900;cursor:pointer;box-shadow:0 4px 14px rgba(0,0,0,.18)}.refCtaBtn:hover{background:#f7cf6a}.refCtaBtn:focus-visible{outline:3px solid #fff;outline-offset:2px}@media(max-width:760px){.refCtaBtn{width:100%;white-space:nowrap}}@media(max-width:430px){.refCta{padding:14px}.refCtaBtn{font-size:16.5px;padding:0 12px;gap:6px}.refCtaText b{font-size:17px}}.refCtaText{word-break:keep-all}@media(max-width:380px){.refCtaBtn svg{display:none}}
 .fixRow{margin-top:12px;padding:12px;border:1px dashed #b9cdbf;border-radius:12px;background:#fbfdfb}.fixRow label{display:block;font-weight:800;font-size:13.5px;color:#4b6b58;margin-bottom:6px}.fixIn{display:flex;gap:8px}.fixIn input{flex:1;min-width:0;min-height:42px;border:1px solid #bdcec2;border-radius:9px;padding:0 12px;font:inherit}.fixRow small{display:block;margin-top:6px}.fixedTag{display:inline-block;margin-left:8px;font-size:12px;font-weight:800;color:#8a4f1d;background:#fbeee0;border-radius:99px;padding:2px 8px;vertical-align:middle}
 .autoAi{display:flex;gap:10px;align-items:center;margin-top:12px;padding:10px 12px;border-radius:10px;background:#eef6ef;font-size:14px;cursor:pointer;min-height:44px}.autoAi input{width:20px;height:20px;flex:none;accent-color:#174b3b}.autoRun{margin-top:10px;padding:10px 12px;border-radius:10px;background:#174b3b;color:#fff;font-weight:800;font-size:14px}.autoRun:empty{display:none}
+.recSeg{display:grid;grid-template-columns:repeat(4,1fr);gap:6px;margin:12px 0 6px}.recSeg button{min-height:46px;border:2px solid transparent;border-radius:10px;font-weight:900;font-size:16px;cursor:pointer;opacity:.55}.recSeg button.on{opacity:1;border-color:#26332d;box-shadow:0 2px 8px rgba(0,0,0,.12)}.recAuto{display:block;margin-bottom:4px}.linkBtn{border:0;background:none;color:#174b3b;font-weight:800;text-decoration:underline;cursor:pointer;padding:0 2px;font-size:12.5px}.recReasonEdit{margin-top:10px}.recReasonEdit label{display:block;font-weight:800;font-size:13.5px;color:#4b6b58;margin-bottom:6px}.recReasonEdit textarea{width:100%;box-sizing:border-box;border:1px solid #bdcec2;border-radius:10px;padding:10px 12px;font:inherit;line-height:1.55;background:#fffdf3}.recReasonEdit .btn{margin-top:8px}
 </style>
 </head>
 <body>
@@ -73,7 +74,7 @@
 <label><input type="checkbox" data-w="3" data-label="줄기·가지 구멍과 톱밥 같은 가루"><span>줄기·가지에 구멍과 톱밥 같은 가루<small>하늘소·나무좀 등 천공성 해충</small></span></label>
 <label><input type="checkbox" data-w="3" data-report="1" data-label="솔잎이 갑자기 붉게 변하며 처짐(소나무류)"><span>솔잎이 갑자기 붉게 변하며 아래로 처짐<small>소나무·잣나무 — 소나무재선충병 의심</small></span></label>
 </div></fieldset>
-<div class="panel recCard"><div class="recTop"><h3>점검 상태 추천</h3><span id="recBadge" class="recBadge"></span></div><ul id="recReasons" class="tips"></ul><div id="recCaution" class="recCaution hidden"></div><div id="recSources"></div><button id="sendInspection" class="btn primary hidden" type="button">점검일지에 기록하기</button><small id="recHint" class="muted"></small></div>
+<div class="panel recCard"><div class="recTop"><h3>점검 상태 추천</h3><span id="recBadge" class="recBadge"></span></div><div class="recSeg" id="recSeg" role="group" aria-label="점검 상태 고르기"></div><small id="recAuto" class="muted recAuto"></small><ul id="recReasons" class="tips"></ul><button type="button" id="recEditBtn" class="btn secondary small">근거 고치기</button><div id="recReasonEdit" class="recReasonEdit hidden"><label for="recReasonText">근거 (한 줄에 하나씩)</label><textarea id="recReasonText" rows="5"></textarea><button type="button" id="recReasonSave" class="btn primary small">근거 저장</button></div><div id="recCaution" class="recCaution hidden"></div><div id="recSources"></div><button id="sendInspection" class="btn primary hidden" type="button">점검일지에 기록하기</button><small id="recHint" class="muted"></small></div>
 <div id="compareBox" class="panel compare hidden"><h3>같은 나무 시기별 비교</h3><div id="compareBody"></div></div>
 <details class="panel learn"><summary>지표 알아보기 · 탐구 질문</summary><div class="learnBody"><p><b>어떻게 계산하나요?</b> 사진을 작은 점(픽셀)으로 나누고, 각 점의 빨강·초록·파랑 값을 비교해 녹색 잎·노란 잎·갈변·하늘로 분류합니다. 분석 지도의 색이 바로 그 분류 결과입니다.</p><p><b>수관 피복률</b>은 산림 조사에서 쓰는 지표로, 나무 아래에서 하늘을 올려다봤을 때 잎과 가지가 가린 비율입니다. 그늘·기온 낮춤 효과와 관련이 큽니다.</p><p><b>탐구 질문</b></p><ul class="tips"><li>같은 나무를 봄·여름·가을에 찍으면 녹색 식생과 노란 잎 비율은 어떻게 달라질까요?</li><li>햇빛이 잘 드는 쪽과 그늘진 쪽 가지의 수관 피복률을 비교해 보세요.</li><li>분석 지도에서 '갈변'으로 칠해진 곳이 실제로 마른 잎인지, 수피나 흙인지 확인해 보세요. 컴퓨터는 왜 헷갈렸을까요?</li></ul></div></details>
 </section>
@@ -96,7 +97,7 @@
 </div>
 </div></section>
 <canvas id="canvas"></canvas></main>
-<footer>© 2026 TreeSam · EcoLenses v13</footer>
+<footer>© 2026 TreeSam · EcoLenses v14</footer>
 <script src="./firebase-config.js"></script>
 <script type="module">
 // Firebase AI Logic: firebase-config.js에 값이 있으면 이용자 키 없이 Gemini를 호출합니다.
@@ -159,5 +160,5 @@ $('aiAnalyzeBtn').onclick=async()=>{if(!preview.naturalWidth)return;const viaFir
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.0/dist/umd/supabase.min.js"></script>
 <script src="./js/supabase-config.js"></script>
 <script src="./js/eco-analysis.js?v=202610291654"></script>
-<script src="./js/eco-lab.js?v=202610291654"></script>
+<script src="./js/eco-lab.js?v=202610292354"></script>
 </body></html>
