@@ -647,5 +647,26 @@ psis: PSIS 검색용 {crop: 수목·작물 이름, pest: 병해충 이름}`;
     } finally { clearTimeout(slow); load.classList.remove('show'); btn.disabled = false; }
   };
 
+  /* 사진을 찍거나 고르면: 사진 표시 → 기본 생태 상태 분석 자동 실행 → (선택) AI 수종 분석 자동 실행 */
+  try { const v = localStorage.getItem('treesamAutoAi'); if (v === '0') $('autoAi').checked = false; } catch (e) { }
+  $('autoAi').addEventListener('change', () => { try { localStorage.setItem('treesamAutoAi', $('autoAi').checked ? '1' : '0'); } catch (e) { } });
+  let pendingAuto = false;
+  ['cameraInput', 'fileInput'].forEach(id => $(id).addEventListener('change', e => { if (e.target.files && e.target.files[0]) { pendingAuto = true; $('autoRun').textContent = '사진을 불러오는 중…'; } }));
+  $('preview').addEventListener('load', async () => {
+    if (!pendingAuto) return; pendingAuto = false;
+    $('autoRun').textContent = '기본 생태 상태 분석 중…';
+    await new Promise(r => requestAnimationFrame(() => setTimeout(r, 30)));
+    try { await runLocal(); } catch (e) { console.warn(e); }
+    if ($('autoAi').checked && !$('aiAnalyzeBtn').disabled) {
+      $('autoRun').textContent = '기본 분석 완료 · AI 수종 분석을 시작합니다…';
+      $('aiAnalyzeBtn').click();
+      setTimeout(() => { $('autoRun').textContent = ''; }, 2500);
+    } else {
+      $('autoRun').textContent = '기본 분석 완료 · 아래에서 결과를 확인하세요.';
+      setTimeout(() => { $('autoRun').textContent = ''; }, 4000);
+    }
+  });
+  $('preview').addEventListener('error', () => { pendingAuto = false; $('autoRun').textContent = ''; });
+
   loadTrees();
 })();
