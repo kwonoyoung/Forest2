@@ -262,7 +262,7 @@
     const { data, error } = await client.from('demo_trees_public').select('id,asset_no,name,photo_url').order('asset_no');
     if (error) { $('treeNote').textContent = '수목 목록을 불러오지 못했습니다.'; return; }
     state.trees = data || [];
-    sel.innerHTML = '<option value="">선택 안 함</option>' + state.trees.map(t => `<option value="${esc(t.id)}">${esc(t.name || '(이름 없음)')} · ${esc(t.asset_no || '')}</option>`).join('');
+    sel.innerHTML = '<option value="">선택 안 함</option>' + state.trees.map(t => `<option value="${esc(t.id)}">${esc(t.name || '(이름 없음)')}${t.asset_no ? '(' + esc(t.asset_no) + ')' : ''}</option>`).join('');
     const want = new URLSearchParams(location.search).get('tree');
     if (want && state.trees.some(t => t.id === want)) { sel.value = want; onTree(); }
   }
