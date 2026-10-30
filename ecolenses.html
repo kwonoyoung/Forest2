@@ -76,7 +76,7 @@
 </div></fieldset>
 <div class="panel recCard"><div class="recTop"><h3>점검 상태 추천</h3><span id="recBadge" class="recBadge"></span></div><div class="recSeg" id="recSeg" role="group" aria-label="점검 상태 고르기"></div><small id="recAuto" class="muted recAuto"></small><ul id="recReasons" class="tips"></ul><button type="button" id="recEditBtn" class="btn secondary small">근거 고치기</button><div id="recReasonEdit" class="recReasonEdit hidden"><label for="recReasonText">근거 (한 줄에 하나씩)</label><textarea id="recReasonText" rows="5"></textarea><button type="button" id="recReasonSave" class="btn primary small">근거 저장</button></div><div id="recCaution" class="recCaution hidden"></div><div id="recSources"></div><button id="sendInspection" class="btn primary hidden" type="button">점검일지에 기록하기</button><small id="recHint" class="muted"></small></div>
 <div id="compareBox" class="panel compare hidden"><h3>같은 나무 시기별 비교</h3><div id="compareBody"></div></div>
-<details class="panel learn"><summary>지표 알아보기 · 탐구 질문</summary><div class="learnBody"><p><b>어떻게 계산하나요?</b> 사진을 작은 점(픽셀)으로 나누고, 각 점의 빨강·초록·파랑 값을 비교해 녹색 잎·노란 잎·갈변·하늘로 분류합니다. 분석 지도의 색이 바로 그 분류 결과입니다.</p><p><b>수관 피복률</b>은 산림 조사에서 쓰는 지표로, 나무 아래에서 하늘을 올려다봤을 때 잎과 가지가 가린 비율입니다. 그늘·기온 낮춤 효과와 관련이 큽니다.</p><p><b>탐구 질문</b></p><ul class="tips"><li>같은 나무를 봄·여름·가을에 찍으면 녹색 식생과 노란 잎 비율은 어떻게 달라질까요?</li><li>햇빛이 잘 드는 쪽과 그늘진 쪽 가지의 수관 피복률을 비교해 보세요.</li><li>분석 지도에서 '갈변'으로 칠해진 곳이 실제로 마른 잎인지, 수피나 흙인지 확인해 보세요. 컴퓨터는 왜 헷갈렸을까요?</li></ul></div></details>
+<details class="panel learn"><summary>지표 알아보기 · 탐구 질문</summary><div class="learnBody"><p><b>어떻게 계산하나요?</b> 사진을 작은 점(픽셀)으로 나누고, 각 점의 빨강·초록·파랑 값을 비교해 녹색 잎·노란 잎·갈변·하늘로 분류합니다. 분석 지도의 색이 바로 그 분류 결과입니다.</p><p><b>점검 상태 추천은 어떻게 정하나요?</b> 사진 색, 눈으로 본 증상 체크, AI 병해충 진단을 각각 위험 점수(0~100)로 바꾼 뒤, 사람이 본 증상과 AI 진단에 더 큰 비중을 두어 평균을 냅니다. 0~19점 양호, 20~39점 보통, 40~64점 주의, 65점 이상 위험입니다. 사진 색 신호 하나만으로는 위험이 되지 않고, 신고 대상 병해충이 의심될 때는 점수와 관계없이 위험으로 표시합니다.</p><p><b>수관 피복률</b>은 산림 조사에서 쓰는 지표로, 나무 아래에서 하늘을 올려다봤을 때 잎과 가지가 가린 비율입니다. 그늘·기온 낮춤 효과와 관련이 큽니다.</p><p><b>탐구 질문</b></p><ul class="tips"><li>같은 나무를 봄·여름·가을에 찍으면 녹색 식생과 노란 잎 비율은 어떻게 달라질까요?</li><li>햇빛이 잘 드는 쪽과 그늘진 쪽 가지의 수관 피복률을 비교해 보세요.</li><li>분석 지도에서 '갈변'으로 칠해진 곳이 실제로 마른 잎인지, 수피나 흙인지 확인해 보세요. 컴퓨터는 왜 헷갈렸을까요?</li></ul></div></details>
 </section>
 </section>
 <section class="card tools" aria-labelledby="toolsTitle"><h2 id="toolsTitle">현장 측정 도구</h2><p class="muted">사진 없이도 쓸 수 있습니다. 줄자와 휴대폰만 있으면 됩니다.</p>
@@ -97,7 +97,7 @@
 </div>
 </div></section>
 <canvas id="canvas"></canvas></main>
-<footer>© 2026 TreeSam · EcoLenses v14</footer>
+<footer>© 2026 TreeSam · EcoLenses v15</footer>
 <script src="./firebase-config.js"></script>
 <script type="module">
 // Firebase AI Logic: firebase-config.js에 값이 있으면 이용자 키 없이 Gemini를 호출합니다.
@@ -159,6 +159,6 @@ $('aiAnalyzeBtn').onclick=async()=>{if(!preview.naturalWidth)return;const viaFir
 </script>
 <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.0/dist/umd/supabase.min.js"></script>
 <script src="./js/supabase-config.js"></script>
-<script src="./js/eco-analysis.js?v=202610291654"></script>
-<script src="./js/eco-lab.js?v=202610300000"></script>
+<script src="./js/eco-analysis.js?v=202610301102"></script>
+<script src="./js/eco-lab.js?v=202610301102"></script>
 </body></html>

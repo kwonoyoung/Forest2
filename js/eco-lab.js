@@ -127,16 +127,46 @@
   document.querySelectorAll('#symptomList input').forEach(x => x.addEventListener('change', () => { if (state.last) renderRecommendation(state.last); }));
 
   /* 사진 색 + 증상 체크 + AI 병해충 진단을 합친 최종 추천 */
+  /* 종합 추천: 근거마다 위험 점수(0~100)와 신뢰 가중치를 매겨 가중 평균
+     - 사진 색: 가중치 1 (촬영 품질이 낮으면 0.6). 색만으로는 병해충을 다 볼 수 없어 가장 낮게
+     - 증상 체크: 가중치 2 (사람이 현장에서 직접 본 것)
+     - AI 병해충 진단: 가중치 2 (후보 가능성·피해 정도에 따라 조정)
+     안전 규칙: 신고 대상 의심, 줄기 구멍(천공성 해충) 같은 중대한 증상은 점수와 관계없이 단계를 올림 */
+  const AI_RISK = { '양호': 8, '보통': 32, '주의': 55, '위험': 82 };
+  const SEV_ADJ = { '없음': -10, '경미': -6, '보통': 0, '심각': 10 };
   function finalRec(r) {
-    const base = r.recommendation, ck = checklist(), ai = state.pest;
-    let level = base.status ? LEVELS.indexOf(base.status) : -1;
-    const reasons = base.reasons.map(x => '[사진 색] ' + x);
-    if (ck.level >= 0) { level = Math.max(level, ck.level); reasons.push('[증상 체크] ' + ck.items.map(i => i.label).join(', ')); }
-    if (ai && LEVELS.includes(ai.status)) { level = Math.max(level, LEVELS.indexOf(ai.status)); reasons.push('[AI 병해충 진단] ' + (ai.summaryLine || ai.status)); }
+    const base = r.recommendation, ck = checklist(), ai = state.pest, parts = [], reasons = [];
+    if (base.risk != null) { parts.push({ name: '사진 색', risk: base.risk, w: 1 * (base.confidence || 1) }); base.reasons.forEach(x => reasons.push('[사진 색] ' + x)); }
+    else base.reasons.forEach(x => reasons.push('[사진 색] ' + x));
+    if (ck.items.length) {
+      const sum = ck.items.reduce((a, b) => a + b.w, 0);
+      parts.push({ name: '증상 체크', risk: Math.min(95, 18 + sum * 14), w: 2 });
+      reasons.push('[증상 체크] ' + ck.items.map(i => i.label).join(', '));
+    }
+    if (ai && LEVELS.includes(ai.status)) {
+      const top = arr(ai.suspects)[0], like = top && Number.isFinite(+top.likelihood) ? +top.likelihood : 60;
+      let risk = AI_RISK[ai.status] + (SEV_ADJ[ai.severity] || 0);
+      if (ai.overall === '이상 없음') risk = Math.min(risk, 12);
+      else risk = risk * (0.7 + 0.3 * Math.min(1, like / 80)); // 가능성이 낮은 후보면 덜 반영
+      parts.push({ name: 'AI 진단', risk: Math.round(Math.max(0, Math.min(100, risk))), w: 2 * (ai.overall === '의심' ? 0.8 : 1) });
+      reasons.push('[AI 병해충 진단] ' + (ai.summaryLine || ai.status));
+    }
+    if (!parts.length) return { status: null, label: base.label, reasons, report: false, onlyColor: true, score: null, parts };
+    const wsum = parts.reduce((a, p) => a + p.w, 0);
+    let score = Math.round(parts.reduce((a, p) => a + p.risk * p.w, 0) / wsum);
+    let level = LEVELS.indexOf(E.riskLevel(score));
+    // 안전 규칙
+    const maxW = ck.items.reduce((a, b) => Math.max(a, b.w), 0);
     const report = ck.report || !!(ai && ai.report && ai.report.needed);
-    const onlyColor = ck.level < 0 && !ai;
-    const status = level >= 0 ? LEVELS[level] : null;
-    return { status, label: status ? (onlyColor && level <= 1 ? status + ' (색 기준)' : status) : base.label, reasons, report, onlyColor };
+    const forced = [];
+    if (report) { if (level < 3) forced.push('신고 대상 병해충이 의심되어 위험으로 올렸습니다.'); level = 3; }
+    else if (maxW >= 3 && level < 2) { level = 2; forced.push('줄기 구멍·톱밥 같은 중대한 증상이 있어 주의로 올렸습니다.'); }
+    if (ai && ai.status === '위험' && ai.severity === '심각' && arr(ai.suspects)[0] && +arr(ai.suspects)[0].likelihood >= 75 && level < 3) { level = 3; forced.push('AI가 가능성 높은 심각한 피해로 진단해 위험으로 올렸습니다.'); }
+    reasons.unshift('[종합] ' + parts.map(p => `${p.name} ${p.risk}점`).join(' · ') + ` → 종합 ${score}점(0~100, 높을수록 위험)`);
+    forced.forEach(x => reasons.push('[안전 기준] ' + x));
+    const onlyColor = parts.length === 1 && parts[0].name === '사진 색';
+    const status = LEVELS[level];
+    return { status, label: onlyColor && level <= 1 ? status + ' (색 기준)' : status, reasons, report, onlyColor, score, parts };
   }
 
   /* 사진 색·증상 체크로 짐작한 검색어 (AI 진단 전) */

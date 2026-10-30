@@ -16,6 +16,12 @@
     if ((b > r * 1.08 && b >= g * 0.98 && lum > 105 && b > 120) || (lum > 205 && delta < 28)) return CLS.SKY;
     // 녹색 잎
     if ((g > r * 1.06 && g > b * 1.04 && g > 55 && delta > 18) || (g > 85 && g - r > 12 && g - b > 8)) return CLS.GREEN;
+    // 흐린 날·그늘의 짙은 올리브색 잎 (색상 55~170°, 채도 22% 이상, 너무 밝지 않음)
+    if (mx >= 28 && mx <= 200 && delta / mx >= 0.22 && g >= r * 0.96 && g > b * 1.15) {
+      let hue = mx === r ? 60 * (((g - b) / delta) % 6) : mx === g ? 60 * ((b - r) / delta + 2) : 60 * ((r - g) / delta + 4);
+      if (hue < 0) hue += 360;
+      if (hue >= 55 && hue <= 170) return CLS.GREEN;
+    }
     // 노란 잎: 빨강≈초록, 파랑이 확실히 낮음
     if (r > 120 && g > 105 && Math.abs(r - g) < 0.22 * Math.max(r, g) && b < 0.68 * Math.min(r, g)) return CLS.YELLOW;
     // 단풍색(선명한 주황·빨강): 밝고 채도가 높음. 칙칙한 갈색과 구분
@@ -155,47 +161,57 @@
   }
 
   /* 점검 상태 추천 (트리샘 점검일지의 양호·보통·주의·위험) */
+  /* 사진 색 근거 → 위험 점수(0~100). 신호 하나만으로는 '주의'까지, '위험'은 강한 신호가 2개 이상일 때만 */
   function recommend(m, mode, q, opt) {
     const reasons = [];
     const autumnSeason = !!(opt && opt.autumnSeason);
     if (!q.ok) reasons.push('촬영 품질이 낮아 판단이 정확하지 않을 수 있습니다.');
     if (mode !== 'sky' && m.plantRatio < 0.08) {
-      return { status: null, label: '판단 보류', reasons: reasons.concat('사진에서 잎이 거의 보이지 않습니다. 잎이나 수관이 잘 보이게 다시 찍어 주세요.') };
+      return { status: null, label: '판단 보류', risk: null, confidence: 0, signals: [], reasons: reasons.concat('사진에서 잎이 거의 보이지 않습니다. 잎이나 수관이 잘 보이게 다시 찍어 주세요.') };
     }
-    let level = 0; // 0 양호, 1 보통, 2 주의, 3 위험
-    const bump = (lv, why) => { if (lv > level) level = lv; reasons.push(why); };
+    const signals = []; // {pts, strong, why}
+    const add = (pts, why, strong) => { signals.push({ pts, strong: !!strong, why }); reasons.push(why); };
     const brownOfPlant = m.plantRatio ? m.brown / m.plantRatio : 0;
     const yellowOfPlant = m.plantRatio ? m.yellow / m.plantRatio : 0;
     const autumnOfPlant = m.plantRatio ? (m.yellow + m.autumn) / m.plantRatio : 0;
     if (autumnSeason && autumnOfPlant > 0.2) reasons.push('가을 단풍 시기라 노란·주황 잎은 자연스러운 변화로 보았습니다.');
-    const bk = autumnSeason ? [0.5, 0.3, 0.15] : [0.35, 0.15, 0.07]; // 가을에는 낙엽 직전 갈변도 자연스러움
-    if (brownOfPlant > bk[0]) bump(3, '잎 사이의 갈변·건조색이 매우 많습니다.');
-    else if (brownOfPlant > bk[1]) bump(2, '잎 사이에 갈변·건조색이 눈에 띕니다.');
-    else if (brownOfPlant > bk[2]) bump(1, '잎 사이에 갈변이 조금 보입니다.');
+    const bk = autumnSeason ? [0.5, 0.3, 0.15] : [0.35, 0.15, 0.07];
+    if (brownOfPlant > bk[0]) add(40, '잎 사이의 갈변·건조색이 매우 많습니다.', true);
+    else if (brownOfPlant > bk[1]) add(25, '잎 사이에 갈변·건조색이 눈에 띕니다.');
+    else if (brownOfPlant > bk[2]) add(10, '잎 사이에 갈변이 조금 보입니다.');
     if (!autumnSeason) {
-      if (autumnOfPlant > 0.35) bump(2, '노랗거나 주황으로 변한 잎이 많습니다(물·영양 부족 여부 확인).');
-      else if (yellowOfPlant > 0.18) bump(1, '노란 잎이 일부 보입니다.');
+      if (autumnOfPlant > 0.35) add(25, '노랗거나 주황으로 변한 잎이 많습니다(물·영양 부족 여부 확인).');
+      else if (yellowOfPlant > 0.18) add(10, '노란 잎이 일부 보입니다.');
     }
-    // 잔점 밀도: 사진 10만 픽셀당 잔점 수 (사진 크기와 무관하게 비교)
     const dens = m.paleDensity || 0;
-    if ((m.pale >= 0.2 && m.paleSpots >= 40) || (m.pale >= 0.08 && dens >= 300)) bump(3, '잎에 하얗게 탈색된 잔점이 매우 많습니다(흡즙 해충·흰가루병 의심). 잎 뒷면을 꼭 확인하세요.');
-    else if ((m.pale >= 0.07 && m.paleSpots >= 25) || (m.pale >= 0.03 && dens >= 150)) bump(2, '잎에 하얗게 탈색된 잔점이 많습니다(방패벌레·응애 같은 흡즙 해충 의심).');
-    else if (m.pale >= 0.025 && m.paleSpots >= 12) bump(1, '잎에 흰 잔점이 조금 보입니다.');
+    if ((m.pale >= 0.2 && m.paleSpots >= 40) || (m.pale >= 0.08 && dens >= 300)) add(40, '잎에 하얗게 탈색된 잔점이 매우 많습니다(흡즙 해충·흰가루병 의심). 잎 뒷면을 확인하세요.', true);
+    else if ((m.pale >= 0.07 && m.paleSpots >= 25) || (m.pale >= 0.03 && dens >= 150)) add(25, '잎에 하얗게 탈색된 잔점이 보입니다(방패벌레·응애 같은 흡즙 해충 의심).');
+    else if (m.pale >= 0.025 && m.paleSpots >= 12) add(8, '잎에 흰 잔점이 조금 보입니다.');
     if (mode === 'leaf') {
-      if (m.spots >= 15) bump(3, '잎 반점이 많습니다. 병해충 여부를 확인해 주세요.');
-      else if (m.spots >= 5) bump(2, '잎에 반점이 여럿 있습니다.');
-      else if (m.spots >= 2) bump(1, '잎에 작은 반점이 보입니다.');
+      if (m.spots >= 15) add(40, '잎 반점이 많습니다. 병해충 여부를 확인해 주세요.', true);
+      else if (m.spots >= 5) add(22, '잎에 반점이 여럿 있습니다.');
+      else if (m.spots >= 2) add(8, '잎에 작은 반점이 보입니다.');
     }
     if (mode === 'sky' && m.canopyCover != null) {
-      if (m.canopyCover < 0.25) bump(2, '수관 피복률이 낮습니다. 잎이 적거나 가지가 고사했을 수 있습니다(계절 확인).');
-      else if (m.canopyCover < 0.45) bump(1, '수관 피복률이 다소 낮습니다.');
+      if (m.canopyCover < 0.25) add(25, '수관 피복률이 낮습니다. 잎이 적거나 가지가 고사했을 수 있습니다(계절 확인).');
+      else if (m.canopyCover < 0.45) add(10, '수관 피복률이 다소 낮습니다.');
     }
-    if (m.score < 35 && !(autumnSeason && autumnOfPlant > 0.3)) bump(2, '추정 활력도가 낮습니다.');
-    else if (m.score < 55) bump(1, '추정 활력도가 보통 수준입니다.');
-    if (level === 0) reasons.push('색으로 본 상태에서 뚜렷한 이상 신호가 없습니다.');
-    const labels = ['양호', '보통', '주의', '위험'];
-    return { status: labels[level], label: labels[level], reasons };
+    // 활력도는 위 신호들과 겹치므로 보조로만 반영
+    if (m.score < 35 && !(autumnSeason && autumnOfPlant > 0.3)) add(12, '추정 활력도가 낮습니다.');
+    else if (m.score < 55) add(5, '추정 활력도가 보통 수준입니다.');
+    // 합산: 가장 큰 신호 + 나머지의 절반 (같은 증상을 중복해 세지 않도록)
+    const pts = signals.map(x => x.pts).sort((a, b) => b - a);
+    let risk = pts.length ? pts[0] + pts.slice(1).reduce((a, b) => a + b, 0) * 0.5 : 0;
+    const strong = signals.filter(x => x.strong).length;
+    if (strong < 2) risk = Math.min(risk, 64); // 색 신호 하나로는 '위험'까지 가지 않음
+    risk = Math.round(Math.min(100, risk));
+    const confidence = q.ok ? 1 : 0.6;
+    if (!signals.length) reasons.push('색으로 본 상태에서 뚜렷한 이상 신호가 없습니다.');
+    const status = riskLevel(risk);
+    return { status, label: status, risk, confidence, signals, reasons };
   }
+  const RISK_CUT = [20, 40, 65]; // ~19 양호, 20~39 보통, 40~64 주의, 65~ 위험
+  function riskLevel(r) { const L = ['양호', '보통', '주의', '위험']; return L[r >= RISK_CUT[2] ? 3 : r >= RISK_CUT[1] ? 2 : r >= RISK_CUT[0] ? 1 : 0]; }
 
   /* 메인 분석 */
   function analyze(img, mode, opt) {
@@ -226,7 +242,9 @@
     let paleInfo = { count: 0, area: 0 };
     {
       const before = new Uint8Array(cls);
-      paleInfo = findPale(data, cls, gray, w, h, mode);
+      // 흰 잔점은 잎이 화면을 채운 근접 사진에서만 셉니다 (멀리서 찍은 나무는 잎 사이 하늘 틈을 잔점으로 오인)
+      const leafFill = (green + yellow + autumn) / n;
+      if (mode === 'leaf' || (mode === 'tree' && leafFill >= 0.5)) paleInfo = findPale(data, cls, gray, w, h, mode);
       for (let i = 0; i < n; i++) if (cls[i] === CLS.PALE) { const b0 = before[i]; if (b0 === CLS.GREEN) green--; else if (b0 === CLS.YELLOW) yellow--; else if (b0 === CLS.SKY) sky--; }
     }
     const q = quality(gray, w, h);
@@ -296,6 +314,6 @@
     return distanceM * Math.tan(angleDeg * Math.PI / 180) + (eyeM || 0);
   }
 
-  const api = { CLS, classify, analyze, quality, countSpots, recommend, overlayPixels, trunkFromGirth, estimateAge, estimateCarbon, treeHeight, GROWTH };
+  const api = { CLS, classify, analyze, quality, countSpots, recommend, riskLevel, RISK_CUT, overlayPixels, trunkFromGirth, estimateAge, estimateCarbon, treeHeight, GROWTH };
   if (typeof module !== 'undefined' && module.exports) module.exports = api; else root.EcoAnalysis = api;
 })(typeof window !== 'undefined' ? window : globalThis);
