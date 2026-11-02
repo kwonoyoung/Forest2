@@ -132,6 +132,24 @@
     .public-actions{margin-top:18px;display:flex;justify-content:center;gap:8px;flex-wrap:wrap}
     .public-actions a{display:inline-flex;align-items:center;min-height:44px;padding:0 16px;border-radius:8px;text-decoration:none}
     .public-actions .primary{color:#fff}.public-actions .secondary{color:#28443a}
+    /* QR 공개 화면 (휴대폰 맞춤) */
+    body.pq-mode{background:#f3f6f2}body.pq-mode>header{display:none}body.pq-mode .public-wrap{width:100%;max-width:560px;margin:0 auto 40px}
+    .pq{background:#fff;min-height:100vh;box-shadow:0 0 0 1px #e3ebe6}
+    .pq-hero{position:relative;background:#173b2f}.pq-media{display:block;width:100%;aspect-ratio:4/5;max-height:72vh;object-fit:cover;background:#dfe9e3}.pq-empty{display:flex;align-items:center;justify-content:center;font-size:96px}
+    .pq-shade{position:absolute;inset:auto 0 0 0;height:55%;background:linear-gradient(to top,rgba(10,30,22,.86),rgba(10,30,22,0));pointer-events:none}
+    .pq-title{position:absolute;left:20px;right:20px;bottom:18px;color:#fff}.pq-title h1{margin:4px 0 0;font-size:34px;line-height:1.15;letter-spacing:-.02em;word-break:keep-all;text-shadow:0 2px 12px rgba(0,0,0,.35)}
+    .pq-kind{display:inline-block;padding:4px 10px;border-radius:999px;background:rgba(255,255,255,.2);backdrop-filter:blur(4px);font-size:13px;font-weight:700}
+    .pq-body{padding:18px 18px 28px}.pq-chips{display:flex;flex-wrap:wrap;gap:8px;align-items:center}.pq-chip{display:inline-flex;align-items:center;gap:4px;padding:6px 12px;border-radius:999px;background:#f1f5f2;color:#3d4a43;font-size:14px}.pq-chips .badge{font-size:14px;padding:6px 12px}
+    .pq-player{position:sticky;bottom:12px;z-index:5;display:flex;align-items:center;gap:14px;margin-top:18px;padding:16px;border-radius:18px;background:#174b3b;color:#fff;box-shadow:0 10px 26px rgba(23,75,59,.3)}
+    .pq-play{flex:none;width:68px;height:68px;border:0;border-radius:50%;background:#f2c14e;color:#1f2a24;display:flex;align-items:center;justify-content:center;cursor:pointer}.pq-play svg{width:32px;height:32px;fill:currentColor}.pq-play .i-pause{display:none}.pq-player.playing .i-play{display:none}.pq-player.playing .i-pause{display:block}.pq-play:focus-visible{outline:3px solid #fff;outline-offset:3px}.pq-play:disabled{opacity:.5}
+    .pq-player.needs-tap .pq-play{animation:pqPulse 1.4s ease-in-out infinite}@keyframes pqPulse{0%,100%{box-shadow:0 0 0 0 rgba(242,193,78,.7)}50%{box-shadow:0 0 0 14px rgba(242,193,78,0)}}
+    .pq-pinfo{flex:1;min-width:0;display:flex;flex-direction:column;gap:4px}.pq-pinfo b{font-size:17px}.pq-pinfo span{font-size:14px;color:#d3e4d9;word-break:keep-all}
+    .pq-pinfo input[type=range]{width:100%;margin:6px 0 0;accent-color:#f2c14e;height:24px}.pq-time{display:flex;justify-content:space-between;font-size:12px;color:#b9cfbf;font-variant-numeric:tabular-nums}
+    .pq-none{background:#eef3ef;color:#3d4a43;box-shadow:none;position:static}.pq-none .pq-pinfo span{color:#5f6662}
+    .pq-actions{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;margin-top:18px}.pq-btn{display:flex;align-items:center;justify-content:center;min-height:48px;border:1px solid #cfdcd4;border-radius:12px;background:#fff;color:#174b3b;font-weight:800;font-size:14px;text-decoration:none;cursor:pointer;text-align:center;padding:0 6px;word-break:keep-all}
+    .pq-note{margin:18px 0 0;font-size:12.5px;color:#6b756f;line-height:1.6}.pq-note a{color:#174b3b}
+    @media(min-width:561px){.pq-media{aspect-ratio:4/3}}
+    @media(prefers-reduced-motion:reduce){.pq-player.needs-tap .pq-play{animation:none}}
     @media(max-width:1100px){.stats{grid-template-columns:repeat(4,1fr)}}
     @media(max-width:900px){.tree-grid{grid-template-columns:1fr}.urgent-list{grid-template-columns:1fr 1fr}}
     @media(max-width:650px){
@@ -309,6 +327,6 @@
 
   <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.112.0/dist/umd/supabase.min.js"></script>
   <script src="../js/supabase-config.js?v=20261004"></script>
-  <script src="../js/dashboard.js?v=20261026b"></script>
+  <script src="../js/dashboard.js?v=202611021628"></script>
 </body>
 </html>

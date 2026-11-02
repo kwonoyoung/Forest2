@@ -3,7 +3,7 @@
   'use strict';
   const current = document.currentScript;
   const base = current ? new URL('.', current.src) : new URL('../js/', location.href);
-  const version = '20261026f';
+  const version = '202611021628';
   const load = (name, onload) => {
     const s = document.createElement('script');
     s.src = new URL(name, base).href + '?v=' + version;

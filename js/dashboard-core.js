@@ -957,6 +957,48 @@
     }
   }
 
+
+  /* QR 공개 화면 음성 플레이어: 열리면 자동 재생 시도 → 브라우저가 막으면 한 번 누르면 재생 */
+  function setupPublicPlayer(t) {
+    const shareBtn = $('pqShare');
+    if (shareBtn) shareBtn.onclick = async () => {
+      const data = { title: t.name + ' · 트리샘', text: t.name + ' 이야기를 들어 보세요.', url: location.href };
+      try { if (navigator.share) await navigator.share(data); else { await navigator.clipboard.writeText(location.href); shareBtn.textContent = '주소 복사됨'; } } catch (e) { }
+    };
+    const audio = $('pqAudio'); if (!audio) return;
+    const btn = $('pqPlay'), seek = $('pqSeek'), cur = $('pqCur'), dur = $('pqDur'), hint = $('pqHint'), player = btn.closest('.pq-player');
+    const fmt = x => { x = Math.max(0, Math.floor(x || 0)); return Math.floor(x / 60) + ':' + String(x % 60).padStart(2, '0'); };
+    const sync = () => { const on = !audio.paused && !audio.ended; player.classList.toggle('playing', on); btn.setAttribute('aria-label', on ? '나무이야기 일시정지' : '나무이야기 재생'); };
+    let tapped = false;
+    const play = async () => { try { await audio.play(); player.classList.remove('needs-tap'); return true; } catch (e) { return false; } };
+    btn.onclick = async () => { tapped = true; if (audio.paused) { if (audio.ended) audio.currentTime = 0; await play(); } else audio.pause(); };
+    audio.addEventListener('play', sync); audio.addEventListener('pause', sync); audio.addEventListener('ended', () => { sync(); hint.textContent = '다 들었어요. 다시 들으려면 ▶를 누르세요.'; });
+    audio.addEventListener('loadedmetadata', () => { dur.textContent = fmt(audio.duration); });
+    audio.addEventListener('timeupdate', () => { cur.textContent = fmt(audio.currentTime); if (audio.duration) seek.value = audio.currentTime / audio.duration * 100; });
+    seek.addEventListener('input', () => { if (audio.duration) audio.currentTime = seek.value / 100 * audio.duration; });
+    audio.addEventListener('error', () => { player.classList.remove('needs-tap'); hint.textContent = '음성 파일을 불러오지 못했습니다.'; btn.disabled = true; });
+    if ('mediaSession' in navigator) {
+      try {
+        navigator.mediaSession.metadata = new MediaMetadata({ title: t.name + ' 이야기', artist: '트리샘', artwork: t.photo_url && !isVideoUrl(t.photo_url) ? [{ src: t.photo_url, sizes: '512x512' }] : [] });
+        navigator.mediaSession.setActionHandler('play', () => audio.play());
+        navigator.mediaSession.setActionHandler('pause', () => audio.pause());
+      } catch (e) { }
+    }
+    // 자동 재생: 대부분의 휴대폰 브라우저는 소리 있는 자동 재생을 막으므로, 막히면 첫 터치에 재생
+    play().then(ok => {
+      if (ok) { hint.textContent = '나무이야기를 들려드리고 있어요.'; return; }
+      player.classList.add('needs-tap');
+      hint.textContent = '▶ 를 누르면 나무이야기가 시작돼요.';
+      const first = async e => {
+        if (tapped || (e.target && e.target.closest && e.target.closest('#pqPlay,#pqSeek,a,button'))) return cleanup();
+        if (await play()) { tapped = true; hint.textContent = '나무이야기를 들려드리고 있어요.'; }
+        cleanup();
+      };
+      const cleanup = () => { ['pointerdown', 'keydown'].forEach(ev => document.removeEventListener(ev, first, true)); };
+      ['pointerdown', 'keydown'].forEach(ev => document.addEventListener(ev, first, true));
+    });
+  }
+
   /* ---------- QR 방문자 공개 화면 ---------- */
   async function showPublicTree(id) {
     setMode('public');
@@ -978,22 +1020,31 @@
       if (!t) return fail('QR코드에 연결된 수목을 찾을 수 없습니다. 삭제되었거나 주소가 바뀌었을 수 있습니다.');
       const status = (!logResult.error && logResult.data && logResult.data[0]?.inspection_status) || '미점검';
       document.title = t.name + ' · 트리샘';
-      const photo = t.photo_url
+      const kind = t.property_item || t.property_type || '입목죽';
+      const media = t.photo_url
         ? (isVideoUrl(t.photo_url)
-          ? '<video src="' + esc(t.photo_url) + '" controls playsinline preload="metadata" aria-label="' + esc(t.name) + ' 영상"></video>'
-          : '<img src="' + esc(t.photo_url) + '" alt="' + esc(t.name) + ' 사진">')
-        : '<div class="tree-photo placeholder" role="img" aria-label="등록된 사진 없음">🌳</div>';
-      const story = t.audio_url
-        ? '<section class="public-story"><h2>나무이야기</h2><p>' + esc(t.audio_name || '나무이야기 음성') + '</p><audio controls preload="metadata" src="' + esc(t.audio_url) + '"></audio></section>'
-        : '<section class="public-story"><h2>나무이야기</h2><p>아직 등록된 이야기가 없습니다.</p></section>';
-      view.innerHTML = '<article class="card public-card">' + photo
-        + '<h1>' + esc(t.name) + '</h1>'
-        + '<p>' + esc(t.property_item || t.property_type || '입목죽') + ' · 대장번호 ' + esc(t.asset_no) + '</p>'
-        + '<span class="badge ' + esc(status) + '">현재 상태 ' + esc(status) + '</span>'
-        + story
-        + '<p class="public-note">QR코드 방문자를 위한 공개 화면입니다. 재산 금액, 위치, 점검일지는 관리자만 볼 수 있습니다.</p>'
-        + '<div class="public-actions"><a class="secondary" href="../">트리샘 소개</a><a class="primary" href="./?detail=' + encodeURIComponent(t.id) + '">관리자 로그인 후 상세정보</a></div>'
-        + '</article>';
+          ? '<video class="pq-media" src="' + esc(t.photo_url) + '" autoplay muted loop playsinline preload="metadata" aria-label="' + esc(t.name) + ' 영상"></video>'
+          : '<img class="pq-media" src="' + esc(t.photo_url) + '" alt="' + esc(t.name) + ' 사진">')
+        : '<div class="pq-media pq-empty" role="img" aria-label="등록된 사진 없음">🌳</div>';
+      const player = t.audio_url
+        ? '<section class="pq-player" aria-label="나무이야기 음성">'
+          + '<button type="button" class="pq-play" id="pqPlay" aria-label="나무이야기 재생"><svg class="i-play" viewBox="0 0 24 24" aria-hidden="true"><path d="M8 5v14l11-7z"/></svg><svg class="i-pause" viewBox="0 0 24 24" aria-hidden="true"><path d="M7 5h4v14H7zM13 5h4v14h-4z"/></svg></button>'
+          + '<div class="pq-pinfo"><b>🎧 나무이야기</b><span id="pqHint">' + esc(t.audio_name || '이 나무의 이야기를 들려드려요') + '</span>'
+          + '<input type="range" id="pqSeek" min="0" max="100" step="0.1" value="0" aria-label="재생 위치"><div class="pq-time"><span id="pqCur">0:00</span><span id="pqDur">0:00</span></div></div>'
+          + '<audio id="pqAudio" preload="auto" src="' + esc(t.audio_url) + '"></audio></section>'
+        : '<section class="pq-player pq-none"><div class="pq-pinfo"><b>🎧 나무이야기</b><span>아직 등록된 음성 이야기가 없습니다.</span></div></section>';
+      setMode('public');
+      document.body.classList.add('pq-mode');
+      view.innerHTML = '<article class="pq">'
+        + '<div class="pq-hero">' + media + '<div class="pq-shade"></div>'
+        + '<div class="pq-title"><span class="pq-kind">' + esc(kind) + '</span><h1>' + esc(t.name) + '</h1></div></div>'
+        + '<div class="pq-body">'
+        + '<div class="pq-chips"><span class="pq-chip">대장번호 <b>' + esc(t.asset_no || '-') + '</b></span><span class="badge ' + esc(status) + '">현재 상태 ' + esc(status) + '</span></div>'
+        + player
+        + '<div class="pq-actions"><button type="button" class="pq-btn" id="pqShare">공유하기</button><a class="pq-btn" href="../">트리샘 소개</a><a class="pq-btn" href="../ecolenses.html">생태 분석기</a></div>'
+        + '<p class="pq-note">QR코드 방문자를 위한 공개 화면입니다. 재산 금액, 위치, 점검일지는 관리자만 볼 수 있습니다. <a href="./?detail=' + encodeURIComponent(t.id) + '">관리자 상세정보</a></p>'
+        + '</div></article>';
+      setupPublicPlayer(t);
     } catch (error) {
       console.error('[TreeSam] 공개 수목 조회 실패:', error);
       fail(describeError(error));
